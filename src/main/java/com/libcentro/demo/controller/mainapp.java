@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.stereotype.Controller;
 
 import com.libcentro.demo.model.producto;
 import com.libcentro.demo.model.venta;
@@ -30,6 +31,7 @@ import java.sql.Statement;
 5. Reportes
 - Generación de reportes de ventas, stock y precios
  */
+@Controller
 @SpringBootApplication
 public class mainapp {
 
