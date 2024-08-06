@@ -8,6 +8,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import com.libcentro.demo.model.producto;
 import com.libcentro.demo.model.venta;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 /*
  * 1. Registro de productos
 - Ingreso de datos del producto (nombre, descripción, código de barras, etc.)
@@ -33,6 +38,7 @@ public class mainapp {
 		List<producto> testInventario = new ArrayList<>();
 		List<venta> testVentas = new ArrayList<>();
 		Scanner c = new Scanner(System.in);
+		DataBaseConnection();
 
 		System.out.println("Testing, launching the application...");
 		System.out.println("If u read this message, means mainapp.java is running correctly");
@@ -46,9 +52,28 @@ public class mainapp {
 		muestreo(testInventario, testVentas);
 	}
 
+	private static void DataBaseConnection() {
+		String url = "jdbc:sqlite:sample.db";
+
+		try (Connection conn = DriverManager.getConnection(url)) {
+			if (conn != null) {
+				Statement stmt = conn.createStatement();
+				// Crear una tabla
+				stmt.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT NOT NULL)");
+				// Insertar datos
+				stmt.execute("INSERT INTO users (name) VALUES ('John Doe')");
+				System.out.println("Conexión establecida y datos insertados.");
+			}
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+
+	}
+
 	private static void muestreo(List<producto> testInventario, List<venta> testVentas) {
 		for (producto d : testInventario) {
-			System.out.println(d.id +" Producto: " + d.nombre + " Precio Venta: " + d.precio_venta + " Stock: " + d.stock);
+			System.out.println(
+					d.id + " Producto: " + d.nombre + " Precio Venta: " + d.precio_venta + " Stock: " + d.stock);
 		}
 	}
 
