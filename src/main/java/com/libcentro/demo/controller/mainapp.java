@@ -44,27 +44,29 @@ public class mainapp {
 
 		System.out.println("Testing, launching the application...");
 		System.out.println("If u read this message, means mainapp.java is running correctly");
-		registrarProducto(c, testInventario);
-		cargarMasiva(testInventario);
+		//registrarProducto(c, testInventario);
+		//cargarMasiva(testInventario);
 		/*
 		 * 
 		 * String s = c.nextLine();
 		 * System.out.println(s);
 		 */
-		muestreo(testInventario, testVentas);
+		//muestreo(testInventario, testVentas);
 	}
 
 	private static void DataBaseConnection() {
-		String url = "jdbc:sqlite:sample.db";
+		String url = "jdbc:sqlite:database_sqlite/libreria_db.db";
 
 		try (Connection conn = DriverManager.getConnection(url)) {
 			if (conn != null) {
 				Statement stmt = conn.createStatement();
+				/*
 				// Crear una tabla
 				stmt.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT NOT NULL)");
 				// Insertar datos
-				stmt.execute("INSERT INTO users (name) VALUES ('John Doe')");
-				System.out.println("Conexión establecida y datos insertados.");
+				stmt.execute("INSERT INTO users (name) VALUES ('John Doe')");*/
+
+				System.out.println("Conexión establecida. Bienvenido a la matrix....");
 			}
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
