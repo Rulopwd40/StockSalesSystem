@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "main",
+            "request": "launch",
+            "mainClass": "com.libcentro.demo.controller.main",
+            "projectName": "demo"
+        },
+        {
+            "type": "java",
             "name": "Viewgen",
             "request": "launch",
             "mainClass": "com.libcentro.demo.view.Viewgen",

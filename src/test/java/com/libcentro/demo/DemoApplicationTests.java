@@ -3,7 +3,7 @@ package com.libcentro.demo;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.libcentro.demo.controller.mainapp;
+import com.libcentro.demo.controller.main;
 
 @SpringBootTest
 class DemoApplicationTests {
@@ -11,7 +11,7 @@ class DemoApplicationTests {
 	@Test
 	void contextLoads() {
 
-		mainapp.main(null);
+		main.main(null);
 	}
 
 }
