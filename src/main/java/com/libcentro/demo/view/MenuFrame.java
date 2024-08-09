@@ -13,7 +13,9 @@ import javax.swing.SwingConstants;
 public class MenuFrame  {
     
     private JFrame viewmenu;
-
+    JButton productosButton;
+    JButton preciosButton;
+    JButton estadisticasButton;
     public MenuFrame() {
         initialize();
     }
@@ -49,11 +51,11 @@ public class MenuFrame  {
         gbc.insets = new Insets(10, 10, 10, 10); // Espaciado entre botones
     
         // Crear y configurar los botones
-        JButton productosButton = new JButton("Productos");
+        productosButton = new JButton("Productos");
         productosButton.setPreferredSize(new Dimension(200, 200));
-        JButton preciosButton = new JButton("Precios");
+        preciosButton = new JButton("Precios");
         preciosButton.setPreferredSize(new Dimension(200, 200));
-        JButton estadisticasButton = new JButton("Estadísticas");
+        estadisticasButton = new JButton("Estadísticas");
         estadisticasButton.setPreferredSize(new Dimension(200, 200));
     
         // Agregar los botones al panel con GridBagLayout
@@ -76,5 +78,19 @@ public class MenuFrame  {
         viewmenu.add(mainPanel);
     
         viewmenu.setVisible(true);
+    }
+
+    public JButton getProductosButton(){
+        return productosButton;
+    }
+    public JButton getPreciosButton(){
+        return preciosButton;
+    }
+    public JButton getEstadisticasButton(){
+        return estadisticasButton;
+    }
+
+    public void setVisible(boolean visible) {
+        viewmenu.setVisible(visible);
     }
 }

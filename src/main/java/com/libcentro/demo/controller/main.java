@@ -18,6 +18,7 @@ public class main {
         producto producto1 = new producto(1,"Coca-Cola","Bebida energetica",0.5f,1.5f,10,"123456789");
         productoController.saveProducto(producto1);
         productoController.getAll().size();*/
+        
         Viewgen.main(args);
     }
 }
