@@ -1,11 +1,6 @@
 package com.libcentro.demo.controller;
-import java.util.*;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.ApplicationContext;
-
-import com.libcentro.demo.model.producto;
-import com.libcentro.demo.view.Viewgen;
+import com.libcentro.demo.view.MenuFrame;
 
 public class main {
     public static void main(String[] args) {
@@ -18,7 +13,8 @@ public class main {
         producto producto1 = new producto(1,"Coca-Cola","Bebida energetica",0.5f,1.5f,10,"123456789");
         productoController.saveProducto(producto1);
         productoController.getAll().size();*/
-        
-        Viewgen.main(args);
+        MenuFrame frame = new MenuFrame();
+        ViewController viewController = new ViewController(frame);
+        frame.setVisible(true);
     }
 }

@@ -10,7 +10,7 @@ import com.libcentro.demo.model.producto;
 import com.libcentro.demo.service.productoService;
 
 @Controller
-public class productoController {
+public class ProductoController {
     @Autowired
     private productoService productoService;
 
