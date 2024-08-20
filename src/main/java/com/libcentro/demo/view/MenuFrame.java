@@ -5,7 +5,7 @@ import javax.swing.*;
 public class MenuFrame extends JFrame {
     private JButton productosButton;
     private JButton ventaButton;
-    private JButton estadisticasButton;
+    private JButton reportesButton;
     private JPanel panelMenu;
     private JLabel menuText;
     private JPanel menuSub;
@@ -31,8 +31,8 @@ public class MenuFrame extends JFrame {
         return ventaButton;
     }
 
-    public JButton getEstadisticasButton() {
-        return estadisticasButton;
+    public JButton getReportesButton() {
+        return reportesButton;
     }
 
     private void createUIComponents() {

@@ -1,20 +1,23 @@
 package com.libcentro.demo.controller;
 
 import com.libcentro.demo.view.MenuFrame;
+import com.libcentro.demo.view.VentaFrame;
 
-import javax.swing.*;
 
 public class ViewController {
 
     MenuFrame menuFrame;
-    public ViewController(MenuFrame menuFrame) {
-        this.menuFrame = menuFrame;
+    VentaFrame ventaFrame;
 
+    public ViewController() {
+        menuFrame = new MenuFrame();
+        ventaFrame = new VentaFrame();
+        menuFrame.setVisible(true);
 
         // Añadir ActionListeners a los botones desde el controlador
-        this.menuFrame.getProductosButton().addActionListener(e -> openProductosView());
-        this.menuFrame.getVentaButton().addActionListener(e -> openVentaView());
-        this.menuFrame.getEstadisticasButton().addActionListener(e -> openEstadisticasView());
+        menuFrame.getProductosButton().addActionListener(e -> openProductosView());
+        menuFrame.getVentaButton().addActionListener(e -> openVentaView());
+        menuFrame.getReportesButton().addActionListener(e -> openEstadisticasView());
 
 
 
@@ -24,7 +27,7 @@ public class ViewController {
     }
 
     private void openVentaView() {
-        System.out.println("open venta view");
+        ventaFrame.setVisible(true);
     }
 
     private void openEstadisticasView() {
