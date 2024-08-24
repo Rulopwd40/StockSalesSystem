@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.libcentro.demo.model.producto;
+import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.repository.IproductoRepository;
 import com.libcentro.demo.service.interfaces.IproductoService;
 
@@ -15,22 +15,22 @@ public class productoService implements IproductoService {
     private IproductoRepository productoRepo;
 
     @Override
-    public List<producto> getAll() {
+    public List<Producto> getAll() {
         return productoRepo.findAll();
     }
 
     @Override
-    public void saveProducto(producto x) {
+    public void saveProducto(Producto x) {
         productoRepo.save(x);
     }
 
     @Override
-    public void deleteProducto(producto x) {
+    public void deleteProducto(Producto x) {
         productoRepo.delete(x);
     }
 
     @Override
-    public void updateProducto(producto x) {
+    public void updateProducto(Producto x) {
         productoRepo.save(x);
     }
 

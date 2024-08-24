@@ -2,14 +2,14 @@ package com.libcentro.demo.service.interfaces;
 
 import java.util.List;
 
-import com.libcentro.demo.model.venta;
+import com.libcentro.demo.model.Venta;
 
 public interface IventaService {
-    public List<venta> getAll();
+    public List<Venta> getAll();
 
-    public void saveVenta(venta x);
+    public void saveVenta(Venta x);
 
-    public void deleteVenta(venta x);
+    public void deleteVenta(Venta x);
 
-    public void updateVenta(venta x);
+    public void updateVenta(Venta x);
 }

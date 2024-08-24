@@ -16,9 +16,10 @@ public class MenuFrame extends JFrame {
 
     public MenuFrame() {
         setContentPane(panelMenu);
+        setFocusable(true);
         setTitle("Menu");
         setSize(600,400);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         createUIComponents();
     }

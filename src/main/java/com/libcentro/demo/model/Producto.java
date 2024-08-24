@@ -4,47 +4,41 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "Producto")
-public class producto {
+public class Producto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public int id;
+    private String codigo_barras;
     @Column(name = "nombre")
-    public String nombre;
-    @Column(name = "descripcion")
-    public String descripcion;
+    private String nombre;
+    @Column(name = "categoria")
+    private String categoria;
     @Column(name = "costo_compra")
-    public float costo_compra;
+    private float costo_compra;
     @Column(name = "precio_venta")
-    public float precio_venta;
+    private float precio_venta;
     @Column(name = "stock")
-    public int stock;
-    @Column(name = "codigo_barras")
-    public String codigo_barras;
+    private int stock;
 
-    public producto() {
+
+
+
+    public Producto() {
     }
 
 
-    public producto(int id, String nombre, String descripcion, float costo_compra, float precio_venta, int stock,
-            String codigo_barras) {
-        this.id = id;
+    public Producto(int id, String nombre,String categoria, float costo_compra, float precio_venta, int stock,
+                    String codigo_barras) {
+        this.codigo_barras = codigo_barras;
         this.nombre = nombre;
-        this.descripcion = descripcion;
+        this.categoria = categoria;
         this.costo_compra = costo_compra;
         this.precio_venta = precio_venta;
         this.stock = stock;
-        this.codigo_barras = codigo_barras;
+
     }
 
 
-    public int getId() {
-        return id;
-    }
 
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
 
     public String getNombre() {
@@ -57,13 +51,13 @@ public class producto {
     }
 
 
-    public String getDescripcion() {
-        return descripcion;
+    public String getCategoria() {
+        return categoria;
     }
 
 
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
     }
 
 

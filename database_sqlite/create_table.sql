@@ -1,24 +1,26 @@
-CREATE TABLE producto (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre TEXT NOT NULL,
-    descripcion TEXT,
-    costo_compra REAL,
-    precio_venta REAL,
-    stock INTEGER,
-    codigo_barras TEXT
+CREATE TABLE producto(
+                         codigo_barras TEXT PRIMARY KEY,
+                         nombre TEXT,
+                         categoria TEXT,
+                         costo_compra NUMERIC,
+                         precio_venta NUMERIC,
+                         stock int
+
 );
 
-
-CREATE TABLE venta (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    fecha TEXT NOT NULL,  -- Usamos TEXT para almacenar fechas en formato ISO 8601 (YYYY-MM-DD HH:MM:SS)
-    total REAL
+CREATE TABLE venta_producto(
+                               id_venta integer REFERENCES venta(id),
+                               codigo_barras TEXT REFERENCES producto(codigo_barras)
 );
 
-CREATE TABLE ventas_productos (
-    ventas_id INTEGER,
-    producto_id INTEGER,
-    FOREIGN KEY (ventas_id) REFERENCES venta(id),
-    FOREIGN KEY (producto_id) REFERENCES producto(id),
-    PRIMARY KEY (ventas_id, producto_id)
+CREATE TABLE producto_fuera_de_stock(
+                                        id integer PRIMARY KEY,
+                                        nombre TEXT,
+                                        precio_venta NUMERIC,
+                                        cantidad INTEGER
+);
+
+CREATE TABLE detalle_venta(
+                              id_venta integer REFERENCES venta(id),
+                              id_producto integer REFERENCES producto_fuera_de_stock(id)
 );
