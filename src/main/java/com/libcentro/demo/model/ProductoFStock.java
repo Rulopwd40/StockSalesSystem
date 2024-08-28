@@ -1,17 +1,32 @@
 package com.libcentro.demo.model;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
+@Entity
+@Table(name="producto_fuera_de_stock")
 public class ProductoFStock {
 
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private int id;
+    @Column(name="nombre")
     private String nombre;
+    @Column(name="precio_venta")
     private float precio_venta;
+    @Column(name="cantidad")
     private int cantidad;
+    @Column(name="descuento")
+    private float descuento;
 
+
+
+    @ManyToOne
+    @JoinColumn(name = "id")
+    private Venta venta;
+
+    public ProductoFStock() {
+        descuento=0;
+    }
     public String getNombre() {
         return nombre;
     }
@@ -34,5 +49,12 @@ public class ProductoFStock {
 
     public void setCantidad(int cantidad) {
         this.cantidad = cantidad;
+    }
+    public float getDescuento() {
+        return descuento;
+    }
+
+    public void setDescuento(float descuento) {
+        this.descuento = descuento;
     }
 }

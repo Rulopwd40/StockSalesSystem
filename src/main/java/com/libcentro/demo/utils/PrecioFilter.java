@@ -10,7 +10,7 @@ public class PrecioFilter extends DocumentFilter {
         String currentText = fb.getDocument().getText(0, fb.getDocument().getLength());
         String newText = new StringBuilder(currentText).replace(offset, offset + length, text).toString();
 
-        if (newText.matches("\\d*(,\\d{0,2})?")) {
+        if (newText.matches("\\d+(\\.\\d{0,2})?")) {
             super.replace(fb, offset, length, text, attrs);
         }
     }
@@ -20,7 +20,7 @@ public class PrecioFilter extends DocumentFilter {
         String currentText = fb.getDocument().getText(0, fb.getDocument().getLength());
         String newText = new StringBuilder(currentText).insert(offset, text).toString();
 
-        if (newText.matches("\\d*(,\\d{0,2})?")) {
+        if (newText.matches("\\d+(\\.\\d{0,2})?")) {
             super.insertString(fb, offset, text, attrs);
         }
     }

@@ -1,6 +1,8 @@
 package com.libcentro.demo.model;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "Producto")
@@ -19,16 +21,15 @@ public class Producto {
     @Column(name = "stock")
     private int stock;
 
-
+    @OneToMany(mappedBy = "producto")
+    private Set<Venta_Producto> ventaProductoSet = new HashSet<Venta_Producto>();
 
 
     public Producto() {
     }
 
 
-    public Producto(int id, String nombre,String categoria, float costo_compra, float precio_venta, int stock,
-                    String codigo_barras) {
-        this.codigo_barras = codigo_barras;
+    public Producto(String nombre,String categoria, float costo_compra, float precio_venta, int stock) {
         this.nombre = nombre;
         this.categoria = categoria;
         this.costo_compra = costo_compra;

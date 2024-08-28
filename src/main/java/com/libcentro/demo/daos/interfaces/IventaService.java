@@ -1,4 +1,4 @@
-package com.libcentro.demo.service.interfaces;
+package com.libcentro.demo.daos.interfaces;
 
 import java.util.List;
 

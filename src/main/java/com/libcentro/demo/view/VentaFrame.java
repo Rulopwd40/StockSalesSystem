@@ -1,6 +1,8 @@
 package com.libcentro.demo.view;
 
 import javax.swing.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 
 public class VentaFrame extends JFrame {
     private JPanel panelVenta;
@@ -24,9 +26,44 @@ public class VentaFrame extends JFrame {
 
     private void createTable(){
         table.setModel(new javax.swing.table.DefaultTableModel(
-                null, new String[]{"Producto","Cantidad","Descuento","Precio"}
-                ));
+                null,
+                new String[]{"Producto", "Cantidad", "Descuento(%)", "Precio"}
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                // Aquí defines qué columnas son editables
+                switch (column) {
+                    case 0:
+                        return false;
+                    case 1:
+                        return true;// Cantidad
+                    case 2:
+                        return true;// Descuento(%)
+                    case 3: // Precio
+                        return false; // Estas columnas son editables
+                    default:
+                        return false; // Las demás columnas no son editables
+                }
+            }
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                switch (columnIndex) {
+                    case 0: // Producto
+                        return String.class;
+                    case 1: // Cantidad
+                        return Integer.class; // o Double.class si manejas cantidades decimales
+                    case 2: // Descuento(%)
+                        return Float.class; // Descuento en porcentaje como decimal
+                    case 3: // Precio
+                        return Float.class; // Precio como decimal
+                    default:
+                        return Object.class;
+                }
+            }
+        });
         table.getTableHeader().setReorderingAllowed(false);
+
+
 
     }
 
@@ -59,5 +96,13 @@ public class VentaFrame extends JFrame {
 
     public JTable getTable() {
         return table;
+    }
+
+    public JLabel getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(JLabel totalPrice) {
+        this.totalPrice = totalPrice;
     }
 }

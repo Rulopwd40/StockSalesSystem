@@ -3,6 +3,7 @@ package com.libcentro.demo.controller;
 import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.model.ProductoFStock;
 import com.libcentro.demo.model.Venta;
+import com.libcentro.demo.model.Venta_Producto;
 import com.libcentro.demo.utils.PrecioFilter;
 import com.libcentro.demo.view.ApfsDialog;
 import com.libcentro.demo.view.MenuFrame;
@@ -11,11 +12,15 @@ import com.libcentro.demo.utils.DoubleFilter;
 import com.libcentro.demo.utils.IntegerFilter;
 import com.libcentro.demo.utils.SymbolFilter;
 
+import javax.sound.midi.SysexMessage;
 import javax.swing.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.AbstractDocument;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Optional;
 
 import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 
@@ -24,6 +29,7 @@ public class ViewController {
     MenuFrame menuFrame;
     VentaFrame ventaFrame;
     ApfsDialog apfsDialog;
+    private JTable tableVenta;
     Venta venta;
 
     public ViewController() {
@@ -69,10 +75,11 @@ public class ViewController {
 
     //Abre la ventana view, asigna restricciones y listeners
     private void openVentaView() {
+
         if(ventaFrame == null) {
             ventaFrame = new VentaFrame();
             ventaFrame.setVisible(true);
-
+            tableVenta=ventaFrame.getTable();
             // Venta Listeners
            setVentaListeners();
 
@@ -85,6 +92,26 @@ public class ViewController {
             setVentaKeyBindings();
 
         }
+        //Listener de actualizacion
+        tableVenta.getModel().addTableModelListener(new TableModelListener(){
+            public void tableChanged(TableModelEvent e){
+                if (e.getType() == TableModelEvent.UPDATE) {
+                    int fila = e.getFirstRow();
+                    int columna = e.getColumn();
+
+                    // Obtén el valor actualizado
+                    Object valorNuevo = tableVenta.getModel().getValueAt(fila, columna);
+                    String nombreColumna = tableVenta.getModel().getColumnName(columna);
+                    String nombreProducto = tableVenta.getModel().getValueAt(fila,0).toString();
+
+                    System.out.println(nombreProducto);
+                    System.out.println(nombreColumna);
+
+                    updateProducto(nombreProducto,nombreColumna,fila,columna);
+                }
+            }
+
+        });
         ventaFrame.setState(Frame.NORMAL); // Restaurar si está minimizado
         ventaFrame.toFront();
         ventaFrame.requestFocus();
@@ -109,13 +136,25 @@ public class ViewController {
         apfsDialog.getButtonOK().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if(apfsDialog.todosLosCamposLlenos()) {
+                    //Obtener datos
                     String nombre = apfsDialog.getNombreField().getText();
                     String cantidad = apfsDialog.getCantField().getText();
                     String precio = apfsDialog.getPrecioField().getText();
 
+                   //Crear Tabla
                     DefaultTableModel model = (DefaultTableModel) ventaFrame.getTable().getModel();
-                    ProductoFStock producto;
-                    model.addRow(new Object[]{nombre, cantidad, "0",precio});
+
+                    //Crear Producto
+                    ProductoFStock producto = new ProductoFStock();
+                    producto.setNombre(nombre);
+                    producto.setCantidad(Integer.parseInt(cantidad));
+                    producto.setPrecio_venta(Float.parseFloat(precio));
+
+                    //Agregar producto a view y venta
+                    model.addRow(new Object[]{producto.getNombre(), producto.getCantidad(), 0f,producto.getPrecio_venta()});
+                    venta.addProducto(producto);
+
+                    ventaFrame.getTotalPrice().setText(venta.getTotal() + "");
 
                     apfsDialog.onOK();
                 }
@@ -216,6 +255,49 @@ public class ViewController {
         });
     }
 
+    //Producto
+    private void updateProducto(String nombre, String atributo,int fila,int columna) {
+        // Buscar el producto en ambas listas y manejar la lógica de encontrar un producto
+        Optional<Producto> productoOpt = venta.getListaProductos().stream()
+                .map(Venta_Producto::getProducto)
+                .filter(p -> p.getNombre().equals(nombre))
+                .findFirst();
+
+        Optional<ProductoFStock> productoFStockOpt;
+
+        if (productoOpt.isEmpty()) {
+            productoFStockOpt = venta.getListaProductosF().stream()
+                    .filter(p -> p.getNombre().equals(nombre))
+                    .findFirst();
+        } else {
+            productoFStockOpt = Optional.empty();
+        }
+
+        // Manejar los resultados de las búsquedas
+        productoOpt.ifPresentOrElse(
+                producto -> {
+                    if(atributo.equals("Cantidad")) {
+                    }
+                    else if(atributo.equals("Descuento(%)")){
+                    }
+                    else System.out.println(atributo);
+                },
+                () -> productoFStockOpt.ifPresentOrElse(
+                        productoFStock -> {
+                            if(atributo.equals("Cantidad")) {
+                                productoFStock.setCantidad((Integer) tableVenta.getValueAt(fila,columna));
+                            }
+                            else if(atributo.equals("Descuento(%)")){
+                                productoFStock.setDescuento((Float) tableVenta.getValueAt(fila,columna));
+                            }
+                            else System.out.println(atributo);
+                        },
+                        () -> System.out.println("Producto no encontrado")
+                )
+        );
+        venta.updateTotal();
+        ventaFrame.getTotalPrice().setText(venta.getTotal() + "");
+    }
 
 
     //Filters

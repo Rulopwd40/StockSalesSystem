@@ -7,7 +7,7 @@ import org.springframework.stereotype.Controller;
 
 import com.libcentro.demo.model.Producto;
 
-import com.libcentro.demo.service.productoService;
+import com.libcentro.demo.daos.productoService;
 
 @Controller
 public class ProductoController {
