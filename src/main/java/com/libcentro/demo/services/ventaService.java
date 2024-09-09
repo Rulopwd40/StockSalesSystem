@@ -1,4 +1,4 @@
-package com.libcentro.demo.daos;
+package com.libcentro.demo.services;
 
 import java.util.List;
 
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.libcentro.demo.model.Venta;
 import com.libcentro.demo.repository.IventaRepository;
-import com.libcentro.demo.daos.interfaces.IventaService;
+import com.libcentro.demo.services.interfaces.IventaService;
 @Service
 public class ventaService implements IventaService {
     @Autowired

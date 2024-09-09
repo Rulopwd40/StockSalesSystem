@@ -1,4 +1,4 @@
-package com.libcentro.demo.daos.interfaces;
+package com.libcentro.demo.services.interfaces;
 import java.util.List;
 import com.libcentro.demo.model.Producto;
 public interface IproductoService {

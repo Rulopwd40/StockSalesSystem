@@ -27,6 +27,14 @@ public class ProductoFStock {
     public ProductoFStock() {
         descuento=0;
     }
+
+    public ProductoFStock(String nombre, String cantidad, String precio, String descuento) {
+        this.nombre = nombre;
+        this.cantidad = Integer.parseInt(cantidad);
+        this.precio_venta = Float.parseFloat(precio);
+        this.descuento = Float.parseFloat(descuento);
+    }
+
     public String getNombre() {
         return nombre;
     }

@@ -1,4 +1,4 @@
-package com.libcentro.demo.daos;
+package com.libcentro.demo.services;
 
 import java.util.List;
 
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.repository.IproductoRepository;
-import com.libcentro.demo.daos.interfaces.IproductoService;
+import com.libcentro.demo.services.interfaces.IproductoService;
 
 @Service
 public class productoService implements IproductoService {
