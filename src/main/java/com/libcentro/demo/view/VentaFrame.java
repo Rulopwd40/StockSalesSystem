@@ -40,7 +40,7 @@ public class VentaFrame extends JFrame {
                     case 2:
                         return true;// Descuento(%)
                     case 3: // Precio
-                        return false; // Estas columnas son editables
+                        return true; // Estas columnas son editables
                     default:
                         return false; // Las demás columnas no son editables
                 }

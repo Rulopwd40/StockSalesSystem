@@ -51,7 +51,6 @@ public class VentaController {
         //Listener de actualizacion
         tableVenta.getModel().addTableModelListener(new TableModelListener(){
             public void tableChanged(TableModelEvent e){
-
                 if (e.getType() == TableModelEvent.UPDATE) {
 
                     int fila = e.getFirstRow();
@@ -62,11 +61,10 @@ public class VentaController {
                     String nombreColumna = tableVenta.getModel().getColumnName(columna);
                     String nombreProducto = tableVenta.getModel().getValueAt(fila,0).toString();
 
-                    System.out.println(nombreProducto);
-                    System.out.println(nombreColumna);
 
                     updateProducto(nombreProducto,nombreColumna,fila,columna);
                 }
+                ventaFrame.getTotalPrice().setText(venta.getTotal() + "");
             }
 
         });
@@ -155,11 +153,12 @@ public class VentaController {
 
                     DefaultTableModel model = (DefaultTableModel) ventaFrame.getTable().getModel();
                     ProductoFStock producto;
-
-                    model.addRow(new Object[]{nombre,Integer.parseInt(cantidad), 0.0f,Float.parseFloat(precio)});
-
                     producto = new ProductoFStock(nombre,cantidad,precio,"0");
                     venta.addProducto(producto);
+                    model.addRow(new Object[]{nombre,Integer.parseInt(cantidad), 0.0f,Float.parseFloat(precio)});
+
+
+
                     apfsDialog.onOK();
                 }
             }
@@ -210,26 +209,37 @@ public class VentaController {
         productoOpt.ifPresentOrElse(
                 producto -> {
                     if(atributo.equals("Cantidad")) {
+                        // Lógica para "Cantidad"
                     }
                     else if(atributo.equals("Descuento(%)")){
+                        // Lógica para "Descuento(%)"
                     }
-                    else System.out.println(atributo);
+                    else {
+                        System.out.println(atributo);
+                    }
                 },
                 () -> productoFStockOpt.ifPresentOrElse(
                         productoFStock -> {
-                            if(atributo.equals("Cantidad")) {
-                                productoFStock.setCantidad((Integer) tableVenta.getValueAt(fila,columna));
+                            switch(columna){
+                                case 1:
+                                    productoFStock.setCantidad((Integer) tableVenta.getValueAt(fila, columna));
+                                    break;
+                                case 2:
+                                    productoFStock.setDescuento((Float) tableVenta.getValueAt(fila, columna));
+                                    break;
+                                case 3:
+                                    productoFStock.setPrecio_venta((Float) tableVenta.getValueAt(fila, columna));
+                                    break;
+                                default:
+                                    System.out.println(atributo);
+                                    break;
                             }
-                            else if(atributo.equals("Descuento(%)")){
-                                productoFStock.setDescuento((Float) tableVenta.getValueAt(fila,columna));
-                            }
-                            else System.out.println(atributo);
                         },
                         () -> System.out.println("Producto no encontrado")
                 )
         );
         venta.updateTotal();
-        ventaFrame.getTotalPrice().setText(venta.getTotal() + "");
+
     }
 
     void closeVentaFrame(){

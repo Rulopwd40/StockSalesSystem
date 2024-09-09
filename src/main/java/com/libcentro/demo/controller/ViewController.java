@@ -49,26 +49,13 @@ public class ViewController {
 
     //Crear Venta
     void newVenta(){
-
         ventaController.openVentaView();
-
     }
 
-    //Abre la ventana view, asigna restricciones y listeners
+
 
 
     void openEstadisticasView() {
         System.out.println("open estadisticas view");
     }
-
-
-
-
-
-
-
-
-
-
-
 }
