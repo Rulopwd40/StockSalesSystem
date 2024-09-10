@@ -5,6 +5,8 @@ import com.libcentro.demo.view.MenuFrame;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class MenuController {
     ViewController viewController;
@@ -25,6 +27,12 @@ public class MenuController {
         menuFrame.getProductosButton().addActionListener(e -> viewController.openProductosView());
         menuFrame.getVentaButton().addActionListener(e -> viewController.newVenta());
         menuFrame.getReportesButton().addActionListener(e -> viewController.openEstadisticasView());
+
+        menuFrame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                System.exit(0); // Termina el programa
+            }
+        });
 
         // KeyBindings for MenuFrame
         menuFrame.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)

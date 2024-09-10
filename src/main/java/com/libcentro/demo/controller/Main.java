@@ -1,8 +1,6 @@
 package com.libcentro.demo.controller;
 
-import com.libcentro.demo.view.MenuFrame;
-
-public class main {
+public class Main {
     public static void main(String[] args) {
         /*//el contexto 👀
         ApplicationContext contexto = SpringApplication.run(main.class, args);

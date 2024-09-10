@@ -18,8 +18,12 @@ public class ViewController {
         menuController = new MenuController(this);
         ventaController = new VentaController(this);
         productosController = new ProductosController(this);
-        menuController.openMenuView();
+        openMenuView();
 
+    }
+
+    void openMenuView() {
+        menuController.openMenuView();
     }
 
 

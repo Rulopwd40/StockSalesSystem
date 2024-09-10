@@ -4,7 +4,7 @@ import javax.swing.*;
 
 public class ProductosFrame extends JFrame {
     private JTable table;
-    private JTextField textField1;
+    private JTextField buscarField;
     private JCheckBox sinStockCheckBox;
     private JButton agregarCategoriaButton;
     private JButton unProductoButton;
@@ -17,6 +17,10 @@ public class ProductosFrame extends JFrame {
     private JButton deshacerCambiosButton;
     private JPanel panelProducto;
     private JButton eliminarProductoButton;
+    private JPanel panelBusqueda;
+    private JPanel panelAdd;
+    private JPanel panelUpd;
+    private JPanel panelClose;
 
     public ProductosFrame(){
         setContentPane(panelProducto);
@@ -43,6 +47,8 @@ public class ProductosFrame extends JFrame {
                         return true;// Descuento(%)
                     case 3: // Precio
                         return true; // Estas columnas son editables
+                    case 4:
+                        return true;
                     default:
                         return false; // Las demás columnas no son editables
                 }
@@ -50,14 +56,16 @@ public class ProductosFrame extends JFrame {
             @Override
             public Class<?> getColumnClass(int columnIndex) {
                 switch (columnIndex) {
-                    case 0: // Producto
+                    case 0: // Cod
                         return String.class;
-                    case 1: // Cantidad
-                        return Integer.class; // o Double.class si manejas cantidades decimales
-                    case 2: // Descuento(%)
-                        return Float.class; // Descuento en porcentaje como decimal
-                    case 3: // Precio
-                        return Float.class; // Precio como decimal
+                    case 1:
+                        return String.class; // o Double.class si manejas cantidades decimales
+                    case 2:
+                        return String.class; // Descuento en porcentaje como decimal
+                    case 3:
+                        return Integer.class; // Precio como decimal
+                    case 4:
+                        return Float.class;
                     default:
                         return Object.class;
                 }
@@ -69,4 +77,51 @@ public class ProductosFrame extends JFrame {
 
     }
 
+    public JButton getAgregarCategoriaButton() {
+        return agregarCategoriaButton;
+    }
+
+    public JButton getUnProductoButton() {
+        return unProductoButton;
+    }
+
+    public JButton getImportarCsvButton() {
+        return importarCsvButton;
+    }
+
+    public JButton getUnProductoButton1() {
+        return unProductoButton1;
+    }
+
+    public JButton getPorCategoriaButton() {
+        return porCategoriaButton;
+    }
+
+    public JButton getGeneralButton() {
+        return generalButton;
+    }
+
+    public JButton getVolverButton() {
+        return volverButton;
+    }
+
+    public JButton getGuardarYVolverButton() {
+        return guardarYVolverButton;
+    }
+
+    public JButton getDeshacerCambiosButton() {
+        return deshacerCambiosButton;
+    }
+
+    public JButton getEliminarProductoButton() {
+        return eliminarProductoButton;
+    }
+
+    public JTextField getBuscarField() {
+        return buscarField;
+    }
+
+    public JCheckBox getSinStockCheckBox() {
+        return sinStockCheckBox;
+    }
 }
