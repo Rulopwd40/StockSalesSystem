@@ -7,6 +7,8 @@ import com.libcentro.demo.model.Venta_Producto;
 import com.libcentro.demo.utils.Filter;
 import com.libcentro.demo.view.ApfsDialog;
 import com.libcentro.demo.view.VentaFrame;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
@@ -14,12 +16,13 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Arrays;
 import java.util.Optional;
 
 import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 
+@Controller
 public class VentaController {
+    @Autowired
     Venta venta;
     VentaFrame ventaFrame;
     ViewController viewController;
@@ -30,7 +33,7 @@ public class VentaController {
         this.viewController = viewController;
     }
 
-    void openVentaView() {
+    void openVentaFrame() {
         venta = new Venta();
         if(ventaFrame == null) {
             ventaFrame = new VentaFrame();
@@ -68,6 +71,7 @@ public class VentaController {
             }
 
         });
+
         ventaFrame.setState(Frame.NORMAL); // Restaurar si está minimizado
         ventaFrame.toFront();
         ventaFrame.requestFocus();
