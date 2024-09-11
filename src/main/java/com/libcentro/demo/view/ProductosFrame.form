@@ -37,13 +37,19 @@
           <grid row="2" column="0" row-span="4" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
+          <background color="-1"/>
+          <foreground color="-16777216"/>
           <verticalScrollBarPolicy value="22"/>
         </properties>
         <border type="none"/>
         <children>
           <component id="f894" class="javax.swing.JTable" binding="table">
             <constraints/>
-            <properties/>
+            <properties>
+              <background color="-1"/>
+              <foreground color="-16777216"/>
+              <gridColor color="-16777216"/>
+            </properties>
           </component>
         </children>
       </scrollpane>
