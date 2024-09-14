@@ -9,7 +9,7 @@ import com.libcentro.demo.model.Venta;
 import com.libcentro.demo.repository.IventaRepository;
 import com.libcentro.demo.services.interfaces.IventaService;
 @Service
-public class ventaService implements IventaService {
+public class VentaService implements IventaService {
     @Autowired
     private IventaRepository ventaRepo;
     @Override

@@ -1,30 +1,31 @@
 package com.libcentro.demo.controller;
 
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
 import java.util.List;
 
 import com.libcentro.demo.view.ProductosFrame;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 
 import com.libcentro.demo.model.Producto;
 
-import com.libcentro.demo.services.productoService;
+import com.libcentro.demo.services.ProductoService;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 @Controller
 public class ProductosController {
-    @Autowired
-    private productoService productoService;
+
+    private final ProductoService productoService;
     ViewController viewController;
     ProductosFrame productosFrame;
 
-    public ProductosController(ViewController viewController) {
+    @Autowired
+    public ProductosController(@Lazy ViewController viewController, ProductoService productoService) {
         this.viewController = viewController;
+        this.productoService = productoService;
     }
 
     public void openProductosFrame(){

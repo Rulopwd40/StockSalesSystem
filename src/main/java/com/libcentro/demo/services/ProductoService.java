@@ -10,7 +10,7 @@ import com.libcentro.demo.repository.IproductoRepository;
 import com.libcentro.demo.services.interfaces.IproductoService;
 
 @Service
-public class productoService implements IproductoService {
+public class ProductoService implements IproductoService {
     @Autowired
     private IproductoRepository productoRepo;
 
