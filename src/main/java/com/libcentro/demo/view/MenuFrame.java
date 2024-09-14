@@ -9,12 +9,12 @@ public class MenuFrame extends JFrame {
     private JButton ventaButton;
     private JButton reportesButton;
     private JPanel panelMenu;
-    private JLabel menuText;
     private JPanel menuSub;
 
     private JPanel ButtonContainer0;
     private JPanel ButtonContainer1;
     private JPanel ButtonContainer2;
+    private JLabel Menu;
 
     public MenuFrame() {
         setContentPane(panelMenu);
