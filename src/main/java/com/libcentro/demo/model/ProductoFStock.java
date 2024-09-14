@@ -1,6 +1,9 @@
 package com.libcentro.demo.model;
 
-import javax.persistence.*;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+import jakarta.persistence.*;
 
 @Entity
 @Table(name="producto_fuera_de_stock")
@@ -21,7 +24,7 @@ public class ProductoFStock {
 
 
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "venta_id")
     private Venta venta;
 
     public ProductoFStock() {

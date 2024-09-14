@@ -3,7 +3,10 @@ package com.libcentro.demo.controller;
 import com.libcentro.demo.view.ApfsDialog;
 import com.libcentro.demo.view.MenuFrame;
 import com.libcentro.demo.view.VentaFrame;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Controller;
 
+@Controller
 public class ViewController {
 
     MenuFrame menuFrame;
@@ -14,10 +17,10 @@ public class ViewController {
     VentaController ventaController;
     ProductosController productosController;
 
-    public ViewController() {
-        menuController = new MenuController(this);
-        ventaController = new VentaController(this);
-        productosController = new ProductosController(this);
+    public ViewController(MenuController menuController, VentaController ventaController, ProductosController productosController) {
+        this.menuController = menuController;
+        this.ventaController = ventaController;
+        this.productosController = productosController;
         openMenuView();
 
     }
@@ -36,9 +39,6 @@ public class ViewController {
     void newVenta(){
         ventaController.openVentaFrame();
     }
-
-
-
 
     void openEstadisticasView() {
         System.out.println("open estadisticas view");

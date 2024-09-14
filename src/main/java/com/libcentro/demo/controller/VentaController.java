@@ -8,6 +8,7 @@ import com.libcentro.demo.utils.Filter;
 import com.libcentro.demo.view.ApfsDialog;
 import com.libcentro.demo.view.VentaFrame;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 
 import javax.swing.*;
@@ -22,14 +23,15 @@ import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 
 @Controller
 public class VentaController {
-    @Autowired
+
     Venta venta;
     VentaFrame ventaFrame;
     ViewController viewController;
     private JTable tableVenta;
     ApfsDialog apfsDialog;
 
-    public VentaController(ViewController viewController) {
+    @Autowired
+    public VentaController(@Lazy ViewController viewController) {
         this.viewController = viewController;
     }
 
