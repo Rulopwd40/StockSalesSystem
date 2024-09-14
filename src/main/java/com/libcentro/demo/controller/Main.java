@@ -8,12 +8,21 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+import java.awt.*;
+
 @SpringBootApplication
 @ComponentScan(basePackages = {"com.libcentro.demo"})
 @EntityScan(basePackages = {"com.libcentro.demo.model"})
 @EnableJpaRepositories(basePackages = "com.libcentro.demo.repository")
 public class Main {
     public static void main(String[] args) {
+
+
+        if (GraphicsEnvironment.isHeadless()) {
+            System.out.println("Entorno es headless, no se puede abrir una ventana gráfica.");
+            return; // Salimos si no hay entorno gráfico
+        }
+
 
         ApplicationContext contexto = SpringApplication.run(Main.class, args);
 

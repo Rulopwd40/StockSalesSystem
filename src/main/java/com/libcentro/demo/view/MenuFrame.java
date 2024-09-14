@@ -1,5 +1,7 @@
 package com.libcentro.demo.view;
 
+import jakarta.annotation.PostConstruct;
+
 import javax.swing.*;
 
 public class MenuFrame extends JFrame {

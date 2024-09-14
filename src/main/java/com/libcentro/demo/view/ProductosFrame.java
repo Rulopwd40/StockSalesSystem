@@ -22,6 +22,7 @@ public class ProductosFrame extends JFrame {
     private JPanel panelUpd;
     private JPanel panelClose;
 
+
     public ProductosFrame(){
         setContentPane(panelProducto);
         setSize(945,630);
