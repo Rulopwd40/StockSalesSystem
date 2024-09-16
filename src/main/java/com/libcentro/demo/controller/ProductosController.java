@@ -10,20 +10,22 @@ import org.springframework.stereotype.Controller;
 
 import com.libcentro.demo.model.Producto;
 
-import com.libcentro.demo.services.ProductoService;
+import com.libcentro.demo.services.interfaces.IproductoService;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableModel;
 
 @Controller
 public class ProductosController {
 
-    private final ProductoService productoService;
+    private final IproductoService productoService;
+    List<Producto> productos;
     ViewController viewController;
     ProductosFrame productosFrame;
 
     @Autowired
-    public ProductosController(@Lazy ViewController viewController, ProductoService productoService) {
+    public ProductosController(@Lazy ViewController viewController, IproductoService productoService) {
         this.viewController = viewController;
         this.productoService = productoService;
     }
@@ -35,6 +37,7 @@ public class ProductosController {
         }
 
         productosFrameAddListeners();
+        productosFrameUpdateTable();
 
         productosFrame.setVisible(true);
         productosFrame.setState(Frame.NORMAL); // Restaurar si está minimizado
@@ -61,6 +64,30 @@ public class ProductosController {
             }
         });
     }
+
+    public void productosFrameUpdateTable() {
+        // Obtener los productos de la base de datos
+        productos = getAll();
+
+        // Obtener el modelo de la tabla
+        DefaultTableModel model = (DefaultTableModel) productosFrame.getTable().getModel();
+
+        // Limpiar todas las filas actuales del modelo de la tabla
+        model.setRowCount(0);
+
+        // Agregar los productos al modelo de la tabla
+        for (Producto producto : productos) {
+            model.addRow(new Object[]{
+                    producto.getCodigo_barras(),
+                    producto.getNombre(),
+                    producto.getCategoria(),
+                    producto.getStock(),
+                    producto.getCosto_compra(),
+                    producto.getPrecio_venta()
+            });
+        }
+    }
+
 
 
     public List<Producto> getAll() {

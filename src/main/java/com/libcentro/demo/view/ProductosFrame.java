@@ -34,7 +34,7 @@ public class ProductosFrame extends JFrame {
     private void createTable(){
         table.setModel(new javax.swing.table.DefaultTableModel(
                 null,
-                new String[]{"Cod.", "Nombre", "Categoria", "Cantidad", "Precio U."}
+                new String[]{"Cod.", "Nombre", "Categoria", "Cantidad","Costo Compra", "Precio U."}
         ) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -124,5 +124,9 @@ public class ProductosFrame extends JFrame {
 
     public JCheckBox getSinStockCheckBox() {
         return sinStockCheckBox;
+    }
+
+    public JTable getTable() {
+        return table;
     }
 }

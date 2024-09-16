@@ -1,4 +1,4 @@
-package com.libcentro.demo.utils;
+package com.libcentro.demo.utils.filters;
 
 import javax.swing.*;
 import javax.swing.text.AbstractDocument;

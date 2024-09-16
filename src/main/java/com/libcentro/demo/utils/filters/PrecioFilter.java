@@ -1,4 +1,4 @@
-package com.libcentro.demo.utils;
+package com.libcentro.demo.utils.filters;
 
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;

@@ -4,7 +4,7 @@ import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.model.ProductoFStock;
 import com.libcentro.demo.model.Venta;
 import com.libcentro.demo.model.Venta_Producto;
-import com.libcentro.demo.utils.Filter;
+import com.libcentro.demo.utils.filters.Filter;
 import com.libcentro.demo.view.ApfsDialog;
 import com.libcentro.demo.view.VentaFrame;
 import org.springframework.beans.factory.annotation.Autowired;
