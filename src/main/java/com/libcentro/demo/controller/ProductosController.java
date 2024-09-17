@@ -1,9 +1,17 @@
 package com.libcentro.demo.controller;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
-import com.libcentro.demo.view.ProductosFrame;
+import com.libcentro.demo.model.Categoria;
+import com.libcentro.demo.services.interfaces.IcategoriaService;
+import com.libcentro.demo.utils.FieldAnalyzer;
+import com.libcentro.demo.view.productos.AgregarProducto;
+import com.libcentro.demo.view.productos.ProductosFrame;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
@@ -12,6 +20,7 @@ import com.libcentro.demo.model.Producto;
 
 import com.libcentro.demo.services.interfaces.IproductoService;
 
+import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
@@ -20,24 +29,42 @@ import javax.swing.table.DefaultTableModel;
 public class ProductosController {
 
     private final IproductoService productoService;
+    private final IcategoriaService icategoriaService;
+
     List<Producto> productos;
+    List<Producto> nuevosProductos = new ArrayList<Producto>();
+
+    List<Categoria> categorias;
+
+
+
+
     ViewController viewController;
     ProductosFrame productosFrame;
 
+    DefaultTableModel model;
+
+    AgregarProducto agregarProducto;
+
+
     @Autowired
-    public ProductosController(@Lazy ViewController viewController, IproductoService productoService) {
+    public ProductosController(@Lazy ViewController viewController, IproductoService productoService, IcategoriaService icategoriaService) {
         this.viewController = viewController;
         this.productoService = productoService;
+        this.icategoriaService = icategoriaService;
     }
 
-    public void openProductosFrame(){
-        if(productosFrame == null){
+    public void openProductosFrame() {
+        if (productosFrame == null) {
             productosFrame = new ProductosFrame();
 
         }
 
+        refreshProductos();
         productosFrameAddListeners();
-        productosFrameUpdateTable();
+        this.model= (DefaultTableModel) productosFrame.getTable().getModel();
+        productosFrameUpdateTable(productosFrame.getBuscarField().getText());
+
 
         productosFrame.setVisible(true);
         productosFrame.setState(Frame.NORMAL); // Restaurar si está minimizado
@@ -50,49 +77,102 @@ public class ProductosController {
 
             @Override
             public void insertUpdate(DocumentEvent e) {
-
+                productosFrameUpdateTable(productosFrame.getBuscarField().getText());
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-
+                productosFrameUpdateTable(productosFrame.getBuscarField().getText());
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-
+                productosFrameUpdateTable(productosFrame.getBuscarField().getText());
             }
+        });
+        productosFrame.getUnProductoButton().addActionListener(new ActionListener() {
+           public void actionPerformed(ActionEvent e) {
+               agregarProducto();
+           }
         });
     }
 
-    public void productosFrameUpdateTable() {
-        // Obtener los productos de la base de datos
-        productos = getAll();
+    private void agregarProducto() {
+        categorias = getAllCategoria();
+        agregarProducto = new AgregarProducto();
+
+        System.out.println(categorias);
+        for(Categoria categoria : categorias) {
+            agregarProducto.getCategoriaBox().addItem(categoria.getNombre());
+
+        }
+        agregarProducto.getButtonOK().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if(FieldAnalyzer.todosLosCamposLlenos(agregarProducto)){
+
+                    Categoria categoriaP = categorias.stream()
+                            .filter(categoria -> categoria.getNombre().equals(agregarProducto.getCategoriaBox().getSelectedItem().toString()))
+                            .findFirst().orElse(null);
+                    Producto producto = new Producto(
+                            agregarProducto.getCodigoField().getText(),
+                            agregarProducto.getNombreField().getText(),
+                            categoriaP,
+                            Float.parseFloat(agregarProducto.getCostoField().getText()),
+                            Float.parseFloat(agregarProducto.getPrecioField().getText()),
+                            Integer.parseInt(agregarProducto.getCantidadField().getText())
+
+                    );
+                    if(existeProducto(producto)) {
+                        addProductoToTable(producto);
+                        nuevosProductos.add(producto);
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(null, "El producto ya existe en la base de datos", "Error", JOptionPane.WARNING_MESSAGE);
+                    }
+                }
+            }
+        });
+
+
+        agregarProducto.setVisible(true);
+
+    }
+
+    private void productosFrameUpdateTable(String filter) {
 
         // Obtener el modelo de la tabla
-        DefaultTableModel model = (DefaultTableModel) productosFrame.getTable().getModel();
+
 
         // Limpiar todas las filas actuales del modelo de la tabla
         model.setRowCount(0);
 
+        String filterT = filter.toLowerCase();
+
+        List<Producto> productosFiltrados = productos.stream()
+                .filter(producto -> producto.getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
+                        producto.getCodigo_barras().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
+                        producto.getCategoria().getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*")
+                )
+                .toList();
+
         // Agregar los productos al modelo de la tabla
-        for (Producto producto : productos) {
-            model.addRow(new Object[]{
-                    producto.getCodigo_barras(),
-                    producto.getNombre(),
-                    producto.getCategoria(),
-                    producto.getStock(),
-                    producto.getCosto_compra(),
-                    producto.getPrecio_venta()
-            });
+        for (Producto producto : productosFiltrados) {
+            addProductoToTable(producto);
         }
     }
 
+    private void refreshProductos(){
+        productos = getAllProducto();
+    }
 
-
-    public List<Producto> getAll() {
+    private List<Producto> getAllProducto() {
         return productoService.getAll();
     }
+
+    private List<Categoria> getAllCategoria(){
+        return icategoriaService.getAll();
+    }
+
 
     public void cargarMasiva(List<Producto> testInventario) {
         for (Producto d : testInventario) {
@@ -109,5 +189,22 @@ public class ProductosController {
         productoService.saveProducto(x);
     }
 
+    private void addProductoToTable(Producto producto){
+        model.addRow(new Object[]{
+                producto.getCodigo_barras(),
+                producto.getNombre(),
+                producto.getCategoria().getNombre(),
+                producto.getStock(),
+                producto.getCosto_compra(),
+                producto.getPrecio_venta()
+        });
+    }
+
+    private boolean existeProducto(Producto producto){
+
+        Producto p = productos.stream().filter(prod -> prod.getNombre().equals(producto.getNombre())).findFirst().orElse(null);
+
+        return p != null;
+    }
 
 }

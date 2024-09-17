@@ -14,8 +14,9 @@ public class Producto {
     private String codigo_barras;
     @Column(name = "nombre")
     private String nombre;
-    @Column(name = "categoria")
-    private String categoria;
+    @ManyToOne(fetch = FetchType.EAGER) // O EAGER según lo que prefieras
+    @JoinColumn(name = "categoria", referencedColumnName = "id")
+    private Categoria categoria;
     @Column(name = "costo_compra")
     private float costo_compra;
     @Column(name = "precio_venta")
@@ -29,7 +30,8 @@ public class Producto {
     }
 
 
-    public Producto(String nombre,String categoria, float costo_compra, float precio_venta, int stock) {
+    public Producto(String codigo_barras,String nombre,Categoria categoria, float costo_compra, float precio_venta, int stock) {
+        this.codigo_barras = codigo_barras;
         this.nombre = nombre;
         this.categoria = categoria;
         this.costo_compra = costo_compra;
@@ -52,12 +54,12 @@ public class Producto {
     }
 
 
-    public String getCategoria() {
+    public Categoria getCategoria() {
         return categoria;
     }
 
 
-    public void setCategoria(String categoria) {
+    public void setCategoria(Categoria categoria) {
         this.categoria = categoria;
     }
 
@@ -100,5 +102,5 @@ public class Producto {
     public void setCodigo_barras(String codigo_barras) {
         this.codigo_barras = codigo_barras;
     }
-    
+
 }

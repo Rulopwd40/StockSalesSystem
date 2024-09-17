@@ -1,6 +1,4 @@
-package com.libcentro.demo.view;
-
-import jakarta.annotation.PostConstruct;
+package com.libcentro.demo.view.menu;
 
 import javax.swing.*;
 

@@ -1,4 +1,4 @@
-package com.libcentro.demo.view;
+package com.libcentro.demo.view.productos;
 
 import javax.swing.*;
 
@@ -73,7 +73,7 @@ public class ProductosFrame extends JFrame {
             }
         });
         table.getTableHeader().setReorderingAllowed(false);
-
+        table.setAutoCreateRowSorter(true);
 
 
     }

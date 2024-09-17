@@ -1,8 +1,9 @@
-package com.libcentro.demo.view;
+package com.libcentro.demo.view.venta;
+
+import com.libcentro.demo.utils.filters.Filter;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.util.ArrayList;
 
 public class ApfsDialog extends JDialog {
@@ -22,6 +23,8 @@ public class ApfsDialog extends JDialog {
         setSize(455,225);
         setLocationRelativeTo(null);
 
+        setFilters();
+
         textFields = new ArrayList<>();
         textFields.add(nombreField);
         textFields.add(precioField);
@@ -29,16 +32,14 @@ public class ApfsDialog extends JDialog {
 
     }
 
-    public boolean todosLosCamposLlenos() {
-            for(Component component: textFields) {
+    private void setFilters() {
+        Filter.setSymbolFilter(nombreField);
+        Filter.setIntegerFilter(cantField);
+        Filter.setPrecioFilter(precioField);
+    }
 
-                if (component instanceof JTextField textField) {
-                    if (textField.getText().trim().isEmpty()) {
-                        return false;  // Al menos un campo está vacío
-                    }
-                }
-            }
-        return true;  // Todos los campos tienen contenido
+    public ArrayList<JTextField> getTextFields() {
+        return textFields;
     }
 
     public void onOK() {

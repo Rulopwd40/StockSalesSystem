@@ -1,7 +1,7 @@
 CREATE TABLE producto(
                          codigo_barras TEXT PRIMARY KEY,
                          nombre TEXT,
-                         categoria TEXT,
+                         categoria integer REFERENCES categoria(id),
                          costo_compra NUMERIC,
                          precio_venta NUMERIC,
                          stock int
@@ -24,3 +24,8 @@ CREATE TABLE detalle_venta(
                               id_venta integer REFERENCES venta(id),
                               id_producto integer REFERENCES producto_fuera_de_stock(id)
 );
+
+CREATE TABLE categoria (
+                           id integer PRIMARY KEY,
+                           categoria TEXT
+)

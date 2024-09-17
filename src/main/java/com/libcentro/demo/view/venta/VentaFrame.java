@@ -1,8 +1,6 @@
-package com.libcentro.demo.view;
+package com.libcentro.demo.view.venta;
 
 import javax.swing.*;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 
 public class VentaFrame extends JFrame {
     private JPanel panelVenta;
@@ -70,6 +68,7 @@ public class VentaFrame extends JFrame {
     public void setCodFocus(){
         codBar.requestFocusInWindow();
     }
+
     public JButton getAgregarEnterButton() {
         return agregarEnterButton;
     }

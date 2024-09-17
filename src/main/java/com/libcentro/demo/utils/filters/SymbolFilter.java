@@ -8,7 +8,7 @@ public class SymbolFilter extends DocumentFilter {
 
     @Override
     public void insertString(FilterBypass fb, int offset, String text, AttributeSet attr) throws BadLocationException {
-        if (text.matches("[a-zA-Z\\s]*")) { // Solo permite letras y espacios
+        if (text.matches("[a-zA-Z\\s\\d]*")) { // Solo permite letras y espacios
             super.insertString(fb, offset, text, attr);
         }
     }

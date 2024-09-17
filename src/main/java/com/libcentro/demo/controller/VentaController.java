@@ -4,9 +4,10 @@ import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.model.ProductoFStock;
 import com.libcentro.demo.model.Venta;
 import com.libcentro.demo.model.Venta_Producto;
+import com.libcentro.demo.utils.FieldAnalyzer;
 import com.libcentro.demo.utils.filters.Filter;
-import com.libcentro.demo.view.ApfsDialog;
-import com.libcentro.demo.view.VentaFrame;
+import com.libcentro.demo.view.venta.ApfsDialog;
+import com.libcentro.demo.view.venta.VentaFrame;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
@@ -144,15 +145,13 @@ public class VentaController {
     private void openApfsDialog() {
         apfsDialog = new ApfsDialog();
 
-        Filter.setSymbolFilter(apfsDialog.getNombreField());
-        Filter.setIntegerFilter(apfsDialog.getCantField());
-        Filter.setPrecioFilter(apfsDialog.getPrecioField());
+
 
 
         //Cargar datos
         apfsDialog.getButtonOK().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if(apfsDialog.todosLosCamposLlenos()) {
+                if(FieldAnalyzer.todosLosCamposLlenos(apfsDialog)) {
                     String nombre = apfsDialog.getNombreField().getText();
                     String cantidad = apfsDialog.getCantField().getText();
                     String precio = apfsDialog.getPrecioField().getText();
