@@ -27,11 +27,7 @@ public class AgregarProducto extends JDialog {
         setFilters();
 
 
-        buttonOK.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onOK();
-            }
-        });
+
 
         buttonCancel.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -63,12 +59,12 @@ public class AgregarProducto extends JDialog {
         Filter.setIntegerFilter(cantidadField);
     }
 
-    private void onOK() {
+    public void onOK() {
         // add your code here
         dispose();
     }
 
-    private void onCancel() {
+    public void onCancel() {
         // add your code here if necessary
         dispose();
     }

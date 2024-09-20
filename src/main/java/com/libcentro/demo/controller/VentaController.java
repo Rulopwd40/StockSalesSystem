@@ -145,9 +145,6 @@ public class VentaController {
     private void openApfsDialog() {
         apfsDialog = new ApfsDialog();
 
-
-
-
         //Cargar datos
         apfsDialog.getButtonOK().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
