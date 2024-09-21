@@ -20,8 +20,9 @@ public class Producto {
     private float costo_compra;
     @Column(name = "precio_venta")
     private float precio_venta;
-    @Column()
-
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="historial_precios",referencedColumnName = "id")
+    HistorialPrecio costo_inicial;
     @Column(name = "stock")
     private int stock;
 
@@ -105,4 +106,11 @@ public class Producto {
         this.codigo_barras = codigo_barras;
     }
 
+    public HistorialPrecio getCosto_inicial() {
+        return costo_inicial;
+    }
+
+    public void setCosto_inicial(HistorialPrecio costo_inicial) {
+        this.costo_inicial = costo_inicial;
+    }
 }
