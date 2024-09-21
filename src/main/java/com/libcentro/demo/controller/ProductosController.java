@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.beans.Transient;
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -20,6 +21,7 @@ import com.libcentro.demo.view.productos.ProductosFrame;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Controller;
 
 import com.libcentro.demo.model.Producto;
@@ -40,7 +42,7 @@ public class ProductosController {
     private final IcategoriaService icategoriaService;
 
     List<Producto> productos;
-    List<Producto> nuevosProductos = new ArrayList<Producto>();
+    List<Producto> nuevosProductos;
 
     List<Categoria> categorias;
 
@@ -72,6 +74,8 @@ public class ProductosController {
         }
         cambios = false;
         refreshProductos();
+
+        nuevosProductos = new ArrayList<Producto>();
 
         this.productsModel = (DefaultTableModel) productosFrame.getTable().getModel();
         productosFrameUpdateTable(productosFrame.getBuscarField().getText());
@@ -259,12 +263,19 @@ public class ProductosController {
         return p == null && pn == null;
     }
 
-    @Transactional
-    protected void guardarYVolver(){
-        if(cambios){
-            for(Producto producto: nuevosProductos){
-                productoService.saveProducto(producto);
+
+    protected void guardarYVolver() {
+        if (cambios) {
+            for (Producto producto : nuevosProductos) {
+                try {
+                    productoService.saveProducto(producto);
+                } catch (Exception e) {
+                    // Manejar cualquier excepción de manera genérica
+                    JOptionPane.showMessageDialog(null, "Error al guardar el producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
+            cambios = false;
+            productosFrame.getGuardarYVolverButton().setEnabled(false);
         }
     }
 

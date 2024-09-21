@@ -10,7 +10,6 @@ import java.util.Set;
 @Table(name = "Producto")
 public class Producto {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String codigo_barras;
     @Column(name = "nombre")
     private String nombre;
@@ -21,8 +20,11 @@ public class Producto {
     private float costo_compra;
     @Column(name = "precio_venta")
     private float precio_venta;
+    @Column()
+
     @Column(name = "stock")
     private int stock;
+
 
 
 

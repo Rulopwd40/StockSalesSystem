@@ -261,6 +261,7 @@
             </constraints>
             <properties>
               <background color="-12406529"/>
+              <enabled value="false"/>
               <foreground color="-1"/>
               <text value="Guardar y Volver"/>
             </properties>

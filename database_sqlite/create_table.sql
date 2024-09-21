@@ -4,6 +4,7 @@ CREATE TABLE producto(
                          categoria integer REFERENCES categoria(id),
                          costo_compra NUMERIC,
                          precio_venta NUMERIC,
+                         costo_inicial INTEGER references historial_precios(id),
                          stock int
 
 );
@@ -28,4 +29,13 @@ CREATE TABLE detalle_venta(
 CREATE TABLE categoria (
                            id integer PRIMARY KEY,
                            categoria TEXT
-)
+);
+
+
+CREATE TABLE historial_precios(
+                                  Id integer PRIMARY KEY,
+                                  codigo_barras TEXT references producto(codigo_barras),
+                                  costo_compra NUMERIC,
+                                  cantidad integer,
+                                  fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
