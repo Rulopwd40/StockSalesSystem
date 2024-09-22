@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import com.libcentro.demo.model.Producto;
 
 @Repository
-public interface IproductoRepository extends JpaRepository<Producto, Integer> {
+public interface IproductoRepository extends JpaRepository<Producto, String> {
 }

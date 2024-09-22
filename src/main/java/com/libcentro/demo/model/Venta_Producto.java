@@ -1,7 +1,7 @@
 package com.libcentro.demo.model;
 
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name="venta_producto")

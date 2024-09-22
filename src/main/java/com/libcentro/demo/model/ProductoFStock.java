@@ -1,6 +1,9 @@
 package com.libcentro.demo.model;
 
-import javax.persistence.*;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+import jakarta.persistence.*;
 
 @Entity
 @Table(name="producto_fuera_de_stock")
@@ -21,12 +24,20 @@ public class ProductoFStock {
 
 
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "venta_id")
     private Venta venta;
 
     public ProductoFStock() {
         descuento=0;
     }
+
+    public ProductoFStock(String nombre, String cantidad, String precio, String descuento) {
+        this.nombre = nombre;
+        this.cantidad = Integer.parseInt(cantidad);
+        this.precio_venta = Float.parseFloat(precio);
+        this.descuento = Float.parseFloat(descuento);
+    }
+
     public String getNombre() {
         return nombre;
     }
