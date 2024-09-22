@@ -268,7 +268,7 @@ public class ProductosController {
         if (cambios) {
             for (Producto producto : nuevosProductos) {
                 try {
-                    productoService.saveProducto(producto);
+                    productoService.crearProducto(producto);
                 } catch (Exception e) {
                     // Manejar cualquier excepción de manera genérica
                     JOptionPane.showMessageDialog(null, "Error al guardar el producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

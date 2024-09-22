@@ -3,7 +3,9 @@ package com.libcentro.demo.model;
 import jakarta.persistence.*;
 
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -20,11 +22,13 @@ public class Producto {
     private float costo_compra;
     @Column(name = "precio_venta")
     private float precio_venta;
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="historial_precios",referencedColumnName = "id")
-    HistorialPrecio costo_inicial;
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL) // Cascade ALL
+    @JoinColumn(name = "costo_inicial", referencedColumnName = "id")
+    private HistorialPrecio costo_inicial;
     @Column(name = "stock")
     private int stock;
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY) // Cascade ALL
+    private List<HistorialPrecio> historial_precios = new ArrayList<>();
 
 
 
@@ -40,10 +44,15 @@ public class Producto {
         this.costo_compra = costo_compra;
         this.precio_venta = precio_venta;
         this.stock = stock;
-
     }
 
-
+    public void agregarHistorial(HistorialPrecio historialPrecio) {
+        historialPrecio.setProducto(this);
+        historial_precios.add(historialPrecio);
+        if (costo_inicial == null) {
+            costo_inicial = historialPrecio;
+        }
+    }
 
 
 
@@ -113,4 +122,6 @@ public class Producto {
     public void setCosto_inicial(HistorialPrecio costo_inicial) {
         this.costo_inicial = costo_inicial;
     }
+
+
 }

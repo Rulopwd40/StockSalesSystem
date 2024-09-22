@@ -1,7 +1,10 @@
 package com.libcentro.demo.services.interfaces;
 import java.util.List;
+
+import com.libcentro.demo.model.Categoria;
 import com.libcentro.demo.model.Producto;
 import jakarta.transaction.Transactional;
+import com.libcentro.demo.model.HistorialPrecio;
 
 public interface IproductoService {
     ///Acá declaro SOLO LOS MÉTODOS DE LA INTERFAZ, NO LOS ATRIBUTOS
@@ -12,6 +15,9 @@ public interface IproductoService {
     public List<Producto> getAll();
     @Transactional
     public void saveProducto(Producto x);
+    @Transactional
+    Producto crearProducto(Producto producto);
+
     @Transactional
     public void deleteProducto(Producto x);
     @Transactional

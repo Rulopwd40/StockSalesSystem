@@ -4,7 +4,7 @@ CREATE TABLE producto(
                          categoria integer REFERENCES categoria(id),
                          costo_compra NUMERIC,
                          precio_venta NUMERIC,
-                         costo_inicial INTEGER references historial_precios(id),
+                         costo_inicial INTEGER references historial_precios(id) ,
                          stock int
 
 );
@@ -37,5 +37,6 @@ CREATE TABLE historial_precios(
                                   codigo_barras TEXT references producto(codigo_barras),
                                   costo_compra NUMERIC,
                                   cantidad integer,
-                                  fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                                  estado boolean,
+                                  fecha TEXT DEFAULT (datetime('now', 'localtime'))
 );
