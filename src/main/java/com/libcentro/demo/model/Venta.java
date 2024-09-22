@@ -1,38 +1,90 @@
 package com.libcentro.demo.model;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+
+
 import java.time.LocalDate;
 import java.util.*;
 
 @Entity
-@Table(name = "Venta")
+@Table(name = "venta")
 public class Venta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public int id;
+    private int id;
     @Column(name = "fecha")
-    public LocalDate fecha;
+    private LocalDate fecha;
     @Column(name = "total")
-    public float total;
+    private float total;
 
+    @OneToMany(mappedBy = "venta")
+    private Set<Venta_Producto> listaProductos = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(
-        name = "venta_producto",
-        joinColumns = @JoinColumn(name = "ventas_id"),
-        inverseJoinColumns = @JoinColumn(name = "codigo_barras")
-    )
-    private Set<Producto> lista;
-
+    @OneToMany(mappedBy = "venta")
+    private Set<ProductoFStock> listaProductosF = new HashSet<>();
 
     public Venta() {
-        total=0;
-        lista = new HashSet<>();
+        total= 0;
+
     }
 
     public void addProducto(Producto p){
-        lista.add(p);
+        Venta_Producto v = new Venta_Producto();
+        v.setProducto(p);
+        listaProductos.add(v);
+        updateTotal();
+
+    }
+    public void addProducto(ProductoFStock p){
+        listaProductosF.add(p);
+        updateTotal();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public LocalDate getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(LocalDate fecha) {
+        this.fecha = fecha;
+    }
+
+    public float getTotal() {
+        return total;
+    }
+
+    public void updateTotal() {
+        total=0;
+        float totalProducto;
+        for(ProductoFStock p : listaProductosF){
+            totalProducto=p.getCantidad() * p.getPrecio_venta();
+            total+= totalProducto - totalProducto * p.getDescuento()/100;
+        }
+
+    }
+
+    public Set<Venta_Producto> getListaProductos() {
+        return listaProductos;
+    }
+
+    public void setListaProductos(Set<Venta_Producto> listaProductos) {
+        this.listaProductos = listaProductos;
+    }
+
+    public Set<ProductoFStock> getListaProductosF() {
+        return listaProductosF;
+    }
+
+    public void setListaProductosF(Set<ProductoFStock> listaProductosF) {
+        this.listaProductosF = listaProductosF;
     }
 
 

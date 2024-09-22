@@ -1,10 +1,13 @@
+
 CREATE TABLE producto(
                          codigo_barras TEXT PRIMARY KEY,
                          nombre TEXT,
-                         categoria TEXT,
+                         categoria INTEGER DEFAULT NULL,
                          costo_compra NUMERIC,
                          precio_venta NUMERIC,
-                         stock int
+                         costo_inicial INTEGER references historial_precios(id) ,
+                         stock int,
+                         FOREIGN KEY (categoria) REFERENCES categoria(id) ON DELETE SET NULL
 
 );
 
@@ -23,4 +26,19 @@ CREATE TABLE producto_fuera_de_stock(
 CREATE TABLE detalle_venta(
                               id_venta integer REFERENCES venta(id),
                               id_producto integer REFERENCES producto_fuera_de_stock(id)
+);
+
+CREATE TABLE categoria (
+                           id integer PRIMARY KEY,
+                           categoria TEXT
+);
+
+
+CREATE TABLE historial_precios(
+                                  Id integer PRIMARY KEY,
+                                  codigo_barras TEXT references producto(codigo_barras),
+                                  costo_compra NUMERIC,
+                                  cantidad integer,
+                                  estado boolean,
+                                  fecha TEXT DEFAULT (datetime('now', 'localtime'))
 );
