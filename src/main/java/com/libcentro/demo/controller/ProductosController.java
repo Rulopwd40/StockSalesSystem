@@ -3,12 +3,9 @@ package com.libcentro.demo.controller;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.libcentro.demo.model.Categoria;
@@ -17,7 +14,6 @@ import com.libcentro.demo.utils.FieldAnalyzer;
 import com.libcentro.demo.view.productos.AgregarCategoria;
 import com.libcentro.demo.view.productos.AgregarProducto;
 import com.libcentro.demo.view.productos.ProductosFrame;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
@@ -29,9 +25,10 @@ import com.libcentro.demo.services.interfaces.IproductoService;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+
 
 @Controller
 public class ProductosController {
@@ -39,8 +36,11 @@ public class ProductosController {
     private final IproductoService productoService;
     private final IcategoriaService icategoriaService;
 
+    //Productos
     List<Producto> productos;
-    List<Producto> nuevosProductos = new ArrayList<Producto>();
+    List<Producto> nuevosProductos;
+    List<Producto> productosEliminados;
+    List<Producto> productosActualizados;
 
     List<Categoria> categorias;
 
@@ -72,6 +72,8 @@ public class ProductosController {
         }
         cambios = false;
         refreshProductos();
+
+        nuevosProductos = new ArrayList<Producto>();
 
         this.productsModel = (DefaultTableModel) productosFrame.getTable().getModel();
         productosFrameUpdateTable(productosFrame.getBuscarField().getText());
@@ -117,13 +119,7 @@ public class ProductosController {
                 guardarYVolver();
             }
         });
-        productsModel.addTableModelListener(new TableModelListener() {
-            public void tableChanged(TableModelEvent e) {
-                cambios=true;
-                productosFrame.getGuardarYVolverButton().setEnabled(cambios);
-                System.out.println("Cambios hechos");
-            }
-        });
+
     }
 
     private void agregarProducto() {
@@ -154,6 +150,7 @@ public class ProductosController {
                     if(existeProducto(producto)) {
                         addProductoToTable(producto);
                         nuevosProductos.add(producto);
+                        cambiosHechos();
                         agregarProducto.onOK();
                     }
                     else{
@@ -168,16 +165,83 @@ public class ProductosController {
 
     }
 
+    //Si bien dice agregar categoria aquí tambien se maneja la eliminación
     private void agregarCategoria() {
         categorias = getAllCategoria();
         agregarCategoria = new AgregarCategoria();
 
         categoriasModel = (DefaultTableModel) agregarCategoria.getTablaCategorias().getModel();
+        ListSelectionModel categoriasSelectionModel = (ListSelectionModel) agregarCategoria.getTablaCategorias().getSelectionModel();
 
         for(Categoria categoria : categorias) {
             categoriasModel.addRow(new Object[]{categoria.getNombre()});
         }
 
+        categoriasSelectionModel.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                agregarCategoria.getEliminarButton().setEnabled(true);
+            }
+        });
+        agregarCategoria.getEliminarButton().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                var filaSeleccionada = agregarCategoria.getTablaCategorias().getSelectedRow();
+                var columnaSeleccionada = agregarCategoria.getTablaCategorias().getSelectedColumn();
+                Categoria categoria = categorias.stream()
+                        .filter(categoriaT -> categoriaT.getNombre() == categoriasModel.getValueAt(filaSeleccionada, columnaSeleccionada))
+                        .findFirst().orElse(null);
+
+                try{
+                    icategoriaService.deleteCategoria(categoria);
+                } catch (Exception exception){
+                    System.out.println(exception.getMessage());
+                }
+
+                JOptionPane.showMessageDialog(null,"Categoria " + categoria.getNombre() + " eliminada exitosamente", "Eliminacion exitosa",JOptionPane.INFORMATION_MESSAGE);
+                categoriasModel.removeRow(filaSeleccionada);
+
+                agregarCategoria.getEliminarButton().setEnabled(false);
+
+
+            }
+        });
+        agregarCategoria.getCategoriaField().getDocument().addDocumentListener(new DocumentListener() {
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                verificarCampo();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                verificarCampo();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+
+            }
+            private void verificarCampo(){
+                if(agregarCategoria.getCategoriaField().getText().isEmpty()) {
+                    agregarCategoria.getAgregarButton().setEnabled(false);
+                }
+                else {
+                    agregarCategoria.getAgregarButton().setEnabled(true);
+                }
+            }
+        });
+        agregarCategoria.getAgregarButton().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                Categoria categoria = new Categoria(agregarCategoria.getCategoriaField().getText());
+                try{
+                    icategoriaService.saveCategoria(categoria);
+                } catch (Exception exception){
+                    JOptionPane.showMessageDialog(null, exception.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                JOptionPane.showMessageDialog(null,"Categoría agregada exitosamente","Éxito",JOptionPane.INFORMATION_MESSAGE);
+                categoriasModel.addRow(new Object[] {agregarCategoria.getCategoriaField().getText()});
+            }
+        });
 
         agregarCategoria.setVisible(true);
 
@@ -259,12 +323,23 @@ public class ProductosController {
         return p == null && pn == null;
     }
 
-    @Transactional
-    protected void guardarYVolver(){
-        if(cambios){
-            for(Producto producto: nuevosProductos){
-                productoService.saveProducto(producto);
+    private void cambiosHechos(){
+        cambios = true;
+        productosFrame.getGuardarYVolverButton().setEnabled(true);
+    }
+
+    protected void guardarYVolver() {
+        if (cambios) {
+            for (Producto producto : nuevosProductos) {
+                try {
+                    productoService.crearProducto(producto);
+                } catch (Exception e) {
+                    // Manejar cualquier excepción de manera genérica
+                    JOptionPane.showMessageDialog(null, "Error al guardar el producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
+            cambios = false;
+            productosFrame.getGuardarYVolverButton().setEnabled(false);
         }
     }
 

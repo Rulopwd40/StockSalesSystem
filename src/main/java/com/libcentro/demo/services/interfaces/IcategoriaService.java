@@ -6,8 +6,8 @@ import java.util.List;
 
 public interface IcategoriaService {
     public List<Categoria> getAll();
-    public void saveProducto(Categoria x);
-    public void deleteProducto(Categoria x);
-    public void updateProducto(Categoria x);
+    public void saveCategoria(Categoria x);
+    public void deleteCategoria(Categoria x);
+    public void updateCategoria(Categoria x);
 
 }

@@ -20,17 +20,17 @@ public class CategoriaService implements IcategoriaService {
     }
 
     @Override
-    public void saveProducto(Categoria x) {
+    public void saveCategoria(Categoria x) {
         icategoriaRepository.save(x);
     }
 
     @Override
-    public void deleteProducto(Categoria x) {
+    public void deleteCategoria(Categoria x) {
         icategoriaRepository.delete(x);
     }
 
     @Override
-    public void updateProducto(Categoria x) {
+    public void updateCategoria(Categoria x) {
         icategoriaRepository.save(x);
     }
 
