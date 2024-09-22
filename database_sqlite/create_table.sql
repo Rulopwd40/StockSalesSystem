@@ -1,11 +1,13 @@
+
 CREATE TABLE producto(
                          codigo_barras TEXT PRIMARY KEY,
                          nombre TEXT,
-                         categoria integer REFERENCES categoria(id),
+                         categoria INTEGER DEFAULT NULL,
                          costo_compra NUMERIC,
                          precio_venta NUMERIC,
                          costo_inicial INTEGER references historial_precios(id) ,
-                         stock int
+                         stock int,
+                         FOREIGN KEY (categoria) REFERENCES categoria(id) ON DELETE SET NULL
 
 );
 

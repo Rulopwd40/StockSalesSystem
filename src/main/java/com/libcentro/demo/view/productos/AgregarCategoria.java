@@ -6,10 +6,10 @@ import java.awt.event.*;
 public class AgregarCategoria extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
-    private JButton buttonCancel;
     private JTextField categoriaField;
     private JTable tablaCategorias;
     private JButton agregarButton;
+    private JButton eliminarButton;
 
     public AgregarCategoria() {
         setContentPane(contentPane);
@@ -21,12 +21,6 @@ public class AgregarCategoria extends JDialog {
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onOK();
-            }
-        });
-
-        buttonCancel.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
             }
         });
 
@@ -99,9 +93,6 @@ public class AgregarCategoria extends JDialog {
         return buttonOK;
     }
 
-    public JButton getButtonCancel() {
-        return buttonCancel;
-    }
 
     public JTextField getCategoriaField() {
         return categoriaField;
@@ -113,5 +104,9 @@ public class AgregarCategoria extends JDialog {
 
     public JButton getAgregarButton() {
         return agregarButton;
+    }
+
+    public JButton getEliminarButton() {
+        return eliminarButton;
     }
 }
