@@ -57,23 +57,6 @@ public class AgregarCategoria extends JDialog {
                         return false; // Las demás columnas no son editables
                 }
             }
-            @Override
-            public Class<?> getColumnClass(int columnIndex) {
-                switch (columnIndex) {
-                    case 0: // Cod
-                        return String.class;
-                    case 1:
-                        return String.class; // o Double.class si manejas cantidades decimales
-                    case 2:
-                        return String.class; // Descuento en porcentaje como decimal
-                    case 3:
-                        return Integer.class; // Precio como decimal
-                    case 4:
-                        return Float.class;
-                    default:
-                        return Object.class;
-                }
-            }
         });
         tablaCategorias.getTableHeader().setReorderingAllowed(false);
         tablaCategorias.setAutoCreateRowSorter(true);

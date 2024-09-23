@@ -5,6 +5,8 @@ import jakarta.persistence.Table;
 
 import jakarta.persistence.*;
 
+import java.util.Objects;
+
 @Entity
 @Table(name="producto_fuera_de_stock")
 public class ProductoFStock {
@@ -67,5 +69,21 @@ public class ProductoFStock {
 
     public void setDescuento(float descuento) {
         this.descuento = descuento;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true; // Si son la misma instancia
+        if (o == null || getClass() != o.getClass()) return false; // Si el objeto es de otro tipo
+
+        ProductoFStock producto = (ProductoFStock) o;
+
+        // Comparamos por codigo_barras o por algún otro identificador único
+        return Objects.equals(nombre, producto.getNombre());
+    }
+
+    @Override
+    public int hashCode() {
+        return nombre != null ? nombre.hashCode() : 0;
     }
 }

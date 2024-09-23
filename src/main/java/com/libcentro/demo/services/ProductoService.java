@@ -84,7 +84,7 @@ public class ProductoService implements IproductoService {
     public Producto getProducto(String codigo_barras) {
        Producto producto = productoRepo.findById(codigo_barras).orElse(null);
        if (producto == null) {
-           throw new ObjectNotFoundException(Producto.class, codigo_barras);
+           throw new ObjectNotFoundException(Producto.class,"El producto con código: " + codigo_barras + " no existe");
        }
        else {
            return producto;
@@ -94,7 +94,7 @@ public class ProductoService implements IproductoService {
     public Producto getProducto(String codigo_barras, int cantidad) {
         Producto producto = productoRepo.findById(codigo_barras).orElse(null);
         if (producto == null) {
-            throw new ObjectNotFoundException(Producto.class, codigo_barras);
+            throw new ObjectNotFoundException(Producto.class,"El producto con código: " + codigo_barras + " no existe");
         }
         if (producto.getStock()<cantidad) {
             throw new InsufficientStockException("el producto " + producto.getNombre() + "cod: " + codigo_barras + " no tiene stock suficiente.");

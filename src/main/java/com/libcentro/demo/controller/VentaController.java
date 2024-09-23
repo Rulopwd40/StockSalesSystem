@@ -1,5 +1,6 @@
 package com.libcentro.demo.controller;
 
+import com.libcentro.demo.exceptions.InsufficientStockException;
 import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.model.ProductoFStock;
 import com.libcentro.demo.model.Venta;
@@ -15,6 +16,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
@@ -35,6 +38,7 @@ public class VentaController {
     ViewController viewController;
     private JTable tableVenta;
     private DefaultTableModel ventaTableModel;
+    private ListSelectionModel ventaTableSelectionModel;
     ApfsDialog apfsDialog;
     private String codigo_barras;
 
@@ -65,11 +69,38 @@ public class VentaController {
 
         }
         ventaTableModel = (DefaultTableModel) tableVenta.getModel();
+        ventaTableSelectionModel = tableVenta.getSelectionModel();
+
+        // KeyBinding para eliminar fila seleccionada al presionar "Suprimir"
+        tableVenta.getInputMap(JTable.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "deleteRow");
+        tableVenta.getActionMap().put("deleteRow", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Object producto;
+                int selectedRow = tableVenta.getSelectedRow();
+                String productoNombre = (String) tableVenta.getValueAt(selectedRow, 0);
+                if (selectedRow != -1) {
+                    producto = getProductoFromVenta(productoNombre);
+                    if(producto.getClass() == Venta_Producto.class) {
+                        venta.getListaProductos().remove(producto);
+                    }
+                    else if(producto.getClass() == ProductoFStock.class) {
+
+                        venta.getListaProductosF().remove(producto);
+                    }
+
+                    updateTableVenta();
+                }
+            }
+        });
+
         //Listener de actualizacion
         ventaTableModel.addTableModelListener(new TableModelListener(){
             public void tableChanged(TableModelEvent e) {
             }
         });
+
+
 
         ventaFrame.setState(Frame.NORMAL); // Restaurar si está minimizado
         ventaFrame.toFront();
@@ -215,6 +246,10 @@ public class VentaController {
                     .orElse(null);
 
             if (ventaProducto != null) {
+                if (finalProducto.getStock() < ventaProducto.getCantidad() + cantidad) {
+                    JOptionPane.showMessageDialog(null, "El producto " + finalProducto.getNombre() + " con código: " + finalProducto.getCodigo_barras() + " no tiene stock suficiente.");
+                    throw new InsufficientStockException("El producto " + finalProducto.getNombre() + " con código: " + finalProducto.getCodigo_barras() + " no tiene stock suficiente.");
+                }
                 ventaProducto.setProducto(producto, ventaProducto.getCantidad() + cantidad);
             } else {
                 venta.addProducto(producto, cantidad);
@@ -243,6 +278,25 @@ public class VentaController {
         ventaFrame.dispose();
         ventaFrame = null;
 
+    }
+
+    private Object getProductoFromVenta(String nombre) {
+        // Intentar obtener el Producto de la lista de productos
+        Venta_Producto producto = venta.getListaProductos().stream()
+                .filter(ventaProducto -> ventaProducto.getProducto().getNombre().equals(nombre))
+                .findFirst()
+                .orElse(null);
+
+        // Si no se encuentra en la lista de productos, buscar en la lista de productos fuera de stock
+        if (producto == null) {
+            ProductoFStock productoFStock=  venta.getListaProductosF().stream()
+                    .filter(productoF -> productoF.getNombre().equals(nombre))
+                    .findFirst()
+                    .orElse(null);
+            return productoFStock;
+        }
+
+        return producto;
     }
 
 }
