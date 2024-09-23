@@ -29,16 +29,16 @@ public class Venta {
 
     }
 
-    public void addProducto(Producto p){
+    public void addProducto(Producto p,int cantidad){
         Venta_Producto v = new Venta_Producto();
-        v.setProducto(p);
+        v.setProducto(p,cantidad);
         listaProductos.add(v);
-        updateTotal();
+
 
     }
     public void addProducto(ProductoFStock p){
         listaProductosF.add(p);
-        updateTotal();
+
     }
 
     public int getId() {
@@ -64,11 +64,14 @@ public class Venta {
     public void updateTotal() {
         total=0;
         float totalProducto;
+        for(Venta_Producto v : listaProductos){
+            total+= v.getTotal();
+        }
+
         for(ProductoFStock p : listaProductosF){
             totalProducto=p.getCantidad() * p.getPrecio_venta();
             total+= totalProducto - totalProducto * p.getDescuento()/100;
         }
-
     }
 
     public Set<Venta_Producto> getListaProductos() {

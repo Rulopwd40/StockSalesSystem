@@ -17,10 +17,11 @@ public interface IproductoService {
     public void saveProducto(Producto x);
     @Transactional
     Producto crearProducto(Producto producto);
-
     @Transactional
     public void deleteProducto(Producto x);
     @Transactional
     public void updateProducto(Producto x);
-    
+
+    public Producto getProducto(String codigo_barras);
+
 }

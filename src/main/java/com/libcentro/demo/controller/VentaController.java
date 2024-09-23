@@ -4,6 +4,8 @@ import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.model.ProductoFStock;
 import com.libcentro.demo.model.Venta;
 import com.libcentro.demo.model.Venta_Producto;
+import com.libcentro.demo.services.ProductoService;
+import com.libcentro.demo.services.VentaService;
 import com.libcentro.demo.utils.FieldAnalyzer;
 import com.libcentro.demo.utils.filters.Filter;
 import com.libcentro.demo.view.venta.ApfsDialog;
@@ -16,6 +18,7 @@ import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Optional;
@@ -25,15 +28,22 @@ import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 @Controller
 public class VentaController {
 
+    private final VentaService ventaService;
+    private final ProductoService productoService;
     Venta venta;
     VentaFrame ventaFrame;
     ViewController viewController;
     private JTable tableVenta;
+    private DefaultTableModel ventaTableModel;
     ApfsDialog apfsDialog;
+    private String codigo_barras;
+
 
     @Autowired
-    public VentaController(@Lazy ViewController viewController) {
+    public VentaController(@Lazy ViewController viewController, VentaService ventaService, ProductoService productoService) {
         this.viewController = viewController;
+        this.ventaService = ventaService;
+        this.productoService = productoService;
     }
 
     void openVentaFrame() {
@@ -54,25 +64,11 @@ public class VentaController {
             setVentaKeyBindings();
 
         }
+        ventaTableModel = (DefaultTableModel) tableVenta.getModel();
         //Listener de actualizacion
-        tableVenta.getModel().addTableModelListener(new TableModelListener(){
-            public void tableChanged(TableModelEvent e){
-                if (e.getType() == TableModelEvent.UPDATE) {
-
-                    int fila = e.getFirstRow();
-                    int columna = e.getColumn();
-
-                    // Obtén el valor actualizado
-                    Object valorNuevo = tableVenta.getModel().getValueAt(fila, columna);
-                    String nombreColumna = tableVenta.getModel().getColumnName(columna);
-                    String nombreProducto = tableVenta.getModel().getValueAt(fila,0).toString();
-
-
-                    updateProducto(nombreProducto,nombreColumna,fila,columna);
-                }
-                ventaFrame.getTotalPrice().setText(venta.getTotal() + "");
+        ventaTableModel.addTableModelListener(new TableModelListener(){
+            public void tableChanged(TableModelEvent e) {
             }
-
         });
 
         ventaFrame.setState(Frame.NORMAL); // Restaurar si está minimizado
@@ -129,10 +125,17 @@ public class VentaController {
 
     private void setVentaListeners(){
         ventaFrame.getAgregarEnterButton().addActionListener(e -> {
+
+            this.codigo_barras = ventaFrame.getCodBar().getText();
+            var cantidad= Integer.parseInt(ventaFrame.getCant().getText());
+            agregarProducto(codigo_barras,cantidad);
+            ventaFrame.getCodBar().setText("");
+            ventaFrame.getCant().setText("1");
             ventaFrame.setCodFocus();
-            ventaFrame.getCodBar().getText();
 
         });
+
+
         ventaFrame.getAgregarProductoFueraDeButton().addActionListener(e -> openApfsDialog());
         ventaFrame.getCancelarEscButton().addActionListener(e -> closeVentaFrame());
         ventaFrame.addWindowListener(new WindowAdapter() {
@@ -153,15 +156,14 @@ public class VentaController {
                     String cantidad = apfsDialog.getCantField().getText();
                     String precio = apfsDialog.getPrecioField().getText();
 
-                    DefaultTableModel model = (DefaultTableModel) ventaFrame.getTable().getModel();
                     ProductoFStock producto;
                     producto = new ProductoFStock(nombre,cantidad,precio,"0");
                     venta.addProducto(producto);
-                    model.addRow(new Object[]{nombre,Integer.parseInt(cantidad), 0.0f,Float.parseFloat(precio)});
-
 
 
                     apfsDialog.onOK();
+
+                    updateTableVenta();
                 }
             }
         });
@@ -191,57 +193,42 @@ public class VentaController {
     }
     //Producto
     private void updateProducto(String nombre, String atributo,int fila,int columna) {
-        // Buscar el producto en ambas listas y manejar la lógica de encontrar un producto
-        Optional<Producto> productoOpt = venta.getListaProductos().stream()
-                .map(Venta_Producto::getProducto)
-                .filter(p -> p.getNombre().equals(nombre))
-                .findFirst();
 
-        Optional<ProductoFStock> productoFStockOpt;
+    }
 
-        if (productoOpt.isEmpty()) {
-            productoFStockOpt = venta.getListaProductosF().stream()
-                    .filter(p -> p.getNombre().equals(nombre))
-                    .findFirst();
-        } else {
-            productoFStockOpt = Optional.empty();
+    private void agregarProducto(String codigo_barras, int cantidad) {
+        if (cantidad <= 0) {
+            JOptionPane.showMessageDialog(null, "Ingrese cantidad del producto mayor a 0");
+            throw new IllegalArgumentException("La cantidad debe ser mayor que cero");
         }
 
-        // Manejar los resultados de las búsquedas
-        productoOpt.ifPresentOrElse(
-                producto -> {
-                    if(atributo.equals("Cantidad")) {
-                        // Lógica para "Cantidad"
-                    }
-                    else if(atributo.equals("Descuento(%)")){
-                        // Lógica para "Descuento(%)"
-                    }
-                    else {
-                        System.out.println(atributo);
-                    }
-                },
-                () -> productoFStockOpt.ifPresentOrElse(
-                        productoFStock -> {
-                            switch(columna){
-                                case 1:
-                                    productoFStock.setCantidad((Integer) tableVenta.getValueAt(fila, columna));
-                                    break;
-                                case 2:
-                                    productoFStock.setDescuento((Float) tableVenta.getValueAt(fila, columna));
-                                    break;
-                                case 3:
-                                    productoFStock.setPrecio_venta((Float) tableVenta.getValueAt(fila, columna));
-                                    break;
-                                default:
-                                    System.out.println(atributo);
-                                    break;
-                            }
-                        },
-                        () -> System.out.println("Producto no encontrado")
-                )
-        );
-        venta.updateTotal();
+        Producto producto = productoService.getProducto(codigo_barras);
+        Venta_Producto ventaProducto = venta.getListaProductos().stream()
+                .filter(ventap -> ventap.getProducto().equals(producto))
+                .findFirst()
+                .orElse(null);
 
+        if (ventaProducto != null) {
+            ventaProducto.setProducto(producto, ventaProducto.getCantidad()+cantidad);
+        } else {
+            venta.addProducto(producto, cantidad);
+        }
+        updateTableVenta();
+    }
+
+    private void updateTableVenta(){
+        ventaTableModel.setRowCount(0);
+
+        for(Venta_Producto ventaProducto: venta.getListaProductos()){
+            Producto producto= ventaProducto.getProducto();
+            ventaTableModel.addRow(new Object[] {producto.getNombre(),ventaProducto.getCantidad(),ventaProducto.getDescuento(),ventaProducto.getPrecio_venta()});
+        }
+        for(ProductoFStock productoFStock: venta.getListaProductosF()){
+            ventaTableModel.addRow(new Object[] {productoFStock.getNombre(),productoFStock.getPrecio_venta(), productoFStock.getDescuento(), productoFStock.getCantidad() });
+        }
+
+        venta.updateTotal();
+        ventaFrame.getTotalPrice().setText(venta.getTotal()+"");
     }
 
     void closeVentaFrame(){

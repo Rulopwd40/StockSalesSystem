@@ -13,7 +13,10 @@ CREATE TABLE producto(
 
 CREATE TABLE venta_producto(
                                id_venta integer REFERENCES venta(id),
-                               codigo_barras TEXT REFERENCES producto(codigo_barras)
+                               codigo_barras TEXT REFERENCES producto(codigo_barras),
+                               precio_venta NUMERIC,
+                               total NUMERIC,
+                               cantidad INTEGER
 );
 
 CREATE TABLE producto_fuera_de_stock(

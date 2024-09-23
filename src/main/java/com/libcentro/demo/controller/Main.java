@@ -23,15 +23,7 @@ public class Main {
             return; // Salimos si no hay entorno gráfico
         }
 
-
         ApplicationContext contexto = SpringApplication.run(Main.class, args);
-
-        /*Viewgen.main(args);
-        productoController productoController = contexto.getBean(productoController.class);
-        System.out.println("Hello World!");
-        producto producto1 = new producto(1,"Coca-Cola","Bebida energetica",0.5f,1.5f,10,"123456789");
-        productoController.saveProducto(producto1);
-        productoController.getAll().size();*/
 
         ViewController viewController = contexto.getBean(ViewController.class);
 

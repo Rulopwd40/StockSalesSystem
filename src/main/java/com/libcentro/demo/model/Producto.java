@@ -3,10 +3,7 @@ package com.libcentro.demo.model;
 import jakarta.persistence.*;
 
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "Producto")
@@ -123,5 +120,20 @@ public class Producto {
         this.costo_inicial = costo_inicial;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true; // Si son la misma instancia
+        if (o == null || getClass() != o.getClass()) return false; // Si el objeto es de otro tipo
+
+        Producto producto = (Producto) o;
+
+        // Comparamos por codigo_barras o por algún otro identificador único
+        return Objects.equals(codigo_barras, producto.getCodigo_barras());
+    }
+
+    @Override
+    public int hashCode() {
+        return codigo_barras != null ? codigo_barras.hashCode() : 0;
+    }
 
 }

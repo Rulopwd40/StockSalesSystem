@@ -25,6 +25,12 @@ public class Venta_Producto {
         @Column(name="descuento")
         private float descuento;
 
+        @Column(name="precio_venta")
+        private float precio_venta;
+
+        @Column(name="total")
+        private float total;
+
     public float getDescuento() {
         return descuento;
     }
@@ -52,11 +58,23 @@ public class Venta_Producto {
     public Producto getProducto() {
         return producto;
     }
-    public void setProducto(Producto producto) {
-        this.producto = producto;
+
+    public float getTotal() {
+        return total;
     }
 
+    public void setProducto(Producto producto, int cantidad) {
+        this.producto = producto;
+        precio_venta = producto.getPrecio_venta();
+        this.cantidad = cantidad;
+        updateTotal();
+    }
 
+    private void updateTotal() {
+        total = precio_venta * cantidad - precio_venta * cantidad * descuento/100;
+    };
 
-
+    public float getPrecio_venta() {
+        return precio_venta;
+    }
 }

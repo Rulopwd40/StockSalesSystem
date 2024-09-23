@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.repository.IhistorialpreciosRepository;
+import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -48,7 +49,6 @@ public class ProductoService implements IproductoService {
         return producto;
     }
 
-
     @Override
     public void deleteProducto(Producto x) {
         productoRepo.delete(x);
@@ -58,5 +58,17 @@ public class ProductoService implements IproductoService {
     public void updateProducto(Producto x) {
         productoRepo.save(x);
     }
+
+    @Override
+    public Producto getProducto(String codigo_barras) {
+       Producto producto = productoRepo.findById(codigo_barras).orElse(null);
+       if (producto == null) {
+           throw new ObjectNotFoundException(Producto.class, codigo_barras);
+       }
+       else {
+           return producto;
+       }
+    }
+
 
 }
