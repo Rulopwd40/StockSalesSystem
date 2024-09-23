@@ -201,17 +201,24 @@ public class VentaController {
             JOptionPane.showMessageDialog(null, "Ingrese cantidad del producto mayor a 0");
             throw new IllegalArgumentException("La cantidad debe ser mayor que cero");
         }
+        Producto producto=null;
+        try {
+            producto = productoService.getProducto(codigo_barras, cantidad);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "No se puede agregar el producto: " + e.getMessage());
+        }
+        Producto finalProducto = producto;
+        if(finalProducto != null) {
+            Venta_Producto ventaProducto = venta.getListaProductos().stream()
+                    .filter(ventap -> ventap.getProducto().equals(finalProducto))
+                    .findFirst()
+                    .orElse(null);
 
-        Producto producto = productoService.getProducto(codigo_barras);
-        Venta_Producto ventaProducto = venta.getListaProductos().stream()
-                .filter(ventap -> ventap.getProducto().equals(producto))
-                .findFirst()
-                .orElse(null);
-
-        if (ventaProducto != null) {
-            ventaProducto.setProducto(producto, ventaProducto.getCantidad()+cantidad);
-        } else {
-            venta.addProducto(producto, cantidad);
+            if (ventaProducto != null) {
+                ventaProducto.setProducto(producto, ventaProducto.getCantidad() + cantidad);
+            } else {
+                venta.addProducto(producto, cantidad);
+            }
         }
         updateTableVenta();
     }

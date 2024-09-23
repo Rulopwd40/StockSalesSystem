@@ -2,6 +2,7 @@ package com.libcentro.demo.services;
 
 import java.util.List;
 
+import com.libcentro.demo.exceptions.InsufficientStockException;
 import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.repository.IhistorialpreciosRepository;
 import org.hibernate.ObjectNotFoundException;
@@ -55,8 +56,28 @@ public class ProductoService implements IproductoService {
     }
 
     @Override
-    public void updateProducto(Producto x) {
-        productoRepo.save(x);
+    public void updateProducto(Producto productoActualizado) {
+        // Buscar el producto existente por su código de barras
+        Producto productoExistente = productoRepo.findById(productoActualizado.getCodigo_barras())
+                .orElseThrow(() -> new ObjectNotFoundException(Producto.class, productoActualizado.getCodigo_barras()));
+
+        // Actualizar los atributos excepto el código de barras
+        productoExistente.setNombre(productoActualizado.getNombre());
+        productoExistente.setCategoria(productoActualizado.getCategoria());
+        productoExistente.setCosto_compra(productoActualizado.getCosto_compra());
+        productoExistente.setPrecio_venta(productoActualizado.getPrecio_venta());
+        productoExistente.setCosto_inicial(productoActualizado.getCosto_inicial());
+        productoExistente.setStock(productoActualizado.getStock());
+
+    }
+
+    @Override
+    public void venderProducto(Producto producto, int cantidad){
+        Producto productoExistente = productoRepo.findById(producto.getCodigo_barras())
+                .orElseThrow(() -> new ObjectNotFoundException(Producto.class, producto.getCodigo_barras()));
+
+        productoExistente.setStock(producto.getStock()-cantidad);
+        productoRepo.save(productoExistente);
     }
 
     @Override
@@ -68,6 +89,19 @@ public class ProductoService implements IproductoService {
        else {
            return producto;
        }
+    }
+    @Override
+    public Producto getProducto(String codigo_barras, int cantidad) {
+        Producto producto = productoRepo.findById(codigo_barras).orElse(null);
+        if (producto == null) {
+            throw new ObjectNotFoundException(Producto.class, codigo_barras);
+        }
+        if (producto.getStock()<cantidad) {
+            throw new InsufficientStockException("el producto " + producto.getNombre() + "cod: " + codigo_barras + " no tiene stock suficiente.");
+        }
+        else {
+            return producto;
+        }
     }
 
 

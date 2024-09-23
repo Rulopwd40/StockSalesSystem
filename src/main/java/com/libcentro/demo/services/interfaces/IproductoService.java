@@ -22,6 +22,9 @@ public interface IproductoService {
     @Transactional
     public void updateProducto(Producto x);
 
+    void venderProducto(Producto producto, int cantidad);
+
     public Producto getProducto(String codigo_barras);
 
+    Producto getProducto(String codigo_barras, int cantidad);
 }
