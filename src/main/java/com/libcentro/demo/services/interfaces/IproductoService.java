@@ -1,6 +1,8 @@
 package com.libcentro.demo.services.interfaces;
 import java.util.List;
 
+import com.libcentro.demo.model.HistorialCosto;
+import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.model.Producto;
 import jakarta.transaction.Transactional;
 
@@ -18,7 +20,7 @@ public interface IproductoService {
     @Transactional
     public void deleteProducto(Producto x);
     @Transactional
-    public void updateProducto(Producto x);
+    public void updateProducto(Producto x, HistorialPrecio historialPrecio, HistorialCosto historialCosto);
 
     void venderProducto(Producto producto, int cantidad);
 

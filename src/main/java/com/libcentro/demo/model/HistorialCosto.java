@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 @Entity
 @Table(name="historial_costos")
@@ -59,4 +60,18 @@ public class HistorialCosto {
     public Long getId() {
         return id;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true; // Si son la misma instancia
+        if (o == null || getClass() != o.getClass()) return false; // Si el objeto es de otro tipo
+
+        HistorialCosto historialCosto = (HistorialCosto) o;
+
+        // Comparamos por codigo_barras o por algún otro identificador único
+        return Objects.equals(id, historialCosto.getId());
+    }
+
+
+
 }

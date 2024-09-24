@@ -25,9 +25,9 @@ public class Producto {
     @Column(name = "stock")
     private int stock;
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY) // Cascade ALL
-    private List<HistorialPrecio> historial_precios = new ArrayList<>();
+    private Set<HistorialPrecio> historial_precios = new HashSet<>();
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<HistorialCosto> historial_costos = new ArrayList<>();
+    private Set<HistorialCosto> historial_costos = new HashSet<>();
 
 
 
@@ -126,12 +126,20 @@ public class Producto {
         this.costo_inicial = costo_inicial;
     }
 
-    public List<HistorialPrecio> getHistorial_precios() {
+    public Set<HistorialPrecio> getHistorial_precios() {
         return historial_precios;
     }
 
-    public List<HistorialCosto> getHistorial_costos() {
+    public Set<HistorialCosto> getHistorial_costos() {
         return historial_costos;
+    }
+
+    public void setHistorial_precios(Set<HistorialPrecio> historial_precios) {
+        this.historial_precios = historial_precios;
+    }
+
+    public void setHistorial_costos(Set<HistorialCosto> historial_costos) {
+        this.historial_costos = historial_costos;
     }
 
     @Override

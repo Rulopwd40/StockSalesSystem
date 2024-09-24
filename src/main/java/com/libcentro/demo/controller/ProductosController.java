@@ -12,6 +12,7 @@ import com.libcentro.demo.model.HistorialCosto;
 import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.services.interfaces.IcategoriaService;
 import com.libcentro.demo.utils.FieldAnalyzer;
+import com.libcentro.demo.utils.filters.Filter;
 import com.libcentro.demo.view.productos.ActualizarUnProducto;
 import com.libcentro.demo.view.productos.AgregarCategoria;
 import com.libcentro.demo.view.productos.AgregarProducto;
@@ -189,6 +190,11 @@ public class ProductosController {
             actualizarUnProducto.getCategoriaBox().addItem(categoria.getNombre());
         }
 
+        Filter.setIntegerFilter(actualizarUnProducto.getCodigoField());
+        Filter.setIntegerFilter(actualizarUnProducto.getStockField());
+        Filter.setPrecioFilter(actualizarUnProducto.getPrecioVentaField());
+        Filter.setPrecioFilter(actualizarUnProducto.getCostoCompraField());
+
         //Buscar producto
         actualizarUnProducto.getBuscarButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -220,13 +226,15 @@ public class ProductosController {
                 float precio_venta = Float.parseFloat(actualizarUnProducto.getPrecioVentaField().getText());
 
                 if(cantidadAgregada>0 || (cantidadAgregada>=0 && producto[0].getCosto_compra() != costo_compra) ) {
+
                    historialCosto = new HistorialCosto(producto[0], costo_compra, cantidadAgregada);
-                   producto[0].getHistorial_costos().add(historialCosto);
+
                 }
 
                 if(producto[0].getPrecio_venta() != precio_venta){
+
                     historialPrecio = new HistorialPrecio(producto[0], precio_venta);
-                    producto[0].getHistorial_precios().add(historialPrecio);
+
                 }
                 producto[0].setNombre(actualizarUnProducto.getNombreField().getText());
                 producto[0].setCategoria(categoria);
@@ -234,7 +242,7 @@ public class ProductosController {
                 producto[0].setPrecio_venta(Float.parseFloat(actualizarUnProducto.getPrecioVentaField().getText()));
                 producto[0].setStock(cantidadAgregada);
                 try {
-                    productoService.updateProducto(producto[0]);
+                    productoService.updateProducto(producto[0],historialPrecio,historialCosto);
                 }catch(RuntimeException re){
                     JOptionPane.showMessageDialog(null, "Error al actualizar el producto " + re.getMessage());
                     System.err.println(re.getMessage());
@@ -266,9 +274,7 @@ public class ProductosController {
                         productosFrameUpdateTable();
                         actualizarUnProducto.onCancel();
                     }
-                },
-                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
-                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT
+                }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT
         );
 
 

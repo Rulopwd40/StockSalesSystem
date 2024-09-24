@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface IhistorialcostosRepository extends JpaRepository<HistorialCosto,Integer> {
+public interface IhistorialcostosRepository extends JpaRepository<HistorialCosto,Long> {
 }

@@ -1,11 +1,13 @@
 package com.libcentro.demo.services;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.libcentro.demo.exceptions.InsufficientStockException;
 import com.libcentro.demo.model.HistorialCosto;
 import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.repository.IhistorialcostosRepository;
+import com.libcentro.demo.repository.IhistorialpreciosRepository;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -20,7 +22,9 @@ public class ProductoService implements IproductoService {
     @Autowired
     private IproductoRepository productoRepo;
     @Autowired
-    private IhistorialcostosRepository historialPreciosRepo;
+    private IhistorialcostosRepository historialCostosRepo;
+    @Autowired
+    private IhistorialpreciosRepository historialPreciosRepo;
 
     @Override
     public List<Producto> getAll() {
@@ -59,10 +63,9 @@ public class ProductoService implements IproductoService {
     }
 
     @Override
-    public void updateProducto(Producto productoActualizado) {
+    public void updateProducto(Producto productoActualizado,HistorialPrecio historialPrecio,HistorialCosto historialCosto) {
         // Buscar el producto existente por su código de barras
-        Producto productoExistente = productoRepo.findById(productoActualizado.getCodigo_barras())
-                .orElseThrow(() -> new ObjectNotFoundException(Producto.class, productoActualizado.getCodigo_barras()));
+        Producto productoExistente = productoRepo.findByCodigoBarras(productoActualizado.getCodigo_barras());
 
         // Actualizar los atributos excepto el código de barras
         productoExistente.setNombre(productoActualizado.getNombre());
@@ -71,6 +74,9 @@ public class ProductoService implements IproductoService {
         productoExistente.setPrecio_venta(productoActualizado.getPrecio_venta());
         productoExistente.setCosto_inicial(productoActualizado.getCosto_inicial());
         productoExistente.setStock(productoActualizado.getStock());
+
+        if(historialPrecio != null) {historialPreciosRepo.save(historialPrecio);}
+        if(historialCosto != null) {historialCostosRepo.save(historialCosto);}
 
         productoRepo.save(productoExistente);
     }
@@ -86,7 +92,7 @@ public class ProductoService implements IproductoService {
 
     @Override
     public Producto getProducto(String codigo_barras) {
-       Producto producto = productoRepo.findByCodigoBarrasConHistorial(codigo_barras);
+       Producto producto = productoRepo.findByCodigoBarrasWithHistorial(codigo_barras);
 
        if (producto == null) {
            throw new ObjectNotFoundException(Producto.class,"El producto con código: " + codigo_barras + " no existe");
