@@ -15,6 +15,11 @@ public class CategoriaService implements IcategoriaService {
     IcategoriaRepository icategoriaRepository;
 
     @Override
+    public Categoria getCategoria(String nombre) {
+        return icategoriaRepository.findByNombre(nombre);
+    }
+
+    @Override
     public List<Categoria> getAll() {
         return icategoriaRepository.findAll();
     }

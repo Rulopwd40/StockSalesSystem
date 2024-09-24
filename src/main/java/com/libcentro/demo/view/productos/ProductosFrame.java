@@ -13,7 +13,7 @@ public class ProductosFrame extends JFrame {
     private JButton porCategoriaButton;
     private JButton generalButton;
     private JButton volverButton;
-    private JButton guardarYVolverButton;
+    private JButton guardarButton;
     private JButton deshacerCambiosButton;
     private JPanel panelProducto;
     private JButton eliminarProductoButton;
@@ -106,8 +106,8 @@ public class ProductosFrame extends JFrame {
         return volverButton;
     }
 
-    public JButton getGuardarYVolverButton() {
-        return guardarYVolverButton;
+    public JButton getGuardarButton() {
+        return guardarButton;
     }
 
     public JButton getDeshacerCambiosButton() {

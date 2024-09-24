@@ -1,14 +1,14 @@
 package com.libcentro.demo.controller;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import com.libcentro.demo.model.Categoria;
+import com.libcentro.demo.model.HistorialCosto;
 import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.services.interfaces.IcategoriaService;
 import com.libcentro.demo.utils.FieldAnalyzer;
@@ -16,7 +16,6 @@ import com.libcentro.demo.view.productos.ActualizarUnProducto;
 import com.libcentro.demo.view.productos.AgregarCategoria;
 import com.libcentro.demo.view.productos.AgregarProducto;
 import com.libcentro.demo.view.productos.ProductosFrame;
-import jakarta.persistence.JoinColumn;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -32,6 +31,8 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+
+import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 
 
 @Controller
@@ -89,6 +90,7 @@ public class ProductosController {
         productosFrame.setState(Frame.NORMAL); // Restaurar si está minimizado
         productosFrame.toFront();
         productosFrame.requestFocus();
+
     }
 
     private void productosFrameAddListeners(){
@@ -127,9 +129,9 @@ public class ProductosController {
         });
 
 
-        productosFrame.getGuardarYVolverButton().addActionListener(new ActionListener() {
+        productosFrame.getGuardarButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                guardarYVolver();
+                guardar();
             }
         });
 
@@ -210,15 +212,20 @@ public class ProductosController {
         //Actualizar producto
         actualizarUnProducto.getActualizarButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                HistorialCosto historialCosto = null;
                 HistorialPrecio historialPrecio = null;
-                Categoria categoria= categorias.stream().filter(categoria1 -> categoria1.equals(actualizarUnProducto.getCategoriaBox().getSelectedItem()
-                        .toString()))
-                        .findFirst()
-                        .orElse(null);
+                Categoria categoria= icategoriaService.getCategoria(actualizarUnProducto.getCategoriaBox().getSelectedItem().toString());
                 int cantidadAgregada = Integer.parseInt(actualizarUnProducto.getStockField().getText()) - producto[0].getStock();
                 float costo_compra = Float.parseFloat(actualizarUnProducto.getCostoCompraField().getText());
-                if(cantidadAgregada>0 || producto[0].getCosto_compra() != costo_compra) {
-                   historialPrecio = new HistorialPrecio(producto[0], costo_compra, cantidadAgregada);
+                float precio_venta = Float.parseFloat(actualizarUnProducto.getPrecioVentaField().getText());
+
+                if(cantidadAgregada>0 || (cantidadAgregada>=0 && producto[0].getCosto_compra() != costo_compra) ) {
+                   historialCosto = new HistorialCosto(producto[0], costo_compra, cantidadAgregada);
+                   producto[0].getHistorial_costos().add(historialCosto);
+                }
+
+                if(producto[0].getPrecio_venta() != precio_venta){
+                    historialPrecio = new HistorialPrecio(producto[0], precio_venta);
                     producto[0].getHistorial_precios().add(historialPrecio);
                 }
                 producto[0].setNombre(actualizarUnProducto.getNombreField().getText());
@@ -230,15 +237,39 @@ public class ProductosController {
                     productoService.updateProducto(producto[0]);
                 }catch(RuntimeException re){
                     JOptionPane.showMessageDialog(null, "Error al actualizar el producto " + re.getMessage());
+                    System.err.println(re.getMessage());
                 }
             }
         });
-        //Cerrar
+
         actualizarUnProducto.getCerrarButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                productosFrameUpdateTable("");
+                productosFrameUpdateTable();
+                actualizarUnProducto.onCancel();
             }
         });
+
+        // call onCancel() when cross is clicked
+        actualizarUnProducto.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        actualizarUnProducto.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+               productosFrameUpdateTable();
+               actualizarUnProducto.onCancel();
+            }
+        });
+
+        // call onCancel() on ESCAPE
+        actualizarUnProducto.getContentPane().registerKeyboardAction(
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        productosFrameUpdateTable();
+                        actualizarUnProducto.onCancel();
+                    }
+                },
+                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT
+        );
 
 
         actualizarUnProducto.setVisible(true);
@@ -334,12 +365,11 @@ public class ProductosController {
 
     }
 
-
+    private void productosFrameUpdateTable(){
+        productosFrameUpdateTable("");
+    }
 
     private void productosFrameUpdateTable(String filter) {
-
-        // Obtener el modelo de la tabla
-
 
         // Limpiar todas las filas actuales del modelo de la tabla
         productsModel.setRowCount(0);
@@ -413,10 +443,10 @@ public class ProductosController {
 
     private void cambiosHechos(){
         cambios = true;
-        productosFrame.getGuardarYVolverButton().setEnabled(true);
+        productosFrame.getGuardarButton().setEnabled(true);
     }
 
-    protected void guardarYVolver() {
+    protected void guardar() {
         if (cambios) {
             for (Producto producto : nuevosProductos) {
                 try {
@@ -427,7 +457,7 @@ public class ProductosController {
                 }
             }
             cambios = false;
-            productosFrame.getGuardarYVolverButton().setEnabled(false);
+            productosFrame.getGuardarButton().setEnabled(false);
         }
     }
 

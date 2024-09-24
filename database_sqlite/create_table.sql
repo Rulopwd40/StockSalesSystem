@@ -37,11 +37,18 @@ CREATE TABLE categoria (
 );
 
 
+CREATE TABLE historial_costos(
+                                 Id integer PRIMARY KEY,
+                                 codigo_barras TEXT references producto(codigo_barras),
+                                 costo_compra NUMERIC,
+                                 cantidad integer,
+                                 estado boolean,
+                                 fecha TEXT DEFAULT (datetime('now', 'localtime'))
+);
+
 CREATE TABLE historial_precios(
                                   Id integer PRIMARY KEY,
                                   codigo_barras TEXT references producto(codigo_barras),
-                                  costo_compra NUMERIC,
-                                  cantidad integer,
-                                  estado boolean,
-                                  fecha TEXT DEFAULT (datetime('now', 'localtime'))
+                                  precio_venta integer,
+                                  fecha TEXT DEFAULT (datetime('now','localtime'))
 );

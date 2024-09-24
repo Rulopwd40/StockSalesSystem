@@ -255,7 +255,7 @@
               <text value="Volver"/>
             </properties>
           </component>
-          <component id="bc297" class="javax.swing.JButton" binding="guardarYVolverButton" default-binding="true">
+          <component id="bc297" class="javax.swing.JButton" binding="guardarButton">
             <constraints>
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -263,7 +263,7 @@
               <background color="-12406529"/>
               <enabled value="false"/>
               <foreground color="-1"/>
-              <text value="Guardar y Volver"/>
+              <text value="Guardar"/>
             </properties>
           </component>
           <component id="c7d81" class="javax.swing.JButton" binding="deshacerCambiosButton" default-binding="true">

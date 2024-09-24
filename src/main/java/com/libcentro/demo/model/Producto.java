@@ -21,11 +21,13 @@ public class Producto {
     private float precio_venta;
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL) // Cascade ALL
     @JoinColumn(name = "costo_inicial", referencedColumnName = "id")
-    private HistorialPrecio costo_inicial;
+    private HistorialCosto costo_inicial;
     @Column(name = "stock")
     private int stock;
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY) // Cascade ALL
     private List<HistorialPrecio> historial_precios = new ArrayList<>();
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<HistorialCosto> historial_costos = new ArrayList<>();
 
 
 
@@ -43,12 +45,16 @@ public class Producto {
         this.stock = stock;
     }
 
+    public void agregarHistorial(HistorialCosto historialCosto) {
+        historialCosto.setProducto(this);
+        historial_costos.add(historialCosto);
+        if (costo_inicial == null) {
+            costo_inicial = historialCosto;
+        }
+    }
     public void agregarHistorial(HistorialPrecio historialPrecio) {
         historialPrecio.setProducto(this);
         historial_precios.add(historialPrecio);
-        if (costo_inicial == null) {
-            costo_inicial = historialPrecio;
-        }
     }
 
 
@@ -112,16 +118,20 @@ public class Producto {
         this.codigo_barras = codigo_barras;
     }
 
-    public HistorialPrecio getCosto_inicial() {
+    public HistorialCosto getCosto_inicial() {
         return costo_inicial;
     }
 
-    public void setCosto_inicial(HistorialPrecio costo_inicial) {
+    public void setCosto_inicial(HistorialCosto costo_inicial) {
         this.costo_inicial = costo_inicial;
     }
 
     public List<HistorialPrecio> getHistorial_precios() {
         return historial_precios;
+    }
+
+    public List<HistorialCosto> getHistorial_costos() {
+        return historial_costos;
     }
 
     @Override

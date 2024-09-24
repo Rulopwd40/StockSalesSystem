@@ -3,8 +3,9 @@ package com.libcentro.demo.services;
 import java.util.List;
 
 import com.libcentro.demo.exceptions.InsufficientStockException;
+import com.libcentro.demo.model.HistorialCosto;
 import com.libcentro.demo.model.HistorialPrecio;
-import com.libcentro.demo.repository.IhistorialpreciosRepository;
+import com.libcentro.demo.repository.IhistorialcostosRepository;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -19,7 +20,7 @@ public class ProductoService implements IproductoService {
     @Autowired
     private IproductoRepository productoRepo;
     @Autowired
-    private IhistorialpreciosRepository historialPreciosRepo;
+    private IhistorialcostosRepository historialPreciosRepo;
 
     @Override
     public List<Producto> getAll() {
@@ -41,8 +42,10 @@ public class ProductoService implements IproductoService {
     public Producto crearProducto(Producto producto) {
 
         // Crear el historial de precios y agregarlo al producto
-        HistorialPrecio nuevoHistorial = new HistorialPrecio(producto, producto.getCosto_compra(), producto.getStock());
+        HistorialCosto nuevoHistorial = new HistorialCosto(producto, producto.getCosto_compra(), producto.getStock());
         producto.agregarHistorial(nuevoHistorial);
+        HistorialPrecio nuevoHistorialPrecio = new HistorialPrecio(producto,producto.getPrecio_venta());
+        producto.agregarHistorial(nuevoHistorialPrecio);
 
         // Guardar el producto (esto también guardará el historial debido al Cascade)
         productoRepo.save(producto);
@@ -83,7 +86,8 @@ public class ProductoService implements IproductoService {
 
     @Override
     public Producto getProducto(String codigo_barras) {
-       Producto producto = productoRepo.findById(codigo_barras).orElse(null);
+       Producto producto = productoRepo.findByCodigoBarrasConHistorial(codigo_barras);
+
        if (producto == null) {
            throw new ObjectNotFoundException(Producto.class,"El producto con código: " + codigo_barras + " no existe");
        }
@@ -91,6 +95,9 @@ public class ProductoService implements IproductoService {
            return producto;
        }
     }
+
+
+
     @Override
     public Producto getProducto(String codigo_barras, int cantidad) {
         Producto producto = productoRepo.findById(codigo_barras).orElse(null);
