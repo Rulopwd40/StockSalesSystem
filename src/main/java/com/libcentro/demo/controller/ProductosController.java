@@ -9,11 +9,15 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import com.libcentro.demo.model.Categoria;
+import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.services.interfaces.IcategoriaService;
 import com.libcentro.demo.utils.FieldAnalyzer;
+import com.libcentro.demo.view.productos.ActualizarUnProducto;
 import com.libcentro.demo.view.productos.AgregarCategoria;
 import com.libcentro.demo.view.productos.AgregarProducto;
 import com.libcentro.demo.view.productos.ProductosFrame;
+import jakarta.persistence.JoinColumn;
+import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
@@ -55,6 +59,7 @@ public class ProductosController {
     DefaultTableModel categoriasModel;
 
     AgregarProducto agregarProducto;
+    ActualizarUnProducto actualizarUnProducto;
     AgregarCategoria agregarCategoria;
 
 
@@ -77,6 +82,7 @@ public class ProductosController {
 
         this.productsModel = (DefaultTableModel) productosFrame.getTable().getModel();
         productosFrameUpdateTable(productosFrame.getBuscarField().getText());
+        categorias= getAllCategoria();
 
         productosFrameAddListeners();
         productosFrame.setVisible(true);
@@ -113,6 +119,13 @@ public class ProductosController {
                 agregarCategoria();
             }
         });
+        productosFrame.getActualizarUnProductoButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                actualizarUnProducto();
+            }
+        });
+
 
         productosFrame.getGuardarYVolverButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -164,6 +177,73 @@ public class ProductosController {
         agregarProducto.setVisible(true);
 
     }
+
+    private void actualizarUnProducto(){
+        categorias= getAllCategoria();
+        actualizarUnProducto = new ActualizarUnProducto();
+        final Producto[] producto = new Producto[1];
+
+        for(Categoria categoria : categorias) {
+            actualizarUnProducto.getCategoriaBox().addItem(categoria.getNombre());
+        }
+
+        //Buscar producto
+        actualizarUnProducto.getBuscarButton().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String codigo_barras = actualizarUnProducto.getCodigoField().getText();
+                if(codigo_barras.equals("")){
+                    JOptionPane.showMessageDialog(null, "Ingrese el codigo de barra del producto");
+                    throw new IllegalArgumentException("Ingrese el codigo de barra del producto");
+                }
+                try{
+                       producto[0] = productoService.getProducto(codigo_barras);
+                }catch (ObjectNotFoundException e1){
+                        JOptionPane.showMessageDialog(null, "El producto con codigo: " + codigo_barras + " no existe");
+                    }
+                actualizarUnProducto.getNombreField().setText(producto[0].getNombre());
+                actualizarUnProducto.getCategoriaBox().setSelectedItem(producto[0].getCategoria() == null? "null" : producto[0].getCategoria().getNombre());
+                actualizarUnProducto.getPrecioVentaField().setText(producto[0].getPrecio_venta() + "");
+                actualizarUnProducto.getCostoCompraField().setText(producto[0].getCosto_compra() + "");
+                actualizarUnProducto.getStockField().setText(producto[0].getStock() + "");
+            }
+        });
+        //Actualizar producto
+        actualizarUnProducto.getActualizarButton().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                HistorialPrecio historialPrecio = null;
+                Categoria categoria= categorias.stream().filter(categoria1 -> categoria1.equals(actualizarUnProducto.getCategoriaBox().getSelectedItem()
+                        .toString()))
+                        .findFirst()
+                        .orElse(null);
+                int cantidadAgregada = Integer.parseInt(actualizarUnProducto.getStockField().getText()) - producto[0].getStock();
+                float costo_compra = Float.parseFloat(actualizarUnProducto.getCostoCompraField().getText());
+                if(cantidadAgregada>0 || producto[0].getCosto_compra() != costo_compra) {
+                   historialPrecio = new HistorialPrecio(producto[0], costo_compra, cantidadAgregada);
+                    producto[0].getHistorial_precios().add(historialPrecio);
+                }
+                producto[0].setNombre(actualizarUnProducto.getNombreField().getText());
+                producto[0].setCategoria(categoria);
+                producto[0].setCosto_compra(costo_compra);
+                producto[0].setPrecio_venta(Float.parseFloat(actualizarUnProducto.getPrecioVentaField().getText()));
+                producto[0].setStock(cantidadAgregada);
+                try {
+                    productoService.updateProducto(producto[0]);
+                }catch(RuntimeException re){
+                    JOptionPane.showMessageDialog(null, "Error al actualizar el producto " + re.getMessage());
+                }
+            }
+        });
+        //Cerrar
+        actualizarUnProducto.getCerrarButton().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                productosFrameUpdateTable("");
+            }
+        });
+
+
+        actualizarUnProducto.setVisible(true);
+    }
+
 
     //Si bien dice agregar categoria aquí tambien se maneja la eliminación
     private void agregarCategoria() {
@@ -242,6 +322,12 @@ public class ProductosController {
                 categoriasModel.addRow(new Object[] {agregarCategoria.getCategoriaField().getText()});
             }
         });
+        agregarCategoria.getButtonOK().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                productosFrameUpdateTable("");
+            }
+        });
 
         agregarCategoria.setVisible(true);
 
@@ -288,7 +374,6 @@ public class ProductosController {
         return icategoriaService.getAll();
     }
 
-
     public void cargarMasiva(List<Producto> testInventario) {
         for (Producto d : testInventario) {
             productoService.saveProducto(d);
@@ -306,10 +391,13 @@ public class ProductosController {
     }
 
     private void addProductoToTable(Producto producto){
+        Categoria categoria = producto.getCategoria();
+
+
         productsModel.addRow(new Object[]{
                 producto.getCodigo_barras(),
                 producto.getNombre(),
-                producto.getCategoria().getNombre(),
+                categoria == null? "null" : categoria.getNombre(),
                 producto.getStock(),
                 producto.getCosto_compra(),
                 producto.getPrecio_venta()

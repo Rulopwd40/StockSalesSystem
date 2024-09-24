@@ -120,6 +120,10 @@ public class Producto {
         this.costo_inicial = costo_inicial;
     }
 
+    public List<HistorialPrecio> getHistorial_precios() {
+        return historial_precios;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true; // Si son la misma instancia

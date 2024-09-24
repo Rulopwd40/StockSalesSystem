@@ -9,7 +9,7 @@ public class ProductosFrame extends JFrame {
     private JButton agregarCategoriaButton;
     private JButton unProductoButton;
     private JButton importarCsvButton;
-    private JButton unProductoButton1;
+    private JButton actualizarUnProductoButton;
     private JButton porCategoriaButton;
     private JButton generalButton;
     private JButton volverButton;
@@ -90,8 +90,8 @@ public class ProductosFrame extends JFrame {
         return importarCsvButton;
     }
 
-    public JButton getUnProductoButton1() {
-        return unProductoButton1;
+    public JButton getActualizarUnProductoButton() {
+        return actualizarUnProductoButton;
     }
 
     public JButton getPorCategoriaButton() {

@@ -69,6 +69,7 @@ public class ProductoService implements IproductoService {
         productoExistente.setCosto_inicial(productoActualizado.getCosto_inicial());
         productoExistente.setStock(productoActualizado.getStock());
 
+        productoRepo.save(productoExistente);
     }
 
     @Override
