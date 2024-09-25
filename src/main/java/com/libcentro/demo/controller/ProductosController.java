@@ -86,6 +86,19 @@ public class ProductosController {
         productosFrameUpdateTable(productosFrame.getBuscarField().getText());
         categorias= getAllCategoria();
 
+        // Añadir un mapeo para la tecla F5
+        productosFrame.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0), "refreshTable");
+
+        // Asignar una acción a la tecla F5
+        productosFrame.getRootPane().getActionMap().put("refreshTable", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                refreshProductos();
+                productosFrameUpdateTable();
+            }
+        });
+
         productosFrameAddListeners();
         productosFrame.setVisible(true);
         productosFrame.setState(Frame.NORMAL); // Restaurar si está minimizado
@@ -257,6 +270,7 @@ public class ProductosController {
 
         actualizarUnProducto.getCerrarButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                refreshProductos();
                 productosFrameUpdateTable();
                 actualizarUnProducto.onCancel();
             }
@@ -404,6 +418,7 @@ public class ProductosController {
     }
 
     private void refreshProductos(){
+        productos = null;
         productos = getAllProducto();
     }
 
