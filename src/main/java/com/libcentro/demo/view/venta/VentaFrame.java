@@ -109,4 +109,8 @@ public class VentaFrame extends JFrame {
     public JPanel getAgregarProductoFieldPanel() {
         return agregarProductoFieldPanel;
     }
+
+    public void setCantFocus() {
+        cant.requestFocusInWindow();
+    }
 }

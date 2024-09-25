@@ -8,6 +8,8 @@ import com.libcentro.demo.model.Venta;
 import com.libcentro.demo.model.Venta_Producto;
 import com.libcentro.demo.services.ProductoService;
 import com.libcentro.demo.services.VentaService;
+import com.libcentro.demo.services.interfaces.IproductoService;
+import com.libcentro.demo.services.interfaces.IventaService;
 import com.libcentro.demo.utils.FieldAnalyzer;
 import com.libcentro.demo.utils.filters.Filter;
 import com.libcentro.demo.view.venta.ApfsDialog;
@@ -33,8 +35,10 @@ import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 @Controller
 public class VentaController {
 
-    private final VentaService ventaService;
-    private final ProductoService productoService;
+    @Autowired
+    private final IventaService ventaService;
+    @Autowired
+    private final IproductoService productoService;
     Venta venta;
     VentaFrame ventaFrame;
     ViewController viewController;
@@ -119,6 +123,7 @@ public class VentaController {
         ventaFrame.setState(Frame.NORMAL); // Restaurar si está minimizado
         ventaFrame.toFront();
         ventaFrame.requestFocus();
+        ventaFrame.setCodFocus();
 
     }
 
@@ -159,32 +164,28 @@ public class VentaController {
 
         //CodBar Focus
         ventaFrame.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-                .put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "setCodFocus");
-        ventaFrame.getRootPane().getActionMap().put("setCodFocus", new AbstractAction() {
+                .put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "agregarProducto");
+        ventaFrame.getRootPane().getActionMap().put("agregarProducto", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ventaFrame.setCodFocus();
+                if(ventaFrame.getCodBar().isFocusOwner()){
+                    ventaFrame.getCant().setText("");
+                    ventaFrame.setCantFocus();
+                }
+                else{
+                    agregarProducto();
+                    ventaFrame.setCodFocus();
+                }
+
             }
         });
     }
 
     private void setVentaListeners(){
+        // Action Listener para el botón
         ventaFrame.getAgregarEnterButton().addActionListener(e -> {
-            try{
-                FieldAnalyzer.todosLosCamposLlenos(ventaFrame.getAgregarProductoFieldPanel());
-            }catch(EmptyFieldException ex){
-                JOptionPane.showMessageDialog(ventaFrame, "Complete todos los campos");
-            }
-            this.codigo_barras = ventaFrame.getCodBar().getText();
-            var cantidad= Integer.parseInt(ventaFrame.getCant().getText());
-            agregarProducto(codigo_barras,cantidad);
-            ventaFrame.getCodBar().setText("");
-            ventaFrame.getCant().setText("1");
-            ventaFrame.setCodFocus();
-
+            agregarProducto();
         });
-
-
         ventaFrame.getAgregarProductoFueraDeButton().addActionListener(e -> openApfsDialog());
         ventaFrame.getCancelarEscButton().addActionListener(e -> closeVentaFrame());
         ventaFrame.addWindowListener(new WindowAdapter() {
@@ -254,7 +255,6 @@ public class VentaController {
 
 
     }
-
     private void updateProducto(Venta_Producto ventaProducto,String valor,int columna) {
             switch (columna){
                 case 1:
@@ -280,6 +280,22 @@ public class VentaController {
         }
     }
 
+
+    private void agregarProducto(){
+        try{
+            FieldAnalyzer.todosLosCamposLlenos(ventaFrame.getAgregarProductoFieldPanel());
+        }catch(EmptyFieldException ex){
+            JOptionPane.showMessageDialog(ventaFrame, "Complete todos los campos");
+            throw new EmptyFieldException("Completar todos los campos");
+        }
+        this.codigo_barras = ventaFrame.getCodBar().getText();
+        var cantidad= Integer.parseInt(ventaFrame.getCant().getText());
+        agregarProducto(codigo_barras,cantidad);
+        ventaFrame.getCodBar().setText("");
+        ventaFrame.getCant().setText("1");
+        ventaFrame.setCodFocus();
+
+    }
 
     private void agregarProducto(String codigo_barras, int cantidad) {
         if (cantidad <= 0) {

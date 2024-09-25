@@ -36,7 +36,6 @@ public class Venta_Producto {
     }
 
     public void setDescuento(float descuento) {
-
         this.descuento = descuento;
         updateTotal();
     }

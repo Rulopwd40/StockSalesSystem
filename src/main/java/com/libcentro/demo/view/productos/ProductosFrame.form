@@ -18,7 +18,7 @@
         <properties>
           <background color="-1"/>
         </properties>
-        <border type="line"/>
+        <border type="empty"/>
         <children>
           <component id="e5976" class="javax.swing.JLabel">
             <constraints>
