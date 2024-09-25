@@ -12,6 +12,7 @@ public class VentaFrame extends JFrame {
     private JButton generarTicketF3Button;
     private JButton cancelarEscButton;
     private JLabel totalPrice;
+    private JPanel agregarProductoFieldPanel;
 
     public VentaFrame(){
         setContentPane(panelVenta);
@@ -103,5 +104,9 @@ public class VentaFrame extends JFrame {
 
     public void setTotalPrice(JLabel totalPrice) {
         this.totalPrice = totalPrice;
+    }
+
+    public JPanel getAgregarProductoFieldPanel() {
+        return agregarProductoFieldPanel;
     }
 }

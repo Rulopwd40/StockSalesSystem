@@ -36,7 +36,9 @@ public class Venta_Producto {
     }
 
     public void setDescuento(float descuento) {
+
         this.descuento = descuento;
+        updateTotal();
     }
 
     public int getCantidad() {
@@ -45,6 +47,7 @@ public class Venta_Producto {
 
     public void setCantidad(int cantidad) {
         this.cantidad = cantidad;
+        updateTotal();
     }
 
     public Venta getVenta() {

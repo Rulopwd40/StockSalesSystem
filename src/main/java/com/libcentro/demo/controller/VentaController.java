@@ -1,5 +1,6 @@
 package com.libcentro.demo.controller;
 
+import com.libcentro.demo.exceptions.EmptyFieldException;
 import com.libcentro.demo.exceptions.InsufficientStockException;
 import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.model.ProductoFStock;
@@ -11,6 +12,7 @@ import com.libcentro.demo.utils.FieldAnalyzer;
 import com.libcentro.demo.utils.filters.Filter;
 import com.libcentro.demo.view.venta.ApfsDialog;
 import com.libcentro.demo.view.venta.VentaFrame;
+import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
@@ -80,7 +82,7 @@ public class VentaController {
                 int selectedRow = tableVenta.getSelectedRow();
                 String productoNombre = (String) tableVenta.getValueAt(selectedRow, 0);
                 if (selectedRow != -1) {
-                    producto = getProductoFromVenta(productoNombre);
+                    producto = getProductoFromVenta(productoNombre,selectedRow);
                     if(producto.getClass() == Venta_Producto.class) {
                         venta.getListaProductos().remove(producto);
                     }
@@ -97,6 +99,18 @@ public class VentaController {
         //Listener de actualizacion
         ventaTableModel.addTableModelListener(new TableModelListener(){
             public void tableChanged(TableModelEvent e) {
+                if(e.getType() == TableModelEvent.UPDATE) {
+                    int fila = e.getFirstRow();
+                    int columna = e.getColumn();
+
+                    String nombre = tableVenta.getValueAt(fila, 0) +"";
+                    String valor = tableVenta.getValueAt(fila, 1)+"";
+                    Object producto = getProductoFromVenta(nombre,fila);
+
+
+                    updateProducto(producto,valor,columna);
+                    updateTableVenta();
+                }
             }
         });
 
@@ -156,7 +170,11 @@ public class VentaController {
 
     private void setVentaListeners(){
         ventaFrame.getAgregarEnterButton().addActionListener(e -> {
-
+            try{
+                FieldAnalyzer.todosLosCamposLlenos(ventaFrame.getAgregarProductoFieldPanel());
+            }catch(EmptyFieldException ex){
+                JOptionPane.showMessageDialog(ventaFrame, "Complete todos los campos");
+            }
             this.codigo_barras = ventaFrame.getCodBar().getText();
             var cantidad= Integer.parseInt(ventaFrame.getCant().getText());
             agregarProducto(codigo_barras,cantidad);
@@ -223,9 +241,45 @@ public class VentaController {
         apfsDialog.setVisible(true);
     }
     //Producto
-    private void updateProducto(String nombre, String atributo,int fila,int columna) {
+    private void updateProducto(Object producto,String valor,int columna){
+        if(producto instanceof Venta_Producto){
+            updateProducto((Venta_Producto) producto,valor,columna);
+        }
+        else if(producto instanceof ProductoFStock){
+            updateProducto((ProductoFStock) producto,valor,columna);
+        }
+        else{
+            throw new RuntimeException("La clase del producto no adhiere a la las clases predeterminadas");
+        }
+
 
     }
+
+    private void updateProducto(Venta_Producto ventaProducto,String valor,int columna) {
+            switch (columna){
+                case 1:
+                    ventaProducto.setCantidad(Integer.parseInt(valor));
+                    break;
+                case 2:
+                    ventaProducto.setDescuento(Float.parseFloat(valor));
+                    break;
+                default:
+                    throw new RuntimeException("No existe fila con numero: " + columna);
+            }
+    }
+    private void updateProducto(ProductoFStock ventaProducto,String valor,int columna) {
+        switch (columna){
+            case 1:
+                ventaProducto.setCantidad(Integer.parseInt(valor));
+                break;
+            case 2:
+                ventaProducto.setDescuento(Float.parseFloat(valor));
+                break;
+            default:
+                throw new RuntimeException("No existe fila con numero: " + columna);
+        }
+    }
+
 
     private void agregarProducto(String codigo_barras, int cantidad) {
         if (cantidad <= 0) {
@@ -235,7 +289,7 @@ public class VentaController {
         Producto producto=null;
         try {
             producto = productoService.getProducto(codigo_barras, cantidad);
-        } catch (Exception e) {
+        } catch (ObjectNotFoundException | InsufficientStockException e) {
             JOptionPane.showMessageDialog(null, "No se puede agregar el producto: " + e.getMessage());
         }
         Producto finalProducto = producto;
@@ -266,7 +320,7 @@ public class VentaController {
             ventaTableModel.addRow(new Object[] {producto.getNombre(),ventaProducto.getCantidad(),ventaProducto.getDescuento(),ventaProducto.getPrecio_venta()});
         }
         for(ProductoFStock productoFStock: venta.getListaProductosF()){
-            ventaTableModel.addRow(new Object[] {productoFStock.getNombre(),productoFStock.getPrecio_venta(), productoFStock.getDescuento(), productoFStock.getCantidad() });
+            ventaTableModel.addRow(new Object[] {productoFStock.getNombre(),productoFStock.getCantidad(), productoFStock.getDescuento(), productoFStock.getPrecio_venta() });
         }
 
         venta.updateTotal();
@@ -280,23 +334,25 @@ public class VentaController {
 
     }
 
-    private Object getProductoFromVenta(String nombre) {
+    private Object getProductoFromVenta(String nombre,int fila) {
         // Intentar obtener el Producto de la lista de productos
-        Venta_Producto producto = venta.getListaProductos().stream()
-                .filter(ventaProducto -> ventaProducto.getProducto().getNombre().equals(nombre))
-                .findFirst()
-                .orElse(null);
-
-        // Si no se encuentra en la lista de productos, buscar en la lista de productos fuera de stock
-        if (producto == null) {
-            ProductoFStock productoFStock=  venta.getListaProductosF().stream()
+        Object producto=null;
+        if(fila < venta.getListaProductos().size()) {
+            producto = (Venta_Producto) venta.getListaProductos().stream()
+                    .filter(ventaProducto -> ventaProducto.getProducto().getNombre().equals(nombre))
+                    .findFirst()
+                    .orElse(null);
+        }
+        else {
+            producto= (ProductoFStock) venta.getListaProductosF().stream()
                     .filter(productoF -> productoF.getNombre().equals(nombre))
                     .findFirst()
                     .orElse(null);
-            return productoFStock;
         }
 
         return producto;
     }
+
+
 
 }
