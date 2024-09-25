@@ -218,29 +218,34 @@ public class ProductosController {
         //Actualizar producto
         actualizarUnProducto.getActualizarButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+
+                try{
+                    FieldAnalyzer.todosLosCamposLlenos(actualizarUnProducto);
+                }catch (RuntimeException ex){
+                    JOptionPane.showMessageDialog(null, ex.getMessage());
+                }
+
                 HistorialCosto historialCosto = null;
                 HistorialPrecio historialPrecio = null;
                 Categoria categoria= icategoriaService.getCategoria(actualizarUnProducto.getCategoriaBox().getSelectedItem().toString());
-                int cantidadAgregada = Integer.parseInt(actualizarUnProducto.getStockField().getText()) - producto[0].getStock();
+                int cantidad= Integer.parseInt(actualizarUnProducto.getStockField().getText());
+                int cantidadAgregada = cantidad - producto[0].getStock();
                 float costo_compra = Float.parseFloat(actualizarUnProducto.getCostoCompraField().getText());
                 float precio_venta = Float.parseFloat(actualizarUnProducto.getPrecioVentaField().getText());
 
                 if(cantidadAgregada>0 || (cantidadAgregada>=0 && producto[0].getCosto_compra() != costo_compra) ) {
-
                    historialCosto = new HistorialCosto(producto[0], costo_compra, cantidadAgregada);
 
                 }
 
                 if(producto[0].getPrecio_venta() != precio_venta){
-
                     historialPrecio = new HistorialPrecio(producto[0], precio_venta);
-
                 }
                 producto[0].setNombre(actualizarUnProducto.getNombreField().getText());
                 producto[0].setCategoria(categoria);
                 producto[0].setCosto_compra(costo_compra);
                 producto[0].setPrecio_venta(Float.parseFloat(actualizarUnProducto.getPrecioVentaField().getText()));
-                producto[0].setStock(cantidadAgregada);
+                producto[0].setStock(cantidad);
                 try {
                     productoService.updateProducto(producto[0],historialPrecio,historialCosto);
                 }catch(RuntimeException re){
@@ -261,6 +266,7 @@ public class ProductosController {
         actualizarUnProducto.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         actualizarUnProducto.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
+               refreshProductos();
                productosFrameUpdateTable();
                actualizarUnProducto.onCancel();
             }
@@ -271,6 +277,7 @@ public class ProductosController {
                 new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
+                        refreshProductos();
                         productosFrameUpdateTable();
                         actualizarUnProducto.onCancel();
                     }
@@ -280,7 +287,6 @@ public class ProductosController {
 
         actualizarUnProducto.setVisible(true);
     }
-
 
     //Si bien dice agregar categoria aquí tambien se maneja la eliminación
     private void agregarCategoria() {
@@ -376,7 +382,6 @@ public class ProductosController {
     }
 
     private void productosFrameUpdateTable(String filter) {
-
         // Limpiar todas las filas actuales del modelo de la tabla
         productsModel.setRowCount(0);
 
