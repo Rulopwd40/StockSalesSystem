@@ -7,16 +7,16 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import com.libcentro.demo.exceptions.EmptyFieldException;
+import com.libcentro.demo.exceptions.OutOfBonds;
 import com.libcentro.demo.model.Categoria;
 import com.libcentro.demo.model.HistorialCosto;
 import com.libcentro.demo.model.HistorialPrecio;
+import com.libcentro.demo.services.CategoriaService;
 import com.libcentro.demo.services.interfaces.IcategoriaService;
 import com.libcentro.demo.utils.FieldAnalyzer;
 import com.libcentro.demo.utils.filters.Filter;
-import com.libcentro.demo.view.productos.ActualizarUnProducto;
-import com.libcentro.demo.view.productos.AgregarCategoria;
-import com.libcentro.demo.view.productos.AgregarProducto;
-import com.libcentro.demo.view.productos.ProductosFrame;
+import com.libcentro.demo.view.productos.*;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -41,6 +41,7 @@ public class ProductosController {
 
     private final IproductoService productoService;
     private final IcategoriaService icategoriaService;
+    private final CategoriaService categoriaService;
 
     //Productos
     List<Producto> productos;
@@ -62,14 +63,17 @@ public class ProductosController {
 
     AgregarProducto agregarProducto;
     ActualizarUnProducto actualizarUnProducto;
+    ActualizarPorCategoria actualizarPorCategoria;
+
     AgregarCategoria agregarCategoria;
 
 
     @Autowired
-    public ProductosController(@Lazy ViewController viewController, IproductoService productoService, IcategoriaService icategoriaService) {
+    public ProductosController(@Lazy ViewController viewController, IproductoService productoService, IcategoriaService icategoriaService, CategoriaService categoriaService) {
         this.viewController = viewController;
         this.productoService = productoService;
         this.icategoriaService = icategoriaService;
+        this.categoriaService = categoriaService;
     }
 
     public void openProductosFrame() {
@@ -141,7 +145,12 @@ public class ProductosController {
                 actualizarUnProducto();
             }
         });
-
+        productosFrame.getPorCategoriaButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                actualizarProductoPorCategoria();
+            }
+        });
 
         productosFrame.getGuardarButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -194,6 +203,8 @@ public class ProductosController {
 
     }
 
+
+    //Actualizacion
     private void actualizarUnProducto(){
         categorias= getAllCategoria();
         actualizarUnProducto = new ActualizarUnProducto();
@@ -301,6 +312,36 @@ public class ProductosController {
 
         actualizarUnProducto.setVisible(true);
     }
+
+    private void actualizarProductoPorCategoria(){
+        actualizarPorCategoria = new ActualizarPorCategoria();
+        categorias = categoriaService.getAll();
+
+        for(Categoria categoria: categorias){
+            actualizarPorCategoria.getCategoriaBox().addItem(categoria.getNombre());
+        }
+        JTextField porcentajeField = actualizarPorCategoria.getPorcentajeField();
+
+        Filter.setDoubleFilter(porcentajeField);
+
+        actualizarPorCategoria.getActualizarButton().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    FieldAnalyzer.campoLleno(porcentajeField);
+                    FieldAnalyzer.limites(porcentajeField, 0, 100);
+                }catch (OutOfBonds of){
+                    JOptionPane.showMessageDialog(null, of.getMessage());
+                }catch (EmptyFieldException of){
+                    JOptionPane.showMessageDialog(null,of.getMessage());
+                }
+            }
+        });
+
+
+        actualizarPorCategoria.setVisible(true);
+    }
+
+
 
     //Si bien dice agregar categoria aquí tambien se maneja la eliminación
     private void agregarCategoria() {

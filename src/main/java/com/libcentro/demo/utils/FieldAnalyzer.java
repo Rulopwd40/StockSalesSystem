@@ -1,9 +1,11 @@
 package com.libcentro.demo.utils;
 
 import com.libcentro.demo.exceptions.EmptyFieldException;
+import com.libcentro.demo.exceptions.OutOfBonds;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.function.Supplier;
 
 public class FieldAnalyzer {
 
@@ -27,5 +29,28 @@ public class FieldAnalyzer {
         return true;
     }
 
+    public static boolean limites(JTextField textField, int min, int max) throws OutOfBonds {
+        Supplier<Boolean> isInteger = () -> {
+            try {
+                Integer.parseInt(textField.getText());
+                return true;
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        };
+        if (isInteger.get()) {
+            int numero = Integer.parseInt(textField.getText());
+            if(numero < min || numero > max) {
+                throw new OutOfBonds("El numero debe estar entre [" + min + ";" + max + "]");
+            }
+        }
+        else {
+            float numero = Float.parseFloat(textField.getText());
+            if(numero < min || numero > max) {
+                throw new OutOfBonds("El numero debe estar entre [" + min + ";" + max + "]");
+            }
+        }
+        return true;
+    };
 
-}
+    }

@@ -7,11 +7,17 @@ public class ActualizarPorCategoria extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
+    private JComboBox categoriaBox;
+    private JButton actualizarButton;
+    private JTextField porcentajeField;
+    private JPanel categoriaPane;
 
     public ActualizarPorCategoria() {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
+        setSize(420,200);
+        setLocationRelativeTo(null);
 
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -49,5 +55,17 @@ public class ActualizarPorCategoria extends JDialog {
     private void onCancel() {
         // add your code here if necessary
         dispose();
+    }
+
+    public JTextField getPorcentajeField() {
+        return porcentajeField;
+    }
+
+    public JButton getActualizarButton() {
+        return actualizarButton;
+    }
+
+    public JComboBox getCategoriaBox() {
+        return categoriaBox;
     }
 }
