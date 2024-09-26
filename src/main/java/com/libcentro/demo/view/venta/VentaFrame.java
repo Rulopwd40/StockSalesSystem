@@ -13,6 +13,8 @@ public class VentaFrame extends JFrame {
     private JButton cancelarEscButton;
     private JLabel totalPrice;
     private JPanel agregarProductoFieldPanel;
+    private JTextField descuentoField;
+    private JButton descuentoButton;
 
     public VentaFrame(){
         setContentPane(panelVenta);
@@ -112,5 +114,13 @@ public class VentaFrame extends JFrame {
 
     public void setCantFocus() {
         cant.requestFocusInWindow();
+    }
+
+    public JButton getDescuentoButton() {
+        return descuentoButton;
+    }
+
+    public JTextField getDescuentoField() {
+        return descuentoField;
     }
 }

@@ -20,6 +20,12 @@ public class FieldAnalyzer {
         }
         return true;  // Todos los campos tienen contenido
     }
+    public static boolean campoLleno(JTextField textField) throws EmptyFieldException {
+        if (textField.getText().trim().isEmpty()) {
+            throw new EmptyFieldException("Complete el campo "+ textField.getName());
+        }
+        return true;
+    }
 
 
 }

@@ -90,6 +90,13 @@ public class Venta {
         this.listaProductosF = listaProductosF;
     }
 
+    public Set<Object> getTodosLosProductos(){
+        Set<Object> productos = new HashSet<>();
+
+        productos.addAll(listaProductos);
+        productos.addAll(listaProductosF);
+        return productos;
+    };
 
 }
 

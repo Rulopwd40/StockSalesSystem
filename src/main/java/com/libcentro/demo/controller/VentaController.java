@@ -108,7 +108,7 @@ public class VentaController {
                     int columna = e.getColumn();
 
                     String nombre = tableVenta.getValueAt(fila, 0) +"";
-                    String valor = tableVenta.getValueAt(fila, 1)+"";
+                    String valor = tableVenta.getValueAt(fila, columna)+"";
                     Object producto = getProductoFromVenta(nombre,fila);
 
 
@@ -168,7 +168,7 @@ public class VentaController {
         ventaFrame.getRootPane().getActionMap().put("agregarProducto", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(ventaFrame.getCodBar().isFocusOwner()){
+                if(ventaFrame.getCodBar().isFocusOwner() && !ventaFrame.getCodBar().getText().isEmpty()){
                     ventaFrame.getCant().setText("");
                     ventaFrame.setCantFocus();
                 }
@@ -192,6 +192,31 @@ public class VentaController {
             public void windowClosing(WindowEvent e) {
                 closeVentaFrame();
             }
+        });
+
+        ventaFrame.getDescuentoButton().addActionListener(e -> {
+
+            try {
+                FieldAnalyzer.campoLleno(ventaFrame.getDescuentoField());
+            }catch(EmptyFieldException ex){
+                JOptionPane.showMessageDialog(ventaFrame, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                throw new EmptyFieldException("Llene el campo");
+            }
+            float descuento= Float.parseFloat(ventaFrame.getDescuentoField().getText());
+            if(descuento >100f || descuento <0){
+                ventaFrame.getDescuentoField().setText("");
+                JOptionPane.showMessageDialog(ventaFrame, "Ingrese un descuento entre [0;100]", "Error", JOptionPane.ERROR_MESSAGE);
+                throw new IllegalArgumentException("Ingrese un descuento entre [0;100]");
+            }
+            for(Object producto: venta.getTodosLosProductos()) {
+                if(producto instanceof Venta_Producto p) {
+                   p.setDescuento(descuento);
+                }
+                if(producto instanceof ProductoFStock p) {
+                    p.setDescuento(descuento);
+                }
+            }
+            updateTableVenta();
         });
     }
 
