@@ -19,5 +19,7 @@ public interface IproductoRepository extends JpaRepository<Producto, String> {
     @Query("SELECT p FROM Producto p WHERE p.codigo_barras = :codigoBarras")
     Producto findByCodigoBarras(@Param("codigoBarras") String codigoBarras);
 
+    @Query("SELECT p FROM Producto p WHERE p.nombre = :nombre")
+    Producto findByNombre(@Param("nombre") String nombre);
 
 }

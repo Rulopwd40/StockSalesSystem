@@ -8,7 +8,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import com.libcentro.demo.exceptions.EmptyFieldException;
-import com.libcentro.demo.exceptions.OutOfBonds;
+import com.libcentro.demo.exceptions.OutOfBounds;
+import com.libcentro.demo.exceptions.ProductExistsInDataBase;
+import com.libcentro.demo.exceptions.ProductNameExists;
 import com.libcentro.demo.model.Categoria;
 import com.libcentro.demo.model.HistorialCosto;
 import com.libcentro.demo.model.HistorialPrecio;
@@ -171,8 +173,8 @@ public class ProductosController {
         }
         agregarProducto.getButtonOK().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if(FieldAnalyzer.todosLosCamposLlenos(agregarProducto)){
-
+                try{
+                    FieldAnalyzer.todosLosCamposLlenos(agregarProducto);
                     Categoria categoriaP = categorias.stream()
                             .filter(categoria -> categoria.getNombre().equals(agregarProducto.getCategoriaBox().getSelectedItem().toString()))
                             .findFirst().orElse(null);
@@ -185,17 +187,18 @@ public class ProductosController {
                             Integer.parseInt(agregarProducto.getCantidadField().getText())
                     );
 
-                    if(existeProducto(producto)) {
+                        existeProducto(producto);
+                        existeNombre(producto.getNombre());
                         addProductoToTable(producto);
                         nuevosProductos.add(producto);
                         cambiosHechos();
                         agregarProducto.onOK();
+                    }catch(ProductExistsInDataBase | ProductNameExists | EmptyFieldException ex) {
+                        JOptionPane.showMessageDialog(null,ex.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
+                        throw new RuntimeException(ex);
                     }
-                    else{
-                        JOptionPane.showMessageDialog(null, "El producto ya existe en la tabla", "Error", JOptionPane.WARNING_MESSAGE);
-                    }
+
                 }
-            }
         });
 
 
@@ -329,7 +332,7 @@ public class ProductosController {
                 try {
                     FieldAnalyzer.campoLleno(porcentajeField);
                     FieldAnalyzer.limites(porcentajeField, 0, 100);
-                }catch (OutOfBonds of){
+                }catch (OutOfBounds of){
                     JOptionPane.showMessageDialog(null, of.getMessage());
                 }catch (EmptyFieldException of){
                     JOptionPane.showMessageDialog(null,of.getMessage());
@@ -501,12 +504,21 @@ public class ProductosController {
         });
     }
 
-    private boolean existeProducto(Producto producto){
+    private void existeProducto(Producto producto) throws ProductExistsInDataBase {
 
         Producto p = productos.stream().filter(prod -> prod.getCodigo_barras().equals(producto.getCodigo_barras())).findFirst().orElse(null);
         Producto pn = nuevosProductos.stream().filter(prod -> prod.getCodigo_barras().equals(producto.getCodigo_barras())).findFirst().orElse(null);
-        return p == null && pn == null;
+
+        if(p != null || pn != null) throw new ProductExistsInDataBase("Producto con codigo: " + producto.getCodigo_barras() + " ya se encuentra en la base de datos" );
     }
+
+    private void existeNombre(String nombre) throws ProductNameExists{
+        Producto p = productos.stream().filter(prod -> prod.getNombre().equals(nombre)).findFirst().orElse(null);
+        Producto pn = nuevosProductos.stream().filter(prod -> prod.getNombre().equals(nombre)).findFirst().orElse(null);
+
+        if(p != null || pn != null) throw new ProductNameExists("Ya existe un producto con nombre: " + nombre);
+    }
+
 
     private void cambiosHechos(){
         cambios = true;

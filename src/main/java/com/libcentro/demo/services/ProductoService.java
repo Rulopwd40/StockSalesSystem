@@ -1,7 +1,6 @@
 package com.libcentro.demo.services;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.libcentro.demo.exceptions.InsufficientStockException;
 import com.libcentro.demo.model.HistorialCosto;
@@ -102,8 +101,6 @@ public class ProductoService implements IproductoService {
        }
     }
 
-
-
     @Override
     public Producto getProducto(String codigo_barras, int cantidad) {
         Producto producto = productoRepo.findById(codigo_barras).orElse(null);
@@ -118,5 +115,12 @@ public class ProductoService implements IproductoService {
         }
     }
 
-
+    @Override
+    public Producto getProductoByName(String nombre){
+        Producto producto = productoRepo.findByNombre(nombre);
+        if (producto == null) {
+            throw new ObjectNotFoundException(Producto.class,"El producto con código: " + nombre + " no existe");
+        }
+        else return producto;
+    };
 }

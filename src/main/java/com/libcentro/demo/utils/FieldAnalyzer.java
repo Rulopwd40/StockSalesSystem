@@ -1,7 +1,7 @@
 package com.libcentro.demo.utils;
 
 import com.libcentro.demo.exceptions.EmptyFieldException;
-import com.libcentro.demo.exceptions.OutOfBonds;
+import com.libcentro.demo.exceptions.OutOfBounds;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,7 +29,7 @@ public class FieldAnalyzer {
         return true;
     }
 
-    public static boolean limites(JTextField textField, int min, int max) throws OutOfBonds {
+    public static boolean limites(JTextField textField, int min, int max) throws OutOfBounds {
         Supplier<Boolean> isInteger = () -> {
             try {
                 Integer.parseInt(textField.getText());
@@ -41,13 +41,13 @@ public class FieldAnalyzer {
         if (isInteger.get()) {
             int numero = Integer.parseInt(textField.getText());
             if(numero < min || numero > max) {
-                throw new OutOfBonds("El numero debe estar entre [" + min + ";" + max + "]");
+                throw new OutOfBounds("El numero debe estar entre [" + min + ";" + max + "]");
             }
         }
         else {
             float numero = Float.parseFloat(textField.getText());
             if(numero < min || numero > max) {
-                throw new OutOfBonds("El numero debe estar entre [" + min + ";" + max + "]");
+                throw new OutOfBounds("El numero debe estar entre [" + min + ";" + max + "]");
             }
         }
         return true;

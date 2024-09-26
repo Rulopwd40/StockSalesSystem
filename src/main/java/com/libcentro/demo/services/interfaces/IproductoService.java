@@ -27,4 +27,6 @@ public interface IproductoService {
     public Producto getProducto(String codigo_barras);
 
     Producto getProducto(String codigo_barras, int cantidad);
+
+    Producto getProductoByName(String nombre);
 }
