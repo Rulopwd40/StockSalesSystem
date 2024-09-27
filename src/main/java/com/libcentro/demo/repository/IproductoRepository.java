@@ -1,14 +1,17 @@
 package com.libcentro.demo.repository;
 
+import com.libcentro.demo.model.Categoria;
 import com.libcentro.demo.model.HistorialCosto;
 import com.libcentro.demo.model.HistorialPrecio;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import com.libcentro.demo.model.Producto;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface IproductoRepository extends JpaRepository<Producto, String> {
@@ -21,5 +24,12 @@ public interface IproductoRepository extends JpaRepository<Producto, String> {
 
     @Query("SELECT p FROM Producto p WHERE p.nombre = :nombre")
     Producto findByNombre(@Param("nombre") String nombre);
+
+    @Modifying
+    @Query("UPDATE Producto p SET p.precio_venta = p.precio_venta + (p.precio_venta * :porcentaje) WHERE p.categoria = :categoria ")
+    int updateProductoPrecioByCategoria(@Param("categoria") Categoria categoria, @Param("porcentaje") float porcentaje);
+
+    @Query("SELECT p FROM Producto p WHERE p.categoria = :categoria")
+    Set<Producto> findByCategoria(@Param("categoria") Categoria categoria);
 
 }

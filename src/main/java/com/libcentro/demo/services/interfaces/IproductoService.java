@@ -1,6 +1,8 @@
 package com.libcentro.demo.services.interfaces;
 import java.util.List;
+import java.util.Set;
 
+import com.libcentro.demo.model.Categoria;
 import com.libcentro.demo.model.HistorialCosto;
 import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.model.Producto;
@@ -29,4 +31,9 @@ public interface IproductoService {
     Producto getProducto(String codigo_barras, int cantidad);
 
     Producto getProductoByName(String nombre);
+
+    @Transactional
+    int updatePrecioPorCategoria(Categoria categoria, float porcentaje);
+
+    Set<Producto> getProductoPorCategoria(Categoria categoria);
 }

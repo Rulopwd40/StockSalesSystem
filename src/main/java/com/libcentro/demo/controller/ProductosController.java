@@ -188,7 +188,6 @@ public class ProductosController {
                     );
 
                         existeProducto(producto);
-                        existeNombre(producto.getNombre());
                         addProductoToTable(producto);
                         nuevosProductos.add(producto);
                         cambiosHechos();
@@ -205,7 +204,6 @@ public class ProductosController {
         agregarProducto.setVisible(true);
 
     }
-
 
     //Actualizacion
     private void actualizarUnProducto(){
@@ -331,11 +329,25 @@ public class ProductosController {
             public void actionPerformed(ActionEvent e) {
                 try {
                     FieldAnalyzer.campoLleno(porcentajeField);
-                    FieldAnalyzer.limites(porcentajeField, 0, 100);
+                    FieldAnalyzer.limites(porcentajeField, -100, 100);
                 }catch (OutOfBounds of){
                     JOptionPane.showMessageDialog(null, of.getMessage());
                 }catch (EmptyFieldException of){
                     JOptionPane.showMessageDialog(null,of.getMessage());
+                }
+
+                String cat =actualizarPorCategoria.getCategoriaBox().getSelectedItem().toString();
+                Categoria categoria = categorias.stream().filter(categ -> categ.getNombre().equals(cat)).findFirst().get();
+
+                float porcentaje = Float.parseFloat(actualizarPorCategoria.getPorcentajeField().getText());
+                try {
+
+                    int cant= productoService.updatePrecioPorCategoria(categoria, porcentaje);
+                    JOptionPane.showMessageDialog(null, "Cantidad de productos afectados: " + cant);
+                    productosFrameUpdateTable();
+                } catch (RuntimeException ex){
+                    JOptionPane.showMessageDialog(null, ex.getMessage());
+                    throw new RuntimeException(ex.getMessage());
                 }
             }
         });
@@ -343,8 +355,6 @@ public class ProductosController {
 
         actualizarPorCategoria.setVisible(true);
     }
-
-
 
     //Si bien dice agregar categoria aquí tambien se maneja la eliminación
     private void agregarCategoria() {
@@ -504,21 +514,26 @@ public class ProductosController {
         });
     }
 
-    private void existeProducto(Producto producto) throws ProductExistsInDataBase {
+    private void existeProducto(Producto producto) throws RuntimeException {
 
-        Producto p = productos.stream().filter(prod -> prod.getCodigo_barras().equals(producto.getCodigo_barras())).findFirst().orElse(null);
-        Producto pn = nuevosProductos.stream().filter(prod -> prod.getCodigo_barras().equals(producto.getCodigo_barras())).findFirst().orElse(null);
+        Producto p = productos.stream().filter(prod -> prod.getCodigo_barras().equals(producto.getCodigo_barras()) || prod.getNombre().equals(producto.getNombre())).findFirst().orElse(null);
+        Producto pn = nuevosProductos.stream().filter(prod -> prod.getCodigo_barras().equals(producto.getCodigo_barras()) || prod.getNombre().equals(producto.getNombre())).findFirst().orElse(null);
 
-        if(p != null || pn != null) throw new ProductExistsInDataBase("Producto con codigo: " + producto.getCodigo_barras() + " ya se encuentra en la base de datos" );
+        Producto finalP=null;
+        if(p != null) {
+            finalP = p;
+        } else if (pn != null) {
+            finalP = pn;
+        }
+    if(finalP != null) {
+        if(finalP.getNombre().equals(producto.getNombre())) {
+            throw new ProductNameExists("El producto con nombre: " + producto.getNombre() + " ya existe");
+        }
+        else if(finalP.getCodigo_barras().equals(producto.getCodigo_barras())){
+            throw new ProductExistsInDataBase("El producto con código: " + producto.getCodigo_barras() + " ya existe");
+        }
     }
-
-    private void existeNombre(String nombre) throws ProductNameExists{
-        Producto p = productos.stream().filter(prod -> prod.getNombre().equals(nombre)).findFirst().orElse(null);
-        Producto pn = nuevosProductos.stream().filter(prod -> prod.getNombre().equals(nombre)).findFirst().orElse(null);
-
-        if(p != null || pn != null) throw new ProductNameExists("Ya existe un producto con nombre: " + nombre);
     }
-
 
     private void cambiosHechos(){
         cambios = true;

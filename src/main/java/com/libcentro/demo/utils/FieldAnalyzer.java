@@ -8,6 +8,10 @@ import java.awt.*;
 import java.util.function.Supplier;
 
 public class FieldAnalyzer {
+    public enum TipoDato {
+        FLOAT,
+        INTEGER
+    }
 
     public static boolean todosLosCamposLlenos(Container container) throws EmptyFieldException {
         for (Component component : container.getComponents()) {
@@ -29,10 +33,12 @@ public class FieldAnalyzer {
         return true;
     }
 
-    public static boolean limites(JTextField textField, int min, int max) throws OutOfBounds {
+    public static TipoDato limites(JTextField textField, int min, int max) throws OutOfBounds {
+        TipoDato tipo = null;
         Supplier<Boolean> isInteger = () -> {
             try {
                 Integer.parseInt(textField.getText());
+
                 return true;
             } catch (NumberFormatException e) {
                 return false;
@@ -43,14 +49,16 @@ public class FieldAnalyzer {
             if(numero < min || numero > max) {
                 throw new OutOfBounds("El numero debe estar entre [" + min + ";" + max + "]");
             }
+            tipo = TipoDato.INTEGER;
         }
         else {
             float numero = Float.parseFloat(textField.getText());
             if(numero < min || numero > max) {
                 throw new OutOfBounds("El numero debe estar entre [" + min + ";" + max + "]");
             }
+            tipo = TipoDato.FLOAT;
         }
-        return true;
+        return tipo;
     };
 
     }

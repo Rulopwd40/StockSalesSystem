@@ -1,12 +1,15 @@
 package com.libcentro.demo.services;
 
 import java.util.List;
+import java.util.Set;
 
 import com.libcentro.demo.exceptions.InsufficientStockException;
+import com.libcentro.demo.model.Categoria;
 import com.libcentro.demo.model.HistorialCosto;
 import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.repository.IhistorialcostosRepository;
 import com.libcentro.demo.repository.IhistorialpreciosRepository;
+import jakarta.transaction.Transactional;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -122,5 +125,30 @@ public class ProductoService implements IproductoService {
             throw new ObjectNotFoundException(Producto.class,"El producto con código: " + nombre + " no existe");
         }
         else return producto;
-    };
+    }
+
+
+    @Override
+    @Transactional
+    public int updatePrecioPorCategoria(Categoria categoria, float porcentaje) {
+
+
+        Set<Producto> productos = getProductoPorCategoria(categoria);
+        for(Producto producto: productos) {
+            anadirHistorialPrecio(producto);
+        }
+
+        return productoRepo.updateProductoPrecioByCategoria(categoria,porcentaje);
+    }
+
+    @Override
+    public Set<Producto> getProductoPorCategoria(Categoria categoria){
+        return productoRepo.findByCategoria(categoria);
+    }
+
+    public void anadirHistorialPrecio(Producto producto){
+        HistorialPrecio historialPrecio= new HistorialPrecio(producto,producto.getPrecio_venta());
+        historialPreciosRepo.save(historialPrecio);
+    }
+    ;
 }
