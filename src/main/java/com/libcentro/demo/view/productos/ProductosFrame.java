@@ -21,6 +21,7 @@ public class ProductosFrame extends JFrame {
     private JPanel panelAdd;
     private JPanel panelUpd;
     private JPanel panelClose;
+    private JButton actualizarTablaButton;
 
 
     public ProductosFrame(){
@@ -128,5 +129,9 @@ public class ProductosFrame extends JFrame {
 
     public JTable getTable() {
         return table;
+    }
+
+    public JButton getActualizarTablaButton() {
+        return actualizarTablaButton;
     }
 }

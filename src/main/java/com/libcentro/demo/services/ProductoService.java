@@ -132,13 +132,14 @@ public class ProductoService implements IproductoService {
     @Transactional
     public int updatePrecioPorCategoria(Categoria categoria, float porcentaje) {
 
+        int cant = productoRepo.updateProductoPrecioByCategoria(categoria,porcentaje/100);
 
         Set<Producto> productos = getProductoPorCategoria(categoria);
         for(Producto producto: productos) {
             anadirHistorialPrecio(producto);
         }
 
-        return productoRepo.updateProductoPrecioByCategoria(categoria,porcentaje);
+        return cant;
     }
 
     @Override

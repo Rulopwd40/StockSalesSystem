@@ -160,6 +160,13 @@ public class ProductosController {
             }
         });
 
+        productosFrame.getActualizarTablaButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                productosFrameUpdateTable();
+            }
+        });
+
     }
 
     private void agregarProducto() {
@@ -330,28 +337,34 @@ public class ProductosController {
                 try {
                     FieldAnalyzer.campoLleno(porcentajeField);
                     FieldAnalyzer.limites(porcentajeField, -100, 100);
-                }catch (OutOfBounds of){
+                } catch (OutOfBounds of) {
                     JOptionPane.showMessageDialog(null, of.getMessage());
-                }catch (EmptyFieldException of){
-                    JOptionPane.showMessageDialog(null,of.getMessage());
+                } catch (EmptyFieldException of) {
+                    JOptionPane.showMessageDialog(null, of.getMessage());
                 }
 
-                String cat =actualizarPorCategoria.getCategoriaBox().getSelectedItem().toString();
+                String cat = actualizarPorCategoria.getCategoriaBox().getSelectedItem().toString();
                 Categoria categoria = categorias.stream().filter(categ -> categ.getNombre().equals(cat)).findFirst().get();
 
                 float porcentaje = Float.parseFloat(actualizarPorCategoria.getPorcentajeField().getText());
                 try {
 
-                    int cant= productoService.updatePrecioPorCategoria(categoria, porcentaje);
+                    int cant = productoService.updatePrecioPorCategoria(categoria, porcentaje);
                     JOptionPane.showMessageDialog(null, "Cantidad de productos afectados: " + cant);
-                    productosFrameUpdateTable();
-                } catch (RuntimeException ex){
+
+                } catch (RuntimeException ex) {
                     JOptionPane.showMessageDialog(null, ex.getMessage());
                     throw new RuntimeException(ex.getMessage());
                 }
+
             }
         });
-
+        actualizarPorCategoria.getButtonOK().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                actualizarPorCategoria.onOK();
+                productosFrameUpdateTable();
+            }
+        });
 
         actualizarPorCategoria.setVisible(true);
     }
@@ -452,6 +465,8 @@ public class ProductosController {
     private void productosFrameUpdateTable(String filter) {
         // Limpiar todas las filas actuales del modelo de la tabla
         productsModel.setRowCount(0);
+
+        productos = getAllProducto();
 
         List<Producto> todosProductos = Stream.concat(productos.stream(), nuevosProductos.stream())
                 .toList();

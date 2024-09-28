@@ -19,11 +19,7 @@ public class ActualizarPorCategoria extends JDialog {
         setSize(420,200);
         setLocationRelativeTo(null);
 
-        buttonOK.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onOK();
-            }
-        });
+
 
         buttonCancel.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -47,7 +43,7 @@ public class ActualizarPorCategoria extends JDialog {
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
-    private void onOK() {
+    public void onOK() {
         // add your code here
         dispose();
     }
@@ -67,5 +63,9 @@ public class ActualizarPorCategoria extends JDialog {
 
     public JComboBox getCategoriaBox() {
         return categoriaBox;
+    }
+
+    public JButton getButtonOK() {
+        return buttonOK;
     }
 }
