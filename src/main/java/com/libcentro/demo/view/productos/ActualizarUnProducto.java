@@ -18,7 +18,7 @@ public class ActualizarUnProducto extends JDialog {
     public ActualizarUnProducto() {
         setContentPane(contentPane);
         setModal(true);
-        getRootPane().setDefaultButton(actualizarButton);
+        getRootPane().setDefaultButton(buscarButton);
         setTitle("Actualizar Un Producto");
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {

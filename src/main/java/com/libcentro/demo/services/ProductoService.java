@@ -1,5 +1,8 @@
 package com.libcentro.demo.services;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -9,6 +12,7 @@ import com.libcentro.demo.model.HistorialCosto;
 import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.repository.IhistorialcostosRepository;
 import com.libcentro.demo.repository.IhistorialpreciosRepository;
+import dto.UpdateProductoPorcentajeDTO;
 import jakarta.transaction.Transactional;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,26 +134,78 @@ public class ProductoService implements IproductoService {
 
     @Override
     @Transactional
-    public int updatePrecioPorCategoria(Categoria categoria, float porcentaje) {
+    public UpdateProductoPorcentajeDTO updatePrecioPorCategoria(Categoria categoria, BigDecimal porcentaje) {
 
-        int cant = productoRepo.updateProductoPrecioByCategoria(categoria,porcentaje/100);
+        int cant=0;
+        List<Producto> productos = (List<Producto>) getProductoPorCategoria(categoria);
+        Set<HistorialPrecio> precios = new HashSet<>();
+        for (Producto producto : productos) {
+            BigDecimal precioActual = new BigDecimal(producto.getPrecio_venta());
 
-        Set<Producto> productos = getProductoPorCategoria(categoria);
-        for(Producto producto: productos) {
-            anadirHistorialPrecio(producto);
+            BigDecimal incremento = precioActual.multiply(porcentaje).divide(new BigDecimal(100));
+            BigDecimal nuevoPrecio = precioActual.add(incremento);
+
+            nuevoPrecio = nuevoPrecio.setScale(2, RoundingMode.HALF_UP);
+
+            // Convertimos el nuevo precio a int
+            float nuevoPrecioFloat = nuevoPrecio.floatValue();
+
+            // Establecemos el nuevo precio (convertido a int) en el producto
+            producto.setPrecio_venta(nuevoPrecioFloat);
+
+            // Registramos el historial del precio
+            precios.add(anadirHistorialPrecio(producto));
+
+            cant++;
         }
 
-        return cant;
+        return new UpdateProductoPorcentajeDTO(productos,cant,precios,porcentaje);
     }
+
+
+    @Override
+    @Transactional
+    public UpdateProductoPorcentajeDTO updatePrecioGeneral(BigDecimal porcentaje) {
+        int cant = 0;
+        List<Producto> productos = getAll();
+        Set<HistorialPrecio> precios = new HashSet<>();
+        for (Producto producto : productos) {
+            BigDecimal precioActual = new BigDecimal(producto.getPrecio_venta());
+
+            BigDecimal incremento = precioActual.multiply(porcentaje).divide(new BigDecimal(100));
+            BigDecimal nuevoPrecio = precioActual.add(incremento);
+
+            nuevoPrecio = nuevoPrecio.setScale(2, RoundingMode.HALF_UP);
+
+            // Convertimos el nuevo precio a int
+            float nuevoPrecioFloat = nuevoPrecio.floatValue();
+
+            // Establecemos el nuevo precio (convertido a int) en el producto
+            producto.setPrecio_venta(nuevoPrecioFloat);
+
+            // Registramos el historial del precio
+            precios.add(anadirHistorialPrecio(producto));
+
+            cant++;
+        }
+
+        // Guardamos todos los productos actualizados en la base de datos
+        productoRepo.saveAll(productos);
+
+        return new UpdateProductoPorcentajeDTO(productos,cant,precios,porcentaje.divide(new BigDecimal(100)));
+
+    }
+
 
     @Override
     public Set<Producto> getProductoPorCategoria(Categoria categoria){
         return productoRepo.findByCategoria(categoria);
     }
 
-    public void anadirHistorialPrecio(Producto producto){
+    public HistorialPrecio anadirHistorialPrecio(Producto producto){
         HistorialPrecio historialPrecio= new HistorialPrecio(producto,producto.getPrecio_venta());
         historialPreciosRepo.save(historialPrecio);
+        return historialPrecio;
     }
     ;
 }

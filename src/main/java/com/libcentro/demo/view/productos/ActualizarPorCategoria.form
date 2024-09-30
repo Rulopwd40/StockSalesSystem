@@ -121,6 +121,8 @@
                     <properties>
                       <background color="-1"/>
                       <editable value="false"/>
+                      <focusable value="false"/>
+                      <foreground color="-16777216"/>
                       <model/>
                     </properties>
                   </component>

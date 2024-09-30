@@ -26,8 +26,13 @@ public interface IproductoRepository extends JpaRepository<Producto, String> {
     Producto findByNombre(@Param("nombre") String nombre);
 
     @Modifying
-    @Query("UPDATE Producto p SET p.precio_venta = ROUND(p.precio_venta + (p.precio_venta * :porcentaje), 2) WHERE p.categoria = :categoria ")
+    @Query("UPDATE Producto p SET p.precio_venta = ROUND(p.precio_venta + (p.precio_venta * :porcentaje),2) WHERE p.categoria = :categoria ")
     int updateProductoPrecioByCategoria(@Param("categoria") Categoria categoria, @Param("porcentaje") float porcentaje);
+
+    @Modifying
+    @Query("UPDATE Producto p SET p.precio_venta = ROUND(p.precio_venta+ (p.precio_venta * :porcentaje),2) WHERE true")
+    int updateProductoGeneral(@Param("porcentaje")float porcentaje);
+
 
     @Query("SELECT p FROM Producto p WHERE p.categoria = :categoria")
     Set<Producto> findByCategoria(@Param("categoria") Categoria categoria);

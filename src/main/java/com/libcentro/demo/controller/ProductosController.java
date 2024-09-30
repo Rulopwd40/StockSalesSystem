@@ -2,6 +2,7 @@ package com.libcentro.demo.controller;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -19,6 +20,7 @@ import com.libcentro.demo.services.interfaces.IcategoriaService;
 import com.libcentro.demo.utils.FieldAnalyzer;
 import com.libcentro.demo.utils.filters.Filter;
 import com.libcentro.demo.view.productos.*;
+import dto.UpdateProductoPorcentajeDTO;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -167,6 +169,13 @@ public class ProductosController {
             }
         });
 
+        productosFrame.getGeneralButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                actualizacionGeneral();
+            }
+        });
+
     }
 
     private void agregarProducto() {
@@ -216,6 +225,7 @@ public class ProductosController {
     private void actualizarUnProducto(){
         categorias= getAllCategoria();
         actualizarUnProducto = new ActualizarUnProducto();
+
         final Producto[] producto = new Producto[1];
 
         for(Categoria categoria : categorias) {
@@ -336,21 +346,19 @@ public class ProductosController {
             public void actionPerformed(ActionEvent e) {
                 try {
                     FieldAnalyzer.campoLleno(porcentajeField);
-                    FieldAnalyzer.limites(porcentajeField, -100, 100);
-                } catch (OutOfBounds of) {
-                    JOptionPane.showMessageDialog(null, of.getMessage());
-                } catch (EmptyFieldException of) {
+                    FieldAnalyzer.limites(porcentajeField, -100, Integer.MAX_VALUE);
+                } catch (OutOfBounds | EmptyFieldException of) {
                     JOptionPane.showMessageDialog(null, of.getMessage());
                 }
 
                 String cat = actualizarPorCategoria.getCategoriaBox().getSelectedItem().toString();
                 Categoria categoria = categorias.stream().filter(categ -> categ.getNombre().equals(cat)).findFirst().get();
 
-                float porcentaje = Float.parseFloat(actualizarPorCategoria.getPorcentajeField().getText());
+                String porcentaje = actualizarPorCategoria.getPorcentajeField().getText();
                 try {
 
-                    int cant = productoService.updatePrecioPorCategoria(categoria, porcentaje);
-                    JOptionPane.showMessageDialog(null, "Cantidad de productos afectados: " + cant);
+                    UpdateProductoPorcentajeDTO productoPorcentajeDTO = productoService.updatePrecioPorCategoria(categoria, new BigDecimal(porcentaje));
+                    JOptionPane.showMessageDialog(null, "Cantidad de productos afectados: " + productoPorcentajeDTO.getCantProductos());
 
                 } catch (RuntimeException ex) {
                     JOptionPane.showMessageDialog(null, ex.getMessage());
@@ -367,6 +375,32 @@ public class ProductosController {
         });
 
         actualizarPorCategoria.setVisible(true);
+    }
+
+    private void actualizacionGeneral(){
+        ActualizarGeneral actualizarGeneral = new ActualizarGeneral();
+
+        Filter.setDoubleFilter(actualizarGeneral.getPorcentajeField());
+
+        actualizarGeneral.getActualizarButton().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                UpdateProductoPorcentajeDTO productoPorcentajeDTO = new UpdateProductoPorcentajeDTO();
+                try{
+                    FieldAnalyzer.campoLleno(actualizarGeneral.getPorcentajeField());
+                    FieldAnalyzer.limites(actualizarGeneral.getPorcentajeField(), -100, Integer.MAX_VALUE);
+                    productoPorcentajeDTO=productoService.updatePrecioGeneral(new BigDecimal(actualizarGeneral.getPorcentajeField().getText()));
+                }catch (OutOfBounds | EmptyFieldException of) {
+                    JOptionPane.showMessageDialog(null, of.getMessage());
+                }catch (RuntimeException re){
+                    JOptionPane.showMessageDialog(null, re.getMessage());
+                }
+
+                JOptionPane.showMessageDialog(null, "Productos actualizados: " + productoPorcentajeDTO.getCantProductos());
+                
+            }
+        });
+
+        actualizarGeneral.setVisible(true);
     }
 
     //Si bien dice agregar categoria aquí tambien se maneja la eliminación

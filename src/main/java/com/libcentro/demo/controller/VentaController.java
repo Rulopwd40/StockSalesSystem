@@ -69,6 +69,7 @@ public class VentaController {
             //Restricciones de inputs
             Filter.setIntegerFilter(ventaFrame.getCodBar());
             Filter.setIntegerFilter(ventaFrame.getCant());
+            Filter.setPrecioFilter(ventaFrame.getDescuentoField());
 
             // KeyBindings for VentaFrame
             setVentaKeyBindings();
@@ -317,7 +318,7 @@ public class VentaController {
         var cantidad= Integer.parseInt(ventaFrame.getCant().getText());
         agregarProducto(codigo_barras,cantidad);
         ventaFrame.getCodBar().setText("");
-        ventaFrame.getCant().setText("1");
+        ventaFrame.getCant().setText("");
         ventaFrame.setCodFocus();
 
     }
