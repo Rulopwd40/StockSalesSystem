@@ -69,22 +69,8 @@ public class ProductoService implements IproductoService {
     }
 
     @Override
-    public void updateProducto(Producto productoActualizado,HistorialPrecio historialPrecio,HistorialCosto historialCosto) {
-        // Buscar el producto existente por su código de barras
-        Producto productoExistente = productoRepo.findByCodigoBarras(productoActualizado.getCodigo_barras());
+    public void updateProducto(Producto productoActualizado) {
 
-        // Actualizar los atributos excepto el código de barras
-        productoExistente.setNombre(productoActualizado.getNombre());
-        productoExistente.setCategoria(productoActualizado.getCategoria());
-        productoExistente.setCosto_compra(productoActualizado.getCosto_compra());
-        productoExistente.setPrecio_venta(productoActualizado.getPrecio_venta());
-        productoExistente.setCosto_inicial(productoActualizado.getCosto_inicial());
-        productoExistente.setStock(productoActualizado.getStock());
-
-        if(historialPrecio != null) {historialPreciosRepo.save(historialPrecio);}
-        if(historialCosto != null) {historialCostosRepo.save(historialCosto);}
-
-        productoRepo.save(productoExistente);
     }
 
     @Override
@@ -95,113 +81,7 @@ public class ProductoService implements IproductoService {
         productoExistente.setStock(producto.getStock()-cantidad);
         productoRepo.save(productoExistente);
     }
-
-    @Override
-    public Producto getProducto(String codigo_barras) {
-       Producto producto = productoRepo.findByCodigoBarrasWithHistorial(codigo_barras);
-
-       if (producto == null) {
-           throw new ObjectNotFoundException(Producto.class,"El producto con código: " + codigo_barras + " no existe");
-       }
-       else {
-           return producto;
-       }
-    }
-
-    @Override
-    public Producto getProducto(String codigo_barras, int cantidad) {
-        Producto producto = productoRepo.findById(codigo_barras).orElse(null);
-        if (producto == null) {
-            throw new ObjectNotFoundException(Producto.class,"El producto con código: " + codigo_barras + " no existe");
-        }
-        if (producto.getStock()<cantidad) {
-            throw new InsufficientStockException("el producto " + producto.getNombre() + "cod: " + codigo_barras + " no tiene stock suficiente.");
-        }
-        else {
-            return producto;
-        }
-    }
-
-    @Override
-    public Producto getProductoByName(String nombre){
-        Producto producto = productoRepo.findByNombre(nombre);
-        if (producto == null) {
-            throw new ObjectNotFoundException(Producto.class,"El producto con código: " + nombre + " no existe");
-        }
-        else return producto;
-    }
-
-
-    @Override
-    @Transactional
-    public UpdateProductoPorcentajeDTO updatePrecioPorCategoria(Categoria categoria, BigDecimal porcentaje) {
-
-        int cant=0;
-        List<Producto> productos = (List<Producto>) getProductoPorCategoria(categoria);
-        Set<HistorialPrecio> precios = new HashSet<>();
-        for (Producto producto : productos) {
-            BigDecimal precioActual = new BigDecimal(producto.getPrecio_venta());
-
-            BigDecimal incremento = precioActual.multiply(porcentaje).divide(new BigDecimal(100));
-            BigDecimal nuevoPrecio = precioActual.add(incremento);
-
-            nuevoPrecio = nuevoPrecio.setScale(2, RoundingMode.HALF_UP);
-
-            // Convertimos el nuevo precio a int
-            float nuevoPrecioFloat = nuevoPrecio.floatValue();
-
-            // Establecemos el nuevo precio (convertido a int) en el producto
-            producto.setPrecio_venta(nuevoPrecioFloat);
-
-            // Registramos el historial del precio
-            precios.add(anadirHistorialPrecio(producto));
-
-            cant++;
-        }
-
-        return new UpdateProductoPorcentajeDTO(productos,cant,precios,porcentaje);
-    }
-
-
-    @Override
-    @Transactional
-    public UpdateProductoPorcentajeDTO updatePrecioGeneral(BigDecimal porcentaje) {
-        int cant = 0;
-        List<Producto> productos = getAll();
-        Set<HistorialPrecio> precios = new HashSet<>();
-        for (Producto producto : productos) {
-            BigDecimal precioActual = new BigDecimal(producto.getPrecio_venta());
-
-            BigDecimal incremento = precioActual.multiply(porcentaje).divide(new BigDecimal(100));
-            BigDecimal nuevoPrecio = precioActual.add(incremento);
-
-            nuevoPrecio = nuevoPrecio.setScale(2, RoundingMode.HALF_UP);
-
-            // Convertimos el nuevo precio a int
-            float nuevoPrecioFloat = nuevoPrecio.floatValue();
-
-            // Establecemos el nuevo precio (convertido a int) en el producto
-            producto.setPrecio_venta(nuevoPrecioFloat);
-
-            // Registramos el historial del precio
-            precios.add(anadirHistorialPrecio(producto));
-
-            cant++;
-        }
-
-        // Guardamos todos los productos actualizados en la base de datos
-        productoRepo.saveAll(productos);
-
-        return new UpdateProductoPorcentajeDTO(productos,cant,precios,porcentaje.divide(new BigDecimal(100)));
-
-    }
-
-
-    @Override
-    public Set<Producto> getProductoPorCategoria(Categoria categoria){
-        return productoRepo.findByCategoria(categoria);
-    }
-
+    
     public HistorialPrecio anadirHistorialPrecio(Producto producto){
         HistorialPrecio historialPrecio= new HistorialPrecio(producto,producto.getPrecio_venta());
         historialPreciosRepo.save(historialPrecio);

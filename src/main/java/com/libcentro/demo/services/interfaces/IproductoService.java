@@ -24,21 +24,9 @@ public interface IproductoService {
     @Transactional
     public void deleteProducto(Producto x);
     @Transactional
-    public void updateProducto(Producto x, HistorialPrecio historialPrecio, HistorialCosto historialCosto);
+    public void updateProducto(Producto x);
 
     void venderProducto(Producto producto, int cantidad);
 
-    public Producto getProducto(String codigo_barras);
 
-    Producto getProducto(String codigo_barras, int cantidad);
-
-    Producto getProductoByName(String nombre);
-
-    @Transactional
-    UpdateProductoPorcentajeDTO updatePrecioPorCategoria(Categoria categoria, BigDecimal porcentaje);
-
-    @Transactional
-    UpdateProductoPorcentajeDTO updatePrecioGeneral(BigDecimal porcentaje);
-
-    Set<Producto> getProductoPorCategoria(Categoria categoria);
 }
