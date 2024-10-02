@@ -12,6 +12,8 @@ import com.libcentro.demo.model.HistorialCosto;
 import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.repository.IhistorialcostosRepository;
 import com.libcentro.demo.repository.IhistorialpreciosRepository;
+import com.libcentro.demo.utils.command.AddProductCommand;
+import com.libcentro.demo.utils.command.CommandInvoker;
 import dto.UpdateProductoPorcentajeDTO;
 import jakarta.transaction.Transactional;
 import org.hibernate.ObjectNotFoundException;
@@ -31,6 +33,8 @@ public class ProductoService implements IproductoService {
     private IhistorialcostosRepository historialCostosRepo;
     @Autowired
     private IhistorialpreciosRepository historialPreciosRepo;
+
+    private final CommandInvoker commandInvoker = new CommandInvoker();
 
     @Override
     public List<Producto> getAll() {
@@ -57,8 +61,7 @@ public class ProductoService implements IproductoService {
         HistorialPrecio nuevoHistorialPrecio = new HistorialPrecio(producto,producto.getPrecio_venta());
         producto.agregarHistorial(nuevoHistorialPrecio);
 
-        // Guardar el producto (esto también guardará el historial debido al Cascade)
-        productoRepo.save(producto);
+        commandInvoker.executeCommand(new AddProductCommand(this, producto));
 
         return producto;
     }
@@ -81,7 +84,7 @@ public class ProductoService implements IproductoService {
         productoExistente.setStock(producto.getStock()-cantidad);
         productoRepo.save(productoExistente);
     }
-    
+
     public HistorialPrecio anadirHistorialPrecio(Producto producto){
         HistorialPrecio historialPrecio= new HistorialPrecio(producto,producto.getPrecio_venta());
         historialPreciosRepo.save(historialPrecio);

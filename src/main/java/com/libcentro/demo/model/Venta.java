@@ -14,7 +14,7 @@ public class Venta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @Column(name = "fecha")
-    private LocalDate fecha;
+    private String fecha;
     @Column(name = "total")
     private float total;
 
@@ -49,11 +49,11 @@ public class Venta {
         this.id = id;
     }
 
-    public LocalDate getFecha() {
+    public String getFecha() {
         return fecha;
     }
 
-    public void setFecha(LocalDate fecha) {
+    public void setFecha(String fecha) {
         this.fecha = fecha;
     }
 

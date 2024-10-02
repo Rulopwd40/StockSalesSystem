@@ -1,6 +1,6 @@
 
 CREATE TABLE producto(
-                         codigo_barras TEXT PRIMARY KEY,
+                         codigo_barras TEXT PRIMARY KEY ,
                          nombre TEXT,
                          categoria INTEGER DEFAULT NULL,
                          costo_compra NUMERIC,
@@ -9,6 +9,12 @@ CREATE TABLE producto(
                          stock int,
                          FOREIGN KEY (categoria) REFERENCES categoria(id) ON DELETE SET NULL
 
+);
+
+CREATE TABLE venta(
+                         id integer PRIMARY KEY,
+                         fecha TEXT DEFAULT (datetime('now', 'localtime')),
+                         total NUMERIC
 );
 
 CREATE TABLE venta_producto(
@@ -38,17 +44,19 @@ CREATE TABLE categoria (
 
 
 CREATE TABLE historial_costos(
-                                 Id integer PRIMARY KEY,
-                                 codigo_barras TEXT references producto(codigo_barras),
+                                 Id integer,
+                                 codigo_barras TEXT references producto(codigo_barras) ON DELETE CASCADE ,
                                  costo_compra NUMERIC,
                                  cantidad integer,
                                  estado boolean,
-                                 fecha TEXT DEFAULT (datetime('now', 'localtime'))
+                                 fecha TEXT DEFAULT (datetime('now', 'localtime')),
+                                 PRIMARY KEY (Id,codigo_barras)
 );
 
 CREATE TABLE historial_precios(
                                   Id integer PRIMARY KEY,
-                                  codigo_barras TEXT references producto(codigo_barras),
+                                  codigo_barras TEXT references producto(codigo_barras) ON DELETE CASCADE ,
                                   precio_venta integer,
-                                  fecha TEXT DEFAULT (datetime('now','localtime'))
+                                  fecha TEXT DEFAULT (datetime('now','localtime')),
+                                  PRIMARY KEY (Id,codigo_barras)
 );

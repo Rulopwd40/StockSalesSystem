@@ -193,7 +193,7 @@ public class ProductosController {
                     FieldAnalyzer.todosLosCamposLlenos(agregarProducto);
                     Categoria categoriaP = categorias.stream()
                             .filter(categoria -> categoria.getNombre().equals(agregarProducto.getCategoriaBox().getSelectedItem().toString()))
-                            .findFirst().orElse(null);
+                            .findFirst().orElseThrow();
                     Producto producto = new Producto(
                             agregarProducto.getCodigoField().getText(),
                             agregarProducto.getNombreField().getText(),
@@ -208,7 +208,7 @@ public class ProductosController {
                         nuevosProductos.add(producto);
                         cambiosHechos();
                         agregarProducto.onOK();
-                    }catch(ProductExistsInDataBase | ProductNameExists | EmptyFieldException ex) {
+                    }catch(RuntimeException ex) {
                         JOptionPane.showMessageDialog(null,ex.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
                         throw new RuntimeException(ex);
                     }
