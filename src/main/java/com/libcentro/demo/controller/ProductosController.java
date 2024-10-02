@@ -3,7 +3,6 @@ package com.libcentro.demo.controller;
 import java.awt.*;
 import java.awt.event.*;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -13,14 +12,11 @@ import com.libcentro.demo.exceptions.OutOfBounds;
 import com.libcentro.demo.exceptions.ProductExistsInDataBase;
 import com.libcentro.demo.exceptions.ProductNameExists;
 import com.libcentro.demo.model.Categoria;
-import com.libcentro.demo.model.HistorialCosto;
-import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.services.CategoriaService;
 import com.libcentro.demo.services.interfaces.IcategoriaService;
 import com.libcentro.demo.utils.FieldAnalyzer;
 import com.libcentro.demo.utils.filters.Filter;
 import com.libcentro.demo.view.productos.*;
-import dto.UpdateProductoPorcentajeDTO;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -49,9 +45,6 @@ public class ProductosController {
 
     //Productos
     List<Producto> productos;
-    List<Producto> nuevosProductos;
-    List<Producto> productosEliminados;
-    List<Producto> productosActualizados;
 
     List<Categoria> categorias;
 
@@ -87,8 +80,6 @@ public class ProductosController {
         }
         cambios = false;
         refreshProductos();
-
-        nuevosProductos = new ArrayList<Producto>();
 
         this.productsModel = (DefaultTableModel) productosFrame.getTable().getModel();
         productosFrameUpdateTable(productosFrame.getBuscarField().getText());
@@ -156,9 +147,15 @@ public class ProductosController {
             }
         });
 
-        productosFrame.getGuardarButton().addActionListener(new ActionListener() {
+        productosFrame.getDeshacerCambiosButton().addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
-                guardar();
+                deshacer();
+            }
+        });
+        productosFrame.getDeshacerTodoButton().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                deshacerTodo();
             }
         });
 
@@ -173,6 +170,17 @@ public class ProductosController {
             @Override
             public void actionPerformed(ActionEvent e) {
                 actualizacionGeneral();
+            }
+        });
+        productosFrame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                save();
+            }
+        });
+        productosFrame.getGuardarButton().addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                save();
             }
         });
 
@@ -204,15 +212,13 @@ public class ProductosController {
                     );
 
                         existeProducto(producto);
-                        addProductoToTable(producto);
-                        nuevosProductos.add(producto);
-                        cambiosHechos();
+                        productoService.crearProducto(producto);
                         agregarProducto.onOK();
                     }catch(RuntimeException ex) {
                         JOptionPane.showMessageDialog(null,ex.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
                         throw new RuntimeException(ex);
                     }
-
+                    productosFrameUpdateTable();
                 }
         });
 
@@ -223,7 +229,7 @@ public class ProductosController {
 
     //Actualizacion
     private void actualizarUnProducto(){
-        categorias= getAllCategoria();
+       /* categorias= getAllCategoria();
         actualizarUnProducto = new ActualizarUnProducto();
 
         final Producto[] producto = new Producto[1];
@@ -295,10 +301,10 @@ public class ProductosController {
         );
 
 
-        actualizarUnProducto.setVisible(true);
+        actualizarUnProducto.setVisible(true);*/
     }
 
-    private void actualizarProductoPorCategoria(){
+    private void actualizarProductoPorCategoria(){/*
         actualizarPorCategoria = new ActualizarPorCategoria();
         categorias = categoriaService.getAll();
 
@@ -341,10 +347,11 @@ public class ProductosController {
             }
         });
 
-        actualizarPorCategoria.setVisible(true);
+        actualizarPorCategoria.setVisible(true);*/
     }
 
     private void actualizacionGeneral(){
+        /*
         ActualizarGeneral actualizarGeneral = new ActualizarGeneral();
 
         Filter.setDoubleFilter(actualizarGeneral.getPorcentajeField());
@@ -367,7 +374,7 @@ public class ProductosController {
             }
         });
 
-        actualizarGeneral.setVisible(true);
+        actualizarGeneral.setVisible(true);*/
     }
 
     //Si bien dice agregar categoria aquí tambien se maneja la eliminación
@@ -469,12 +476,9 @@ public class ProductosController {
 
         productos = getAllProducto();
 
-        List<Producto> todosProductos = Stream.concat(productos.stream(), nuevosProductos.stream())
-                .toList();
-
         String filterT = filter.toLowerCase();
 
-        List<Producto> productosFiltrados = todosProductos.stream()
+        List<Producto> productosFiltrados = productos.stream()
                 .filter(producto -> producto.getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
                         producto.getCodigo_barras().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
                         producto.getCategoria().getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*")
@@ -533,42 +537,27 @@ public class ProductosController {
     private void existeProducto(Producto producto) throws RuntimeException {
 
         Producto p = productos.stream().filter(prod -> prod.getCodigo_barras().equals(producto.getCodigo_barras()) || prod.getNombre().equals(producto.getNombre())).findFirst().orElse(null);
-        Producto pn = nuevosProductos.stream().filter(prod -> prod.getCodigo_barras().equals(producto.getCodigo_barras()) || prod.getNombre().equals(producto.getNombre())).findFirst().orElse(null);
-
-        Producto finalP=null;
         if(p != null) {
-            finalP = p;
-        } else if (pn != null) {
-            finalP = pn;
-        }
-    if(finalP != null) {
-        if(finalP.getNombre().equals(producto.getNombre())) {
-            throw new ProductNameExists("El producto con nombre: " + producto.getNombre() + " ya existe");
-        }
-        else if(finalP.getCodigo_barras().equals(producto.getCodigo_barras())){
-            throw new ProductExistsInDataBase("El producto con código: " + producto.getCodigo_barras() + " ya existe");
-        }
-    }
-    }
-
-    private void cambiosHechos(){
-        cambios = true;
-        productosFrame.getGuardarButton().setEnabled(true);
-    }
-
-    protected void guardar() {
-        if (cambios) {
-            for (Producto producto : nuevosProductos) {
-                try {
-                    productoService.crearProducto(producto);
-                } catch (Exception e) {
-                    // Manejar cualquier excepción de manera genérica
-                    JOptionPane.showMessageDialog(null, "Error al guardar el producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                }
+            if(p.getNombre().equals(producto.getNombre())) {
+                throw new ProductNameExists("El producto con nombre: " + producto.getNombre() + " ya existe");
             }
-            cambios = false;
-            productosFrame.getGuardarButton().setEnabled(false);
+        else if(p.getCodigo_barras().equals(producto.getCodigo_barras())){
+                throw new ProductExistsInDataBase("El producto con código: " + producto.getCodigo_barras() + " ya existe");
+            }
         }
+    }
+
+
+    protected void deshacer(){
+        productoService.undo();
+        productosFrameUpdateTable();
+    }
+    protected void deshacerTodo(){
+        productoService.undoAll();
+        productosFrameUpdateTable();
+    }
+    protected void save(){
+        productoService.save();
     }
 
 }

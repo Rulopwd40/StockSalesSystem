@@ -250,25 +250,25 @@
         </properties>
         <border type="none"/>
         <children>
-          <component id="c7f03" class="javax.swing.JButton" binding="volverButton" default-binding="true">
+          <component id="c7f03" class="javax.swing.JButton" binding="guardarButton">
             <constraints>
               <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <background color="-1"/>
-              <foreground color="-12406529"/>
-              <text value="Volver"/>
+              <background color="-12406529"/>
+              <foreground color="-1"/>
+              <text value="Guardar"/>
             </properties>
           </component>
-          <component id="bc297" class="javax.swing.JButton" binding="guardarButton">
+          <component id="bc297" class="javax.swing.JButton" binding="deshacerTodoButton">
             <constraints>
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <background color="-12406529"/>
-              <enabled value="false"/>
-              <foreground color="-1"/>
-              <text value="Guardar"/>
+              <background color="-1"/>
+              <enabled value="true"/>
+              <foreground color="-12406529"/>
+              <text value="Deshacer Todo"/>
             </properties>
           </component>
           <component id="c7d81" class="javax.swing.JButton" binding="deshacerCambiosButton" default-binding="true">
@@ -277,7 +277,7 @@
             </constraints>
             <properties>
               <background color="-1249286"/>
-              <text value="Deshacer Cambios"/>
+              <text value="Deshacer"/>
             </properties>
           </component>
         </children>

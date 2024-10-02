@@ -17,4 +17,17 @@ public class CommandInvoker {
         }
     }
 
+    public void undoAll(){
+        while (!commands.isEmpty()) {
+            Command command = commands.pop();
+            command.undo();
+        }
+    }
+
+    public void save(){
+        while (!commands.isEmpty()) {
+            Command command = commands.pop();
+        }
+    }
+
 }
