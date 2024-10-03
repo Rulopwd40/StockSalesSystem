@@ -8,7 +8,9 @@ import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.repository.IhistorialcostosRepository;
 import com.libcentro.demo.repository.IhistorialpreciosRepository;
 import com.libcentro.demo.utils.command.AddProductCommand;
+import com.libcentro.demo.utils.command.Command;
 import com.libcentro.demo.utils.command.CommandInvoker;
+import com.libcentro.demo.utils.command.UpdateProductCommand;
 import jakarta.transaction.Transactional;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +62,14 @@ public class ProductoService implements IproductoService {
 
     @Override
     public void updateProducto(Producto productoActualizado) {
+        Producto productoActual= productoRepo.findById(productoActualizado.getCodigo_barras()).orElse(null);
 
+        commandInvoker.executeCommand(new UpdateProductCommand(this,historialCostosRepo,historialPreciosRepo,productoActual,productoActualizado));
+    }
+
+    @Override
+    public Producto getProducto(String codigo_barras){
+        return productoRepo.findById(codigo_barras).orElse(null);
     }
 
     @Override
