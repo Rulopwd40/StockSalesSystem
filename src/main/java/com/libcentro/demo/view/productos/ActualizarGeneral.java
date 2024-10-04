@@ -14,7 +14,7 @@ public class ActualizarGeneral extends JDialog {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(actualizarButton);
-        setSize(500,300);
+        setSize(500,175);
         setLocationRelativeTo(null);
 
         buttonOK.addActionListener(new ActionListener() {
