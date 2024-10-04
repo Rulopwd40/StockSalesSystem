@@ -1,6 +1,7 @@
 package com.libcentro.demo.services.interfaces;
 import java.util.List;
 
+import com.libcentro.demo.model.Categoria;
 import com.libcentro.demo.model.Producto;
 
 import jakarta.transaction.Transactional;
@@ -20,6 +21,8 @@ public interface IproductoService {
     public void deleteProducto(Producto x);
     @Transactional
     public void updateProducto(Producto x);
+
+    void updateProductosBy(Categoria categoria, float porcentaje);
 
     Producto getProducto(String codigo_barras);
 

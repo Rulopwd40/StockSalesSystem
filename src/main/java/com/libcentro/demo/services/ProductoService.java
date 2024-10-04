@@ -1,16 +1,17 @@
 package com.libcentro.demo.services;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.libcentro.demo.exceptions.InsufficientStockException;
-import com.libcentro.demo.model.HistorialCosto;
+import com.libcentro.demo.model.Categoria;
 import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.repository.IhistorialcostosRepository;
 import com.libcentro.demo.repository.IhistorialpreciosRepository;
 import com.libcentro.demo.utils.command.AddProductCommand;
-import com.libcentro.demo.utils.command.Command;
 import com.libcentro.demo.utils.command.CommandInvoker;
 import com.libcentro.demo.utils.command.UpdateProductCommand;
+import com.libcentro.demo.utils.command.UpdateProductsBy;
 import jakarta.transaction.Transactional;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +66,34 @@ public class ProductoService implements IproductoService {
         Producto productoActual= productoRepo.findById(productoActualizado.getCodigo_barras()).orElse(null);
 
         commandInvoker.executeCommand(new UpdateProductCommand(this,historialCostosRepo,historialPreciosRepo,productoActual,productoActualizado));
+    }
+
+    @Override
+    public void updateProductosBy(Categoria categoria, float porcentaje) {
+        List<Producto> productosViejos;
+
+        if(porcentaje == 0){
+            throw new RuntimeException("Porcentaje no puede ser cero.");
+        }
+        // Obtén los productos según la categoría (o todos si la categoría es null)
+        if (categoria == null) {
+            productosViejos = productoRepo.findAll();
+        } else {
+            productosViejos = productoRepo.findAllByCategoria(categoria);
+        }
+
+        // Crea una nueva lista de productos (productosNuevos) a partir de productosViejos
+        List<Producto> productosNuevos = productosViejos.stream()
+                .map(productoViejo -> {
+                    Producto nuevoProducto = new Producto(productoViejo); // Asumimos que Producto tiene un constructor copia
+                    float nuevoPrecio = nuevoProducto.getPrecio_venta() + (nuevoProducto.getPrecio_venta() * porcentaje);
+                    nuevoProducto.setPrecio_venta(nuevoPrecio);
+                    return nuevoProducto;
+                })
+                .collect(Collectors.toList());
+
+        // Guarda los productos actualizados en la base de datos
+        commandInvoker.executeCommand(new UpdateProductsBy(this,productosNuevos,productosViejos,historialPreciosRepo));
     }
 
     @Override

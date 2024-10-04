@@ -45,6 +45,16 @@ public class Producto {
         this.stock = stock;
     }
 
+    public Producto(Producto producto) {
+        this.codigo_barras = producto.getCodigo_barras();
+        this.nombre = producto.getNombre();
+        this.categoria = producto.getCategoria();
+        this.precio_venta = producto.getPrecio_venta();
+        this.costo_compra = producto.getCosto_compra();
+        this.stock = producto.getStock();
+        // Copiar otros campos si los hay
+    }
+
     public void agregarHistorial(HistorialCosto historialCosto) {
         historialCosto.setProducto(this);
         historial_costos.add(historialCosto);

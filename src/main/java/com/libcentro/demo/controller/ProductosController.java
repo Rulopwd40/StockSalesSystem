@@ -313,7 +313,7 @@ public class ProductosController {
         actualizarUnProducto.setVisible(true);
     }
 
-    private void actualizarProductoPorCategoria(){/*
+    private void actualizarProductoPorCategoria(){
         actualizarPorCategoria = new ActualizarPorCategoria();
         categorias = categoriaService.getAll();
 
@@ -336,12 +336,10 @@ public class ProductosController {
                 String cat = actualizarPorCategoria.getCategoriaBox().getSelectedItem().toString();
                 Categoria categoria = categorias.stream().filter(categ -> categ.getNombre().equals(cat)).findFirst().get();
 
-                String porcentaje = actualizarPorCategoria.getPorcentajeField().getText();
+                float porcentaje = Float.parseFloat(actualizarPorCategoria.getPorcentajeField().getText())/100;
                 try {
-
-                    UpdateProductoPorcentajeDTO productoPorcentajeDTO = productoService.updatePrecioPorCategoria(categoria, new BigDecimal(porcentaje));
-                    JOptionPane.showMessageDialog(null, "Cantidad de productos afectados: " + productoPorcentajeDTO.getCantProductos());
-
+                    productoService.updateProductosBy(categoria,porcentaje);
+                    JOptionPane.showMessageDialog(null,"Productos actualizados","Actualización exitosa",JOptionPane.INFORMATION_MESSAGE);
                 } catch (RuntimeException ex) {
                     JOptionPane.showMessageDialog(null, ex.getMessage());
                     throw new RuntimeException(ex.getMessage());
@@ -356,7 +354,7 @@ public class ProductosController {
             }
         });
 
-        actualizarPorCategoria.setVisible(true);*/
+        actualizarPorCategoria.setVisible(true);
     }
 
     private void actualizacionGeneral(){
