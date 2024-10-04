@@ -104,6 +104,13 @@ public class ProductosController {
     }
 
     private void productosFrameAddListeners(){
+
+        productosFrame.getSinStockCheckBox().addActionListener( new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                productosFrameUpdateTable();
+            }
+        });
+
         productosFrame.getBuscarField().getDocument().addDocumentListener(new DocumentListener() {
 
             @Override
@@ -507,6 +514,10 @@ public class ProductosController {
                         producto.getCategoria().getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*")
                 )
                 .toList();
+
+        if(productosFrame.getSinStockCheckBox().isSelected()) {
+            productosFiltrados = productosFiltrados.stream().filter(producto -> producto.getStock()==0).toList();
+        }
 
         // Agregar los productos al modelo de la tabla
         for (Producto producto : productosFiltrados) {
