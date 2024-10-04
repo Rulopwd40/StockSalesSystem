@@ -82,6 +82,14 @@ public class HistorialCosto {
         return producto;
     }
 
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public void setEstado(boolean estado) {
+        this.estado = estado;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true; // Si son la misma instancia

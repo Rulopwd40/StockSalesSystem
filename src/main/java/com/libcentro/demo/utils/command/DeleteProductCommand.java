@@ -17,15 +17,25 @@ public class DeleteProductCommand implements Command {
     private final Producto productoOriginal;
     private final IhistorialPreciosService historialPreciosService;
     private final IhistorialCostosService historialCostosService;
-    private final Set<HistorialPrecio> historialPrecio;
-    private final Set<HistorialCosto> historialCosto;
+
+    private final Set<HistorialPrecio> historialPrecioClonado;
+    private final Set<HistorialCosto> historialCostoClonado;
 
     public DeleteProductCommand(IproductoService productoService, Producto producto, IhistorialPreciosService historialPreciosService, IhistorialCostosService historialCostosService) {
         this.productoService = productoService;
-        // Clona el producto junto con su historial para poder restaurarlo
         this.productoOriginal = producto;
-        this.historialPrecio = historialPreciosService.findAllByProducto(producto);
-        this.historialCosto = historialCostosService.findAllByProducto(producto);
+
+        // Clona los historiales
+        this.historialPrecioClonado = new HashSet<>();
+        for (HistorialPrecio precio : historialPreciosService.findAllByProducto(producto)) {
+            historialPrecioClonado.add(cloneHistorialPrecio(precio));
+        }
+
+        this.historialCostoClonado = new HashSet<>();
+        for (HistorialCosto costo : historialCostosService.findAllByProducto(producto)) {
+            historialCostoClonado.add(cloneHistorialCosto(costo));
+        }
+
         this.historialPreciosService = historialPreciosService;
         this.historialCostosService = historialCostosService;
     }
@@ -37,14 +47,38 @@ public class DeleteProductCommand implements Command {
 
     @Override
     public void undo() {
-        productoService.saveProducto(productoOriginal);
-        Producto producto = productoService.getProducto(productoOriginal.getCodigo_barras());
+        // Restaurar el producto
+        Producto producto = new Producto(productoOriginal);
+        productoService.saveProducto(producto);
+        producto = productoService.getProducto(productoOriginal.getCodigo_barras());
 
-        historialPrecio.forEach(historialPrecio1 -> historialPrecio1.setProducto(producto));
-        historialCosto.forEach(historialCosto1 -> historialCosto1.setProducto(producto));
+        // Restaurar los historiales
+        for (HistorialPrecio precio : historialPrecioClonado) {
+            precio.setProducto(producto); // Asociar el producto restaurado
+            historialPreciosService.save(precio);
+        }
 
-        historialPreciosService.saveAll(historialPrecio);
-        historialCostosService.saveAll(historialCosto);
+        for (HistorialCosto costo : historialCostoClonado) {
+            costo.setProducto(producto); // Asociar el producto restaurado
+            historialCostosService.save(costo);
+        }
     }
 
+    private HistorialPrecio cloneHistorialPrecio(HistorialPrecio original) {
+        HistorialPrecio clone = new HistorialPrecio();
+        clone.setPrecio_venta(original.getPrecio_venta());
+        clone.setFecha(original.getFecha());
+        // Clonar otras propiedades según sea necesario
+        return clone;
+    }
+
+    private HistorialCosto cloneHistorialCosto(HistorialCosto original) {
+        HistorialCosto clone = new HistorialCosto();
+        clone.setCosto_compra(original.getCosto_compra());
+        clone.setCantidad(original.getCantidad());
+        clone.setEstado(original.isEstado());
+        clone.setFecha(original.getFecha());
+        // Clonar otras propiedades según sea necesario
+        return clone;
+    }
 }

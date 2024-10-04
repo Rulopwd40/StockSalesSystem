@@ -61,6 +61,7 @@ public class ProductoService implements IproductoService {
     @Override
     public void deleteProducto(Producto x) {
         productoRepo.delete(x);
+        productoRepo.flush();
     }
 
     @Override
