@@ -3,8 +3,8 @@ package com.libcentro.demo.utils.command;
 import com.libcentro.demo.model.HistorialCosto;
 import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.model.Producto;
-import com.libcentro.demo.repository.IhistorialcostosRepository;
-import com.libcentro.demo.repository.IhistorialpreciosRepository;
+import com.libcentro.demo.services.interfaces.IhistorialCostosService;
+import com.libcentro.demo.services.interfaces.IhistorialPreciosService;
 import com.libcentro.demo.services.interfaces.IproductoService;
 
 public class UpdateProductCommand implements Command {
@@ -12,15 +12,15 @@ public class UpdateProductCommand implements Command {
     private final Producto viejoProducto;
     private final Producto nuevoProducto;
     private final IproductoService _productoService;
-    private final IhistorialcostosRepository _historialcostosRepository;
-    private final IhistorialpreciosRepository _historialpreciosRepository;
+    private final IhistorialCostosService _historialcostosService;
+    private final IhistorialPreciosService _historialpreciosService;
 
-    public UpdateProductCommand(IproductoService productoService, IhistorialcostosRepository costoRepo, IhistorialpreciosRepository preciosRepo, Producto viejoProducto, Producto nuevoProducto) {
+    public UpdateProductCommand(IproductoService productoService, IhistorialCostosService costoRepo, IhistorialPreciosService preciosRepo, Producto viejoProducto, Producto nuevoProducto) {
         this.viejoProducto = viejoProducto;
         this.nuevoProducto = nuevoProducto;
         _productoService = productoService;
-        _historialpreciosRepository= preciosRepo;
-        _historialcostosRepository = costoRepo;
+        _historialpreciosService = preciosRepo;
+        _historialcostosService = costoRepo;
     }
 
 
@@ -36,12 +36,12 @@ public class UpdateProductCommand implements Command {
         // Actualizar el costo de compra y crear un nuevo historial
         if (costoCambiado && cantidad > 0) {
             HistorialCosto nuevoHistorial = new HistorialCosto(nuevoProducto,nuevoProducto.getCosto_compra(),cantidad);
-            _historialcostosRepository.save(nuevoHistorial);
+            _historialcostosService.save(nuevoHistorial);
         } else if (cantidadCambiada && !costoCambiado) {
             // Actualizar cantidad en el historial actual
-            HistorialCosto historialExistente = _historialcostosRepository.findFirstByProductoOrderByIdDesc(nuevoProducto);
+            HistorialCosto historialExistente = _historialcostosService.findFirstByProductoOrderByIdDesc(nuevoProducto);
             historialExistente.setCantidad(historialExistente.getCantidad() + cantidad);
-            _historialcostosRepository.save(historialExistente);
+            _historialcostosService.save(historialExistente);
         } else if(costoCambiado && !cantidadCambiada){
             throw new RuntimeException("No se puede cambiar el costo sin una variación en la cantidad");
         }
@@ -49,7 +49,7 @@ public class UpdateProductCommand implements Command {
         // Actualizar precio de venta
         if (precioVentaCambiado) {
             HistorialPrecio nuevoHistorialPrecio = new HistorialPrecio(nuevoProducto,nuevoProducto.getPrecio_venta());
-            _historialpreciosRepository.save(nuevoHistorialPrecio);
+            _historialpreciosService.save(nuevoHistorialPrecio);
         }
         _productoService.saveProducto(nuevoProducto);
 
@@ -66,20 +66,20 @@ public class UpdateProductCommand implements Command {
         // Si el costo cambió y se creó un nuevo historial, eliminarlo
         if (costoCambiado && cantidad > 0) {
             // Encontrar el último historial de costos y eliminarlo
-            HistorialCosto ultimoHistorial = _historialcostosRepository.findFirstByProductoOrderByIdDesc(nuevoProducto);
-            _historialcostosRepository.delete(ultimoHistorial);
+            HistorialCosto ultimoHistorial = _historialcostosService.findFirstByProductoOrderByIdDesc(nuevoProducto);
+            _historialcostosService.delete(ultimoHistorial);
         } else if (cantidadCambiada && !costoCambiado) {
             // Restar la cantidad agregada previamente al historial actual
-            HistorialCosto historialExistente = _historialcostosRepository.findFirstByProductoOrderByIdDesc(nuevoProducto);
+            HistorialCosto historialExistente = _historialcostosService.findFirstByProductoOrderByIdDesc(nuevoProducto);
             historialExistente.setCantidad(historialExistente.getCantidad() - cantidad);
-            _historialcostosRepository.save(historialExistente);
+            _historialcostosService.save(historialExistente);
         }
 
         // Revertir el precio de venta
         if (precioVentaCambiado) {
             // Encontrar y eliminar el último historial de precios
-            HistorialPrecio ultimoHistorialPrecio = _historialpreciosRepository.findFirstByProductoOrderByIdDesc(nuevoProducto);
-            _historialpreciosRepository.delete(ultimoHistorialPrecio);
+            HistorialPrecio ultimoHistorialPrecio = _historialpreciosService.findFirstByProductoOrderByIdDesc(nuevoProducto);
+            _historialpreciosService.delete(ultimoHistorialPrecio);
         }
 
         // Finalmente, revertir el producto a su estado anterior

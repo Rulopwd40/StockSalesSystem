@@ -19,6 +19,11 @@ public interface IproductoService {
     Producto crearProducto(Producto producto);
     @Transactional
     public void deleteProducto(Producto x);
+
+    void deleteProductoByCodigo(String codigo_barras);
+
+    void deleteProducto(String codigo_barras);
+
     @Transactional
     public void updateProducto(Producto x);
 

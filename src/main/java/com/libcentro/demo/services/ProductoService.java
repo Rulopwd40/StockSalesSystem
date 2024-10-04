@@ -8,10 +8,9 @@ import com.libcentro.demo.model.Categoria;
 import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.repository.IhistorialcostosRepository;
 import com.libcentro.demo.repository.IhistorialpreciosRepository;
-import com.libcentro.demo.utils.command.AddProductCommand;
-import com.libcentro.demo.utils.command.CommandInvoker;
-import com.libcentro.demo.utils.command.UpdateProductCommand;
-import com.libcentro.demo.utils.command.UpdateProductsBy;
+import com.libcentro.demo.services.interfaces.IhistorialCostosService;
+import com.libcentro.demo.services.interfaces.IhistorialPreciosService;
+import com.libcentro.demo.utils.command.*;
 import jakarta.transaction.Transactional;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +25,12 @@ public class ProductoService implements IproductoService {
     @Autowired
     private IproductoRepository productoRepo;
     @Autowired
-    private IhistorialcostosRepository historialCostosRepo;
+    private IhistorialCostosService historialCostosService;
     @Autowired
-    private IhistorialpreciosRepository historialPreciosRepo;
+    private IhistorialPreciosService historialPreciosService;
+
+
+
 
     private final CommandInvoker commandInvoker = new CommandInvoker();
 
@@ -50,7 +52,7 @@ public class ProductoService implements IproductoService {
         if (existingProducto != null) {
             throw new RuntimeException("El producto con codigo: " + producto.getCodigo_barras() + " ya existe.");
         }
-        commandInvoker.executeCommand(new AddProductCommand(this, producto,historialPreciosRepo,historialCostosRepo));
+        commandInvoker.executeCommand(new AddProductCommand(this, producto, historialPreciosService, historialCostosService));
 
 
         return producto;
@@ -62,10 +64,20 @@ public class ProductoService implements IproductoService {
     }
 
     @Override
+    public void deleteProductoByCodigo(String codigo_barras){
+        productoRepo.deleteById(codigo_barras);
+    }
+    @Override
+    public void deleteProducto(String codigo_barras){
+        Producto producto = productoRepo.getProductoWithHistorialPrecioAndHistorialCosto(codigo_barras);
+        commandInvoker.executeCommand(new DeleteProductCommand(this, producto,historialPreciosService,historialCostosService));
+    }
+
+    @Override
     public void updateProducto(Producto productoActualizado) {
         Producto productoActual= productoRepo.findById(productoActualizado.getCodigo_barras()).orElse(null);
 
-        commandInvoker.executeCommand(new UpdateProductCommand(this,historialCostosRepo,historialPreciosRepo,productoActual,productoActualizado));
+        commandInvoker.executeCommand(new UpdateProductCommand(this, historialCostosService, historialPreciosService,productoActual,productoActualizado));
     }
 
     @Override
@@ -93,7 +105,7 @@ public class ProductoService implements IproductoService {
                 .collect(Collectors.toList());
 
         // Guarda los productos actualizados en la base de datos
-        commandInvoker.executeCommand(new UpdateProductsBy(this,productosNuevos,productosViejos,historialPreciosRepo));
+        commandInvoker.executeCommand(new UpdateProductsBy(this,productosNuevos,productosViejos, historialPreciosService));
     }
 
     @Override
@@ -149,7 +161,7 @@ public class ProductoService implements IproductoService {
 
     public HistorialPrecio anadirHistorialPrecio(Producto producto){
         HistorialPrecio historialPrecio= new HistorialPrecio(producto,producto.getPrecio_venta());
-        historialPreciosRepo.save(historialPrecio);
+        historialPreciosService.save(historialPrecio);
         return historialPrecio;
     }
 

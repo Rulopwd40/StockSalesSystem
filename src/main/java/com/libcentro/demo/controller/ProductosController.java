@@ -79,6 +79,7 @@ public class ProductosController {
 
         this.productsModel = (DefaultTableModel) productosFrame.getTable().getModel();
         productosFrameUpdateTable(productosFrame.getBuscarField().getText());
+
         categorias= getAllCategoria();
 
         // Añadir un mapeo para la tecla F5
@@ -179,7 +180,13 @@ public class ProductosController {
                 save();
             }
         });
-
+        productosFrame.getEliminarProductoButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                    eliminarProducto();
+                    productosFrameUpdateTable();
+            }
+        });
     }
 
     private void agregarProducto() {
@@ -380,6 +387,19 @@ public class ProductosController {
         actualizarGeneral.setVisible(true);
     }
 
+    //Eliminación
+    private void eliminarProducto(){
+       int fila= productosFrame.getTable().getSelectedRow();
+       if(fila==-1){
+           JOptionPane.showMessageDialog(null,"Seleccione un producto en la tabla","Error",JOptionPane.ERROR_MESSAGE);
+           throw new RuntimeException("Seleccione un producto en la tabla");
+       }
+       try {
+           productoService.deleteProducto(productosFrame.getTable().getValueAt(fila, 0).toString());
+       }catch (RuntimeException e){
+           JOptionPane.showMessageDialog(null, e.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
+       }
+    }
     //Si bien dice agregar categoria aquí tambien se maneja la eliminación
     private void agregarCategoria() {
         categorias = getAllCategoria();
