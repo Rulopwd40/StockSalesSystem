@@ -37,13 +37,13 @@ public class UpdateProductCommand implements Command {
         if (costoCambiado && cantidad > 0) {
             HistorialCosto nuevoHistorial = new HistorialCosto(nuevoProducto,nuevoProducto.getCosto_compra(),cantidad);
             _historialcostosRepository.save(nuevoHistorial);
-
-
         } else if (cantidadCambiada && !costoCambiado) {
             // Actualizar cantidad en el historial actual
             HistorialCosto historialExistente = _historialcostosRepository.findFirstByProductoOrderByIdDesc(nuevoProducto);
             historialExistente.setCantidad(historialExistente.getCantidad() + cantidad);
             _historialcostosRepository.save(historialExistente);
+        } else if(costoCambiado && !cantidadCambiada){
+            throw new RuntimeException("No se puede cambiar el costo sin una variación en la cantidad");
         }
 
         // Actualizar precio de venta
