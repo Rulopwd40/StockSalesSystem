@@ -1,13 +1,9 @@
 package com.libcentro.demo.services.interfaces;
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Set;
 
 import com.libcentro.demo.model.Categoria;
-import com.libcentro.demo.model.HistorialCosto;
-import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.model.Producto;
-import dto.UpdateProductoPorcentajeDTO;
+
 import jakarta.transaction.Transactional;
 
 public interface IproductoService {
@@ -23,22 +19,25 @@ public interface IproductoService {
     Producto crearProducto(Producto producto);
     @Transactional
     public void deleteProducto(Producto x);
+
+    void deleteProductoByCodigo(String codigo_barras);
+
+    void deleteProducto(String codigo_barras);
+
     @Transactional
-    public void updateProducto(Producto x, HistorialPrecio historialPrecio, HistorialCosto historialCosto);
+    public void updateProducto(Producto x);
 
-    void venderProducto(Producto producto, int cantidad);
+    void updateProductosBy(Categoria categoria, float porcentaje);
 
-    public Producto getProducto(String codigo_barras);
+    Producto getProducto(String codigo_barras);
 
     Producto getProducto(String codigo_barras, int cantidad);
 
-    Producto getProductoByName(String nombre);
+    void venderProducto(Producto producto, int cantidad);
 
-    @Transactional
-    UpdateProductoPorcentajeDTO updatePrecioPorCategoria(Categoria categoria, BigDecimal porcentaje);
+    void undo();
 
-    @Transactional
-    UpdateProductoPorcentajeDTO updatePrecioGeneral(BigDecimal porcentaje);
+    void undoAll();
 
-    Set<Producto> getProductoPorCategoria(Categoria categoria);
+    void save();
 }

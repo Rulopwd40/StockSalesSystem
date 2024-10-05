@@ -24,9 +24,9 @@ public class Producto {
     private HistorialCosto costo_inicial;
     @Column(name = "stock")
     private int stock;
-    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY) // Cascade ALL
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true) // Cascade ALL
     private Set<HistorialPrecio> historial_precios = new HashSet<>();
-    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<HistorialCosto> historial_costos = new HashSet<>();
 
 
@@ -43,6 +43,16 @@ public class Producto {
         this.costo_compra = costo_compra;
         this.precio_venta = precio_venta;
         this.stock = stock;
+    }
+
+    public Producto(Producto producto) {
+        this.codigo_barras = producto.getCodigo_barras();
+        this.nombre = producto.getNombre();
+        this.categoria = producto.getCategoria();
+        this.precio_venta = producto.getPrecio_venta();
+        this.costo_compra = producto.getCosto_compra();
+        this.stock = producto.getStock();
+        // Copiar otros campos si los hay
     }
 
     public void agregarHistorial(HistorialCosto historialCosto) {
@@ -126,21 +136,6 @@ public class Producto {
         this.costo_inicial = costo_inicial;
     }
 
-    public Set<HistorialPrecio> getHistorial_precios() {
-        return historial_precios;
-    }
-
-    public Set<HistorialCosto> getHistorial_costos() {
-        return historial_costos;
-    }
-
-    public void setHistorial_precios(Set<HistorialPrecio> historial_precios) {
-        this.historial_precios = historial_precios;
-    }
-
-    public void setHistorial_costos(Set<HistorialCosto> historial_costos) {
-        this.historial_costos = historial_costos;
-    }
 
     @Override
     public boolean equals(Object o) {

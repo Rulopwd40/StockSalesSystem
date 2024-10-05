@@ -37,6 +37,7 @@ public class HistorialCosto {
 
     }
 
+
     public void setProducto(Producto producto) {
         this.producto = producto;
     }
@@ -59,6 +60,34 @@ public class HistorialCosto {
 
     public Long getId() {
         return id;
+    }
+
+    public String getFecha() {
+        return fecha;
+    }
+
+    public boolean isEstado() {
+        return estado;
+    }
+
+    public int getCantidad() {
+        return cantidad;
+    }
+
+    public float getCosto_compra() {
+        return costo_compra;
+    }
+
+    public Producto getProducto() {
+        return producto;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public void setEstado(boolean estado) {
+        this.estado = estado;
     }
 
     @Override

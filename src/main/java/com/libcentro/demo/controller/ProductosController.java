@@ -3,7 +3,6 @@ package com.libcentro.demo.controller;
 import java.awt.*;
 import java.awt.event.*;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -13,14 +12,12 @@ import com.libcentro.demo.exceptions.OutOfBounds;
 import com.libcentro.demo.exceptions.ProductExistsInDataBase;
 import com.libcentro.demo.exceptions.ProductNameExists;
 import com.libcentro.demo.model.Categoria;
-import com.libcentro.demo.model.HistorialCosto;
-import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.services.CategoriaService;
 import com.libcentro.demo.services.interfaces.IcategoriaService;
 import com.libcentro.demo.utils.FieldAnalyzer;
+import com.libcentro.demo.utils.command.CommandInvoker;
 import com.libcentro.demo.utils.filters.Filter;
 import com.libcentro.demo.view.productos.*;
-import dto.UpdateProductoPorcentajeDTO;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -44,20 +41,13 @@ import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 public class ProductosController {
 
     private final IproductoService productoService;
-    private final IcategoriaService icategoriaService;
-    private final CategoriaService categoriaService;
+    private final IcategoriaService categoriaService;
+
 
     //Productos
     List<Producto> productos;
-    List<Producto> nuevosProductos;
-    List<Producto> productosEliminados;
-    List<Producto> productosActualizados;
 
     List<Categoria> categorias;
-
-    private boolean cambios;
-
-
 
     ViewController viewController;
     ProductosFrame productosFrame;
@@ -73,10 +63,9 @@ public class ProductosController {
 
 
     @Autowired
-    public ProductosController(@Lazy ViewController viewController, IproductoService productoService, IcategoriaService icategoriaService, CategoriaService categoriaService) {
+    public ProductosController(@Lazy ViewController viewController, IproductoService productoService, IcategoriaService categoriaService) {
         this.viewController = viewController;
         this.productoService = productoService;
-        this.icategoriaService = icategoriaService;
         this.categoriaService = categoriaService;
     }
 
@@ -85,13 +74,12 @@ public class ProductosController {
             productosFrame = new ProductosFrame();
 
         }
-        cambios = false;
-        refreshProductos();
 
-        nuevosProductos = new ArrayList<Producto>();
+        refreshProductos();
 
         this.productsModel = (DefaultTableModel) productosFrame.getTable().getModel();
         productosFrameUpdateTable(productosFrame.getBuscarField().getText());
+
         categorias= getAllCategoria();
 
         // Añadir un mapeo para la tecla F5
@@ -116,6 +104,13 @@ public class ProductosController {
     }
 
     private void productosFrameAddListeners(){
+
+        productosFrame.getSinStockCheckBox().addActionListener( new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                productosFrameUpdateTable();
+            }
+        });
+
         productosFrame.getBuscarField().getDocument().addDocumentListener(new DocumentListener() {
 
             @Override
@@ -156,9 +151,15 @@ public class ProductosController {
             }
         });
 
-        productosFrame.getGuardarButton().addActionListener(new ActionListener() {
+        productosFrame.getDeshacerCambiosButton().addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
-                guardar();
+                deshacer();
+            }
+        });
+        productosFrame.getDeshacerTodoButton().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                deshacerTodo();
             }
         });
 
@@ -175,7 +176,24 @@ public class ProductosController {
                 actualizacionGeneral();
             }
         });
-
+        productosFrame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                save();
+            }
+        });
+        productosFrame.getGuardarButton().addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                save();
+            }
+        });
+        productosFrame.getEliminarProductoButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                    eliminarProducto();
+                    productosFrameUpdateTable();
+            }
+        });
     }
 
     private void agregarProducto() {
@@ -193,7 +211,7 @@ public class ProductosController {
                     FieldAnalyzer.todosLosCamposLlenos(agregarProducto);
                     Categoria categoriaP = categorias.stream()
                             .filter(categoria -> categoria.getNombre().equals(agregarProducto.getCategoriaBox().getSelectedItem().toString()))
-                            .findFirst().orElse(null);
+                            .findFirst().orElseThrow();
                     Producto producto = new Producto(
                             agregarProducto.getCodigoField().getText(),
                             agregarProducto.getNombreField().getText(),
@@ -204,15 +222,13 @@ public class ProductosController {
                     );
 
                         existeProducto(producto);
-                        addProductoToTable(producto);
-                        nuevosProductos.add(producto);
-                        cambiosHechos();
+                        productoService.crearProducto(producto);
                         agregarProducto.onOK();
-                    }catch(ProductExistsInDataBase | ProductNameExists | EmptyFieldException ex) {
+                    }catch(RuntimeException ex) {
                         JOptionPane.showMessageDialog(null,ex.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
                         throw new RuntimeException(ex);
                     }
-
+                    productosFrameUpdateTable();
                 }
         });
 
@@ -260,46 +276,27 @@ public class ProductosController {
         //Actualizar producto
         actualizarUnProducto.getActualizarButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-
                 try{
+                    Categoria categoria = categoriaService.getCategoria(actualizarUnProducto.getCategoriaBox().getSelectedItem().toString());
+                    Producto productoNuevo = new Producto(
+                            actualizarUnProducto.getCodigoField().getText(),
+                            actualizarUnProducto.getNombreField().getText(),
+                            categoria,
+                            Float.parseFloat(actualizarUnProducto.getCostoCompraField().getText()),
+                            Float.parseFloat(actualizarUnProducto.getPrecioVentaField().getText()),
+                            Integer.parseInt(actualizarUnProducto.getStockField().getText()));
                     FieldAnalyzer.todosLosCamposLlenos(actualizarUnProducto);
-                }catch (RuntimeException ex){
-                    JOptionPane.showMessageDialog(null, ex.getMessage());
+                    productoService.updateProducto(productoNuevo);
+                }catch (RuntimeException ex) {
+                    JOptionPane.showMessageDialog(null,ex.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
                 }
-
-                HistorialCosto historialCosto = null;
-                HistorialPrecio historialPrecio = null;
-                Categoria categoria= icategoriaService.getCategoria(actualizarUnProducto.getCategoriaBox().getSelectedItem().toString());
-                int cantidad= Integer.parseInt(actualizarUnProducto.getStockField().getText());
-                int cantidadAgregada = cantidad - producto[0].getStock();
-                float costo_compra = Float.parseFloat(actualizarUnProducto.getCostoCompraField().getText());
-                float precio_venta = Float.parseFloat(actualizarUnProducto.getPrecioVentaField().getText());
-
-                if(cantidadAgregada>0 || (cantidadAgregada>=0 && producto[0].getCosto_compra() != costo_compra) ) {
-                   historialCosto = new HistorialCosto(producto[0], costo_compra, cantidadAgregada);
-
-                }
-
-                if(producto[0].getPrecio_venta() != precio_venta){
-                    historialPrecio = new HistorialPrecio(producto[0], precio_venta);
-                }
-                producto[0].setNombre(actualizarUnProducto.getNombreField().getText());
-                producto[0].setCategoria(categoria);
-                producto[0].setCosto_compra(costo_compra);
-                producto[0].setPrecio_venta(Float.parseFloat(actualizarUnProducto.getPrecioVentaField().getText()));
-                producto[0].setStock(cantidad);
-                try {
-                    productoService.updateProducto(producto[0],historialPrecio,historialCosto);
-                }catch(RuntimeException re){
-                    JOptionPane.showMessageDialog(null, "Error al actualizar el producto " + re.getMessage());
-                    System.err.println(re.getMessage());
-                }
+                productosFrameUpdateTable();
             }
         });
 
         actualizarUnProducto.getCerrarButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                refreshProductos();
+
                 productosFrameUpdateTable();
                 actualizarUnProducto.onCancel();
             }
@@ -309,7 +306,6 @@ public class ProductosController {
         actualizarUnProducto.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         actualizarUnProducto.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-               refreshProductos();
                productosFrameUpdateTable();
                actualizarUnProducto.onCancel();
             }
@@ -320,7 +316,7 @@ public class ProductosController {
                 new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        refreshProductos();
+
                         productosFrameUpdateTable();
                         actualizarUnProducto.onCancel();
                     }
@@ -354,12 +350,10 @@ public class ProductosController {
                 String cat = actualizarPorCategoria.getCategoriaBox().getSelectedItem().toString();
                 Categoria categoria = categorias.stream().filter(categ -> categ.getNombre().equals(cat)).findFirst().get();
 
-                String porcentaje = actualizarPorCategoria.getPorcentajeField().getText();
+                float porcentaje = Float.parseFloat(actualizarPorCategoria.getPorcentajeField().getText())/100;
                 try {
-
-                    UpdateProductoPorcentajeDTO productoPorcentajeDTO = productoService.updatePrecioPorCategoria(categoria, new BigDecimal(porcentaje));
-                    JOptionPane.showMessageDialog(null, "Cantidad de productos afectados: " + productoPorcentajeDTO.getCantProductos());
-
+                    productoService.updateProductosBy(categoria,porcentaje);
+                    JOptionPane.showMessageDialog(null,"Productos con categoria " + categoria.getNombre() + " actualizados","Actualización exitosa" ,JOptionPane.INFORMATION_MESSAGE);
                 } catch (RuntimeException ex) {
                     JOptionPane.showMessageDialog(null, ex.getMessage());
                     throw new RuntimeException(ex.getMessage());
@@ -384,25 +378,35 @@ public class ProductosController {
 
         actualizarGeneral.getActualizarButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                UpdateProductoPorcentajeDTO productoPorcentajeDTO = new UpdateProductoPorcentajeDTO();
                 try{
                     FieldAnalyzer.campoLleno(actualizarGeneral.getPorcentajeField());
                     FieldAnalyzer.limites(actualizarGeneral.getPorcentajeField(), -100, Integer.MAX_VALUE);
-                    productoPorcentajeDTO=productoService.updatePrecioGeneral(new BigDecimal(actualizarGeneral.getPorcentajeField().getText()));
-                }catch (OutOfBounds | EmptyFieldException of) {
+                    float porcentaje= Float.parseFloat(actualizarGeneral.getPorcentajeField().getText())/100;
+                    productoService.updateProductosBy(null,porcentaje);
+                    JOptionPane.showMessageDialog(null,"Productos actualizados","Actualización exitosa",JOptionPane.INFORMATION_MESSAGE);
+                }catch (RuntimeException of) {
                     JOptionPane.showMessageDialog(null, of.getMessage());
-                }catch (RuntimeException re){
-                    JOptionPane.showMessageDialog(null, re.getMessage());
                 }
-
-                JOptionPane.showMessageDialog(null, "Productos actualizados: " + productoPorcentajeDTO.getCantProductos());
-                
+                productosFrameUpdateTable();
             }
         });
 
         actualizarGeneral.setVisible(true);
     }
 
+    //Eliminación
+    private void eliminarProducto(){
+       int fila= productosFrame.getTable().getSelectedRow();
+       if(fila==-1){
+           JOptionPane.showMessageDialog(null,"Seleccione un producto en la tabla","Error",JOptionPane.ERROR_MESSAGE);
+           throw new RuntimeException("Seleccione un producto en la tabla");
+       }
+       try {
+           productoService.deleteProducto(productosFrame.getTable().getValueAt(fila, 0).toString());
+       }catch (RuntimeException e){
+           JOptionPane.showMessageDialog(null, e.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
+       }
+    }
     //Si bien dice agregar categoria aquí tambien se maneja la eliminación
     private void agregarCategoria() {
         categorias = getAllCategoria();
@@ -430,7 +434,7 @@ public class ProductosController {
                         .findFirst().orElse(null);
 
                 try{
-                    icategoriaService.deleteCategoria(categoria);
+                    categoriaService.deleteCategoria(categoria);
                 } catch (Exception exception){
                     System.out.println(exception.getMessage());
                 }
@@ -472,7 +476,7 @@ public class ProductosController {
             public void actionPerformed(ActionEvent e) {
                 Categoria categoria = new Categoria(agregarCategoria.getCategoriaField().getText());
                 try{
-                    icategoriaService.saveCategoria(categoria);
+                    categoriaService.saveCategoria(categoria);
                 } catch (Exception exception){
                     JOptionPane.showMessageDialog(null, exception.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -502,17 +506,18 @@ public class ProductosController {
 
         productos = getAllProducto();
 
-        List<Producto> todosProductos = Stream.concat(productos.stream(), nuevosProductos.stream())
-                .toList();
-
         String filterT = filter.toLowerCase();
 
-        List<Producto> productosFiltrados = todosProductos.stream()
+        List<Producto> productosFiltrados = productos.stream()
                 .filter(producto -> producto.getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
                         producto.getCodigo_barras().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
                         producto.getCategoria().getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*")
                 )
                 .toList();
+
+        if(productosFrame.getSinStockCheckBox().isSelected()) {
+            productosFiltrados = productosFiltrados.stream().filter(producto -> producto.getStock()==0).toList();
+        }
 
         // Agregar los productos al modelo de la tabla
         for (Producto producto : productosFiltrados) {
@@ -530,7 +535,7 @@ public class ProductosController {
     }
 
     private List<Categoria> getAllCategoria(){
-        return icategoriaService.getAll();
+        return categoriaService.getAll();
     }
 
     public void cargarMasiva(List<Producto> testInventario) {
@@ -566,42 +571,27 @@ public class ProductosController {
     private void existeProducto(Producto producto) throws RuntimeException {
 
         Producto p = productos.stream().filter(prod -> prod.getCodigo_barras().equals(producto.getCodigo_barras()) || prod.getNombre().equals(producto.getNombre())).findFirst().orElse(null);
-        Producto pn = nuevosProductos.stream().filter(prod -> prod.getCodigo_barras().equals(producto.getCodigo_barras()) || prod.getNombre().equals(producto.getNombre())).findFirst().orElse(null);
-
-        Producto finalP=null;
         if(p != null) {
-            finalP = p;
-        } else if (pn != null) {
-            finalP = pn;
-        }
-    if(finalP != null) {
-        if(finalP.getNombre().equals(producto.getNombre())) {
-            throw new ProductNameExists("El producto con nombre: " + producto.getNombre() + " ya existe");
-        }
-        else if(finalP.getCodigo_barras().equals(producto.getCodigo_barras())){
-            throw new ProductExistsInDataBase("El producto con código: " + producto.getCodigo_barras() + " ya existe");
-        }
-    }
-    }
-
-    private void cambiosHechos(){
-        cambios = true;
-        productosFrame.getGuardarButton().setEnabled(true);
-    }
-
-    protected void guardar() {
-        if (cambios) {
-            for (Producto producto : nuevosProductos) {
-                try {
-                    productoService.crearProducto(producto);
-                } catch (Exception e) {
-                    // Manejar cualquier excepción de manera genérica
-                    JOptionPane.showMessageDialog(null, "Error al guardar el producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                }
+            if(p.getNombre().equals(producto.getNombre())) {
+                throw new ProductNameExists("El producto con nombre: " + producto.getNombre() + " ya existe");
             }
-            cambios = false;
-            productosFrame.getGuardarButton().setEnabled(false);
+        else if(p.getCodigo_barras().equals(producto.getCodigo_barras())){
+                throw new ProductExistsInDataBase("El producto con código: " + producto.getCodigo_barras() + " ya existe");
+            }
         }
+    }
+
+
+    protected void deshacer(){
+        productoService.undo();
+        productosFrameUpdateTable();
+    }
+    protected void deshacerTodo(){
+        productoService.undoAll();
+        productosFrameUpdateTable();
+    }
+    protected void save(){
+        productoService.save();
     }
 
 }
