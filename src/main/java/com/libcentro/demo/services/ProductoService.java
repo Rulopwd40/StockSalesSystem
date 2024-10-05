@@ -1,15 +1,16 @@
 package com.libcentro.demo.services;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.libcentro.demo.exceptions.InsufficientStockException;
 import com.libcentro.demo.model.Categoria;
 import com.libcentro.demo.model.HistorialPrecio;
-import com.libcentro.demo.repository.IhistorialcostosRepository;
-import com.libcentro.demo.repository.IhistorialpreciosRepository;
 import com.libcentro.demo.services.interfaces.IhistorialCostosService;
 import com.libcentro.demo.services.interfaces.IhistorialPreciosService;
+import com.libcentro.demo.utils.ProductosCSV;
 import com.libcentro.demo.utils.command.*;
 import jakarta.transaction.Transactional;
 import org.hibernate.ObjectNotFoundException;
@@ -33,6 +34,8 @@ public class ProductoService implements IproductoService {
 
 
     private final CommandInvoker commandInvoker = new CommandInvoker();
+    @Autowired
+    private CategoriaService categoriaService;
 
     @Override
     public List<Producto> getAll() {
@@ -56,6 +59,13 @@ public class ProductoService implements IproductoService {
 
 
         return producto;
+    }
+
+    @Override
+    public void importarCSV(String path){
+        List<Producto> productos;
+
+        productos = ProductosCSV.obtenerProductos(path,categoriaService);
     }
 
     @Override

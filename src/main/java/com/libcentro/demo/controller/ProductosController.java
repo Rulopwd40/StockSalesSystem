@@ -2,6 +2,7 @@ package com.libcentro.demo.controller;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -133,6 +134,13 @@ public class ProductosController {
                agregarProducto();
            }
         });
+
+        productosFrame.getImportarCsvButton().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                importarCSV();
+            }
+        });
+
         productosFrame.getAgregarCategoriaButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 agregarCategoria();
@@ -196,6 +204,9 @@ public class ProductosController {
         });
     }
 
+
+
+    //Agregar
     private void agregarProducto() {
         categorias = getAllCategoria();
         agregarProducto = new AgregarProducto();
@@ -235,6 +246,32 @@ public class ProductosController {
 
         agregarProducto.setVisible(true);
 
+    }
+
+    private void importarCSV(){
+        ImportarCSV importarCSV= new ImportarCSV();
+
+        importarCSV.getBuscarButton().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser jFileChooser = new JFileChooser();
+                jFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                int result = jFileChooser.showOpenDialog(null);
+                if(result == JFileChooser.APPROVE_OPTION){
+                    importarCSV.getLocationField().setText(jFileChooser.getSelectedFile().getAbsolutePath());
+                } else{
+                    JOptionPane.showMessageDialog(null,"No se seleccionó archivo","Error",JOptionPane.INFORMATION_MESSAGE);
+                    throw new RuntimeException("No se seleccionó archivo");
+                }
+            }
+        });
+
+        importarCSV.getSubirButton().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                productoService.importarCSV(importarCSV.getLocationField().getText());
+            }
+        });
+
+        importarCSV.setVisible(true);
     }
 
     //Actualizacion
