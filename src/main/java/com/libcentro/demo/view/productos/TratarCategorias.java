@@ -1,6 +1,7 @@
 package com.libcentro.demo.view.productos;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -12,6 +13,9 @@ public class TratarCategorias extends JDialog {
     private JButton crearButton;
     private JButton elegirOtraCategoriaButton;
     private JButton anularButton;
+    private JPanel optionalPane;
+    private JButton elegirButton;
+    private JTable tablaCategoriasExistentes;
 
     public TratarCategorias() {
         setContentPane(contentPane);
@@ -19,46 +23,34 @@ public class TratarCategorias extends JDialog {
         getRootPane().setDefaultButton(buttonOK);
         setSize(new Dimension(450,300));
         setLocationRelativeTo(null);
+        createTable();
 
 
 
-        buttonOK.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onOK();
-            }
-        });
 
-        buttonCancel.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        });
 
-        // call onCancel() when cross is clicked
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                onCancel();
-            }
-        });
-
-        // call onCancel() on ESCAPE
-        contentPane.registerKeyboardAction(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
-    private void onOK() {
+    private void createTable(){
+        tablaCategorias.setModel(new DefaultTableModel(null,new String[]{"Categoria"}){
+            @Override
+            public boolean isCellEditable(int row,int column){
+                return false;
+            }
+        });
+        tablaCategoriasExistentes.setModel(new DefaultTableModel(null,new String[]{"Categoria"}){
+            @Override
+            public boolean isCellEditable(int row,int column){
+                return false;
+            }
+        });
+    }
+
+    public void onOK() {
         // add your code here
         dispose();
     }
 
-    private void onCancel() {
-        // add your code here if necessary
-        dispose();
-    }
 
     public JButton getAnularButton() {
         return anularButton;
@@ -70,5 +62,25 @@ public class TratarCategorias extends JDialog {
 
     public JButton getCrearButton() {
         return crearButton;
+    }
+
+    public JTable getTablaCategorias() {
+        return tablaCategorias;
+    }
+
+    public JTable getTablaCategoriasExistentes() {
+        return tablaCategoriasExistentes;
+    }
+
+    public JButton getElegirButton() {
+        return elegirButton;
+    }
+
+    public JPanel getOptionalPane() {
+        return optionalPane;
+    }
+
+    public JButton getButtonOK() {
+        return buttonOK;
     }
 }

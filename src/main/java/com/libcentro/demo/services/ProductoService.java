@@ -30,7 +30,7 @@ public class ProductoService implements IproductoService {
     @Autowired
     private IhistorialPreciosService historialPreciosService;
 
-
+    ProductosCSV productosCSV = new ProductosCSV();
 
 
     private final CommandInvoker commandInvoker = new CommandInvoker();
@@ -65,7 +65,11 @@ public class ProductoService implements IproductoService {
     public void importarCSV(String path){
         List<Producto> productos;
 
-        productos = ProductosCSV.obtenerProductos(path,categoriaService);
+        productos = productosCSV.obtenerProductos(path,categoriaService);
+
+        for(Producto producto: productos){
+            System.out.println(producto.getCodigo_barras());
+        }
     }
 
     @Override
