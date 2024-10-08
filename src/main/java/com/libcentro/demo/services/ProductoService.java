@@ -21,6 +21,8 @@ import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.repository.IproductoRepository;
 import com.libcentro.demo.services.interfaces.IproductoService;
 
+import javax.swing.*;
+
 @Service
 public class ProductoService implements IproductoService {
     @Autowired
@@ -63,13 +65,30 @@ public class ProductoService implements IproductoService {
 
     @Override
     public void importarCSV(String path){
-        List<Producto> productos;
+        List<Producto> productosARC;
 
-        productos = productosCSV.obtenerProductos(path,categoriaService);
+        productosARC = productosCSV.obtenerProductos(path,categoriaService);
+        List<Producto> productos=getAll();
 
-        for(Producto producto: productos){
-            System.out.println(producto.getCodigo_barras());
+        int cuentaActualizados=0;
+        int cuentaCreados=0;
+
+        try {
+            for (Producto producto : productosARC) {
+                if (productos.contains(producto)) {
+                    updateProducto(producto);
+                    cuentaActualizados++;
+                } else {
+                    crearProducto(producto);
+                    cuentaCreados++;
+                }
+            }
+        }catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
+        JOptionPane.showMessageDialog(null, "Productos creados: " + cuentaCreados + " Productos actualizados: " + cuentaActualizados, "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
     }
 
     @Override

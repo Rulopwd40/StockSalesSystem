@@ -24,11 +24,7 @@ public class TratarCategorias extends JDialog {
         setSize(new Dimension(450,300));
         setLocationRelativeTo(null);
         createTable();
-
-
-
-
-
+        setUndecorated(true);
     }
 
     private void createTable(){
