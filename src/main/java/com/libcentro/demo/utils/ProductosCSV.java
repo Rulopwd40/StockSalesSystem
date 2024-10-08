@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class ProductosCSV {
-    List<Producto> productos = new ArrayList<Producto>();
+    List<Producto> productos;
     Map<String,List<Producto>> productosATratar = new HashMap<>();
     CategoriaService categoriaService;
     TratarCategorias tc;
@@ -27,6 +27,7 @@ public class ProductosCSV {
 
     public List<Producto> obtenerProductos(String file,CategoriaService categoriaService) {
         this.categoriaService = categoriaService;
+        productos = new ArrayList<>();
         String linea;
         String separador = ";";
 

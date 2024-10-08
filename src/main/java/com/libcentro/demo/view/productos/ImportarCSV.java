@@ -68,4 +68,12 @@ public class ImportarCSV extends JDialog {
     public JTextField getLocationField() {
         return locationField;
     }
+
+    public JButton getButtonOK() {
+        return buttonOK;
+    }
+
+    public JButton getButtonCancel() {
+        return buttonCancel;
+    }
 }

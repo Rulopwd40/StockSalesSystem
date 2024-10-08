@@ -267,7 +267,25 @@ public class ProductosController {
 
         importarCSV.getSubirButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                productoService.importarCSV(importarCSV.getLocationField().getText());
+                if(productoService.importarCSV(importarCSV.getLocationField().getText())){
+                productosFrameUpdateTable();
+                }
+            }
+        });
+        importarCSV.getButtonOK().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                productosFrameUpdateTable();
+            }
+        });
+        importarCSV.getButtonCancel().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                productosFrameUpdateTable();
+            }
+        });
+        importarCSV.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                productosFrameUpdateTable();
             }
         });
 

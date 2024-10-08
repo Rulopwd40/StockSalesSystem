@@ -13,6 +13,7 @@ public class ProgresoProductos extends JDialog {
         setSize(400, 150);
         setLocationRelativeTo(owner);
         setLayout(new BorderLayout());
+        setUndecorated(true);
 
         labelStatus = new JLabel("Procesando 0 de " + totalProductos + " productos...");
         add(labelStatus, BorderLayout.NORTH);

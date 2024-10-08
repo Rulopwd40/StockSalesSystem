@@ -63,7 +63,7 @@ public class ProductoService implements IproductoService {
     }
 
     @Override
-    public void importarCSV(String path) {
+    public boolean importarCSV(String path) {
         List<Producto> productosARC;
 
         // Obtener productos desde el archivo CSV
@@ -129,6 +129,7 @@ public class ProductoService implements IproductoService {
 
         // Ejecutar el SwingWorker
         worker.execute();
+        return true;
     }
 
     @Override
