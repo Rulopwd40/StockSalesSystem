@@ -122,6 +122,12 @@ public class ProductosCSV {
                         }
                         tc.onOK();
                     }
+
+                    @Override
+                    public void windowStateChanged(WindowEvent e) {
+                        tc.getTablaCategoriasExistentes().setEnabled(false);
+                        tc.getElegirButton().setEnabled(false);
+                    }
                 });
                 tc.setVisible(true);
             }

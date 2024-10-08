@@ -433,13 +433,16 @@ public class ProductosController {
 
     //Eliminación
     private void eliminarProducto(){
-       int fila= productosFrame.getTable().getSelectedRow();
-       if(fila==-1){
+       int[] fila= productosFrame.getTable().getSelectedRows();
+       if(fila.length==0){
            JOptionPane.showMessageDialog(null,"Seleccione un producto en la tabla","Error",JOptionPane.ERROR_MESSAGE);
            throw new RuntimeException("Seleccione un producto en la tabla");
        }
        try {
-           productoService.deleteProducto(productosFrame.getTable().getValueAt(fila, 0).toString());
+           for(Integer i: fila){
+               productoService.deleteProducto(productosFrame.getTable().getValueAt(i, 0).toString());
+           }
+
        }catch (RuntimeException e){
            JOptionPane.showMessageDialog(null, e.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
        }

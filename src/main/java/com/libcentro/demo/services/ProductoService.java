@@ -12,6 +12,7 @@ import com.libcentro.demo.services.interfaces.IhistorialCostosService;
 import com.libcentro.demo.services.interfaces.IhistorialPreciosService;
 import com.libcentro.demo.utils.ProductosCSV;
 import com.libcentro.demo.utils.command.*;
+import com.libcentro.demo.view.productos.ProgresoProductos;
 import jakarta.transaction.Transactional;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,31 +65,72 @@ public class ProductoService implements IproductoService {
     }
 
     @Override
-    public void importarCSV(String path){
+    public void importarCSV(String path) {
         List<Producto> productosARC;
 
-        productosARC = productosCSV.obtenerProductos(path,categoriaService);
-        List<Producto> productos=getAll();
+        // Obtener productos desde el archivo CSV
+        productosARC = productosCSV.obtenerProductos(path, categoriaService);
 
-        int cuentaActualizados=0;
-        int cuentaCreados=0;
+        // Obtener los productos ya existentes
+        List<Producto> productos = getAll();
 
-        try {
-            for (Producto producto : productosARC) {
-                if (productos.contains(producto)) {
-                    updateProducto(producto);
-                    cuentaActualizados++;
-                } else {
-                    crearProducto(producto);
-                    cuentaCreados++;
+        // Inicializar el diálogo de progreso con la cantidad total de productos a procesar
+        ProgresoProductos progresoDialog = new ProgresoProductos(null, productosARC.size());
+
+        // Crear un SwingWorker para procesar los productos en segundo plano
+        SwingWorker<Void, Integer> worker = new SwingWorker<Void, Integer>() {
+            int cuentaActualizados = 0;
+            int cuentaCreados = 0;
+
+            @Override
+            protected Void doInBackground() throws Exception {
+                // Mostrar el diálogo de progreso
+                SwingUtilities.invokeLater(() -> progresoDialog.mostrar());
+
+                for (int i = 0; i < productosARC.size(); i++) {
+                    Producto producto = productosARC.get(i);
+                    try {
+                        if (productos.contains(producto)) {
+                            updateProducto(producto); // Actualizar producto existente
+                            cuentaActualizados++;
+                        } else {
+                            crearProducto(producto); // Crear nuevo producto
+                            cuentaCreados++;
+                        }
+                        // Publicar el progreso
+                        publish(i + 1); // Actualizar la barra de progreso
+                    } catch (Exception e) {
+                        // Manejo de errores dentro del ciclo
+                        JOptionPane.showMessageDialog(null, "Error al procesar el producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+                return null;
+            }
+
+            @Override
+            protected void process(List<Integer> chunks) {
+                // Actualizar la barra de progreso con el progreso actual
+                int productosProcesados = chunks.get(chunks.size() - 1);
+                progresoDialog.actualizarProgreso(productosProcesados, productosARC.size());
+            }
+
+            @Override
+            protected void done() {
+                // Finalizar el diálogo cuando el proceso esté completo
+                progresoDialog.finalizar();
+                try {
+                    get(); // Asegurar que no haya excepciones
+                    JOptionPane.showMessageDialog(null, "Productos creados: " + cuentaCreados + " Productos actualizados: " + cuentaActualizados, "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null, "Error durante el procesamiento: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                } finally {
+                    progresoDialog.cerrar();
                 }
             }
-        }catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-            throw new RuntimeException(e.getMessage());
-        }
-        JOptionPane.showMessageDialog(null, "Productos creados: " + cuentaCreados + " Productos actualizados: " + cuentaActualizados, "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        };
 
+        // Ejecutar el SwingWorker
+        worker.execute();
     }
 
     @Override
