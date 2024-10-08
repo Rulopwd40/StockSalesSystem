@@ -35,7 +35,7 @@ public class AddProductCommand implements Command {
         producto.setCosto_inicial(historialCosto);
         _productoService.saveProducto(producto);
         _historialPrecio.save(historialPrecio);
-        _historialCosto.save(historialCosto);
+        /*_historialCosto.save(historialCosto);*/
 
     }
 

@@ -344,7 +344,9 @@ public class ProductosController {
                     productoService.updateProducto(productoNuevo);
                 }catch (RuntimeException ex) {
                     JOptionPane.showMessageDialog(null,ex.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
+                    throw new RuntimeException(ex);
                 }
+                JOptionPane.showMessageDialog(null,"Producto actualizado","Éxito",JOptionPane.INFORMATION_MESSAGE);
                 productosFrameUpdateTable();
             }
         });

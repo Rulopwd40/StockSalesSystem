@@ -161,9 +161,11 @@ public class ProductoService implements IproductoService {
     @Override
     public void updateProducto(Producto productoActualizado) {
         Producto productoActual= productoRepo.findById(productoActualizado.getCodigo_barras()).orElse(null);
-
+        assert productoActual != null;
+        productoActualizado.setCosto_inicial(productoActual.getCosto_inicial());
         commandInvoker.executeCommand(new UpdateProductCommand(this, historialCostosService, historialPreciosService,productoActual,productoActualizado));
     }
+
 
     @Override
     public void updateProductosBy(Categoria categoria, float porcentaje) {

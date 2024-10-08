@@ -72,4 +72,6 @@ public class HistorialPrecio {
         // Comparamos por codigo_barras o por algún otro identificador único
         return Objects.equals(id, historialPrecio.getId());
     }
+
+
 }
