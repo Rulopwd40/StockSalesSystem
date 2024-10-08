@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -25,15 +26,17 @@ public class ProductosCSV {
     Set<Categoria> categoriasCreadas=new HashSet<>();
 
 
-    public List<Producto> obtenerProductos(String file,CategoriaService categoriaService) {
+    public List<Producto> obtenerProductos(String file,CategoriaService categoriaService) throws IOException {
         this.categoriaService = categoriaService;
         productos = new ArrayList<>();
+        File csv = new File(file);
         String linea;
         String separador = ";";
 
+        Charset charset = detectCharset(csv);
 
 
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(csv), charset))) {
             br.readLine();
 
             while ((linea = br.readLine()) != null) {
@@ -221,5 +224,28 @@ public class ProductosCSV {
         productos.addAll(productosTratar);
 
         return true;
+    }
+
+    public static Charset detectCharset(File file) throws IOException {
+        try (FileInputStream fis = new FileInputStream(file)) {
+            byte[] bom = new byte[3];
+            fis.read(bom);
+
+            // Detecta UTF-8 con BOM
+            if ((bom[0] == (byte) 0xEF) && (bom[1] == (byte) 0xBB) && (bom[2] == (byte) 0xBF)) {
+                return StandardCharsets.UTF_8;
+            }
+            // Detecta UTF-16 Big Endian (BE) con BOM
+            else if ((bom[0] == (byte) 0xFE) && (bom[1] == (byte) 0xFF)) {
+                return StandardCharsets.UTF_16BE;
+            }
+            // Detecta UTF-16 Little Endian (LE) con BOM
+            else if ((bom[0] == (byte) 0xFF) && (bom[1] == (byte) 0xFE)) {
+                return StandardCharsets.UTF_16LE;
+            } else {
+                // Si no tiene BOM, se puede asumir que es ISO-8859-1 o Windows-1252
+                return Charset.forName("ISO-8859-1"); // O la codificación que creas más adecuada
+            }
+        }
     }
 }

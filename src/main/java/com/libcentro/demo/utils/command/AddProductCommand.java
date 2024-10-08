@@ -29,11 +29,14 @@ public class AddProductCommand implements Command {
 
     @Override
     public void execute() {
-        _productoService.saveProducto(producto);
+
         historialPrecio = new HistorialPrecio(producto, producto.getPrecio_venta());
         historialCosto = new HistorialCosto(producto, producto.getCosto_compra(), producto.getStock());
+        producto.setCosto_inicial(historialCosto);
+        _productoService.saveProducto(producto);
         _historialPrecio.save(historialPrecio);
         _historialCosto.save(historialCosto);
+
     }
 
     @Override

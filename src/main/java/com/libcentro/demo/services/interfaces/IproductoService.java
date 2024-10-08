@@ -14,12 +14,11 @@ public interface IproductoService {
     public List<Producto> getAll();
     @Transactional
     public void saveProducto(Producto x);
-    @Transactional
+
     Producto crearProducto(Producto producto);
 
     boolean importarCSV(String path);
 
-    @Transactional
     public void deleteProducto(Producto x);
 
     void deleteProductoByCodigo(String codigo_barras);

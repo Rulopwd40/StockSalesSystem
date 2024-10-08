@@ -1,5 +1,6 @@
 package com.libcentro.demo.services;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,7 +49,6 @@ public class ProductoService implements IproductoService {
         productoRepo.save(x);
     }
     @Override
-    @Transactional
     public Producto crearProducto(Producto producto) {
 
         Producto existingProducto = productoRepo.findById(producto.getCodigo_barras()).orElse(null);
@@ -62,13 +62,17 @@ public class ProductoService implements IproductoService {
         return producto;
     }
 
+
     @Override
     public boolean importarCSV(String path) {
         List<Producto> productosARC;
 
         // Obtener productos desde el archivo CSV
-        productosARC = productosCSV.obtenerProductos(path, categoriaService);
-
+        try {
+            productosARC = productosCSV.obtenerProductos(path, categoriaService);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         // Obtener los productos ya existentes
         List<Producto> productos = getAll();
 

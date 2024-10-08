@@ -39,7 +39,7 @@ public class UpdateProductCommand implements Command {
             _historialcostosService.save(nuevoHistorial);
         } else if (cantidadCambiada && !costoCambiado) {
             // Actualizar cantidad en el historial actual
-            HistorialCosto historialExistente = _historialcostosService.findFirstByProductoOrderByIdDesc(nuevoProducto);
+            HistorialCosto historialExistente = _historialcostosService.findFirstByProductoOrderByIdDesc(viejoProducto);
             historialExistente.setCantidad(historialExistente.getCantidad() + cantidad);
             _historialcostosService.save(historialExistente);
         } else if(costoCambiado && !cantidadCambiada){
