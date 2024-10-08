@@ -26,6 +26,8 @@ public interface IproductoService {
 
     void deleteProducto(String codigo_barras);
 
+    void updateProductoCSV(Producto producto);
+
     @Transactional
     public void updateProducto(Producto x);
 

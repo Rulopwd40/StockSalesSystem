@@ -1,7 +1,5 @@
 package com.libcentro.demo.services;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -91,7 +89,7 @@ public class ProductoService implements IproductoService {
                     Producto producto = productosARC.get(i);
                     try {
                         if (productos.contains(producto)) {
-                            updateProducto(producto); // Actualizar producto existente
+                            updateProductoCSV(producto); // Actualizar producto existente
                             cuentaActualizados++;
                         } else {
                             crearProducto(producto); // Crear nuevo producto
@@ -149,6 +147,12 @@ public class ProductoService implements IproductoService {
         commandInvoker.executeCommand(new DeleteProductCommand(this, producto,historialPreciosService,historialCostosService));
     }
 
+    @Override
+    public void updateProductoCSV(Producto producto){
+        Producto productoFinal = getProducto(producto.getCodigo_barras());
+        productoFinal.setStock(producto.getStock()+productoFinal.getStock());
+        updateProducto(productoFinal);
+    }
     @Override
     public void updateProducto(Producto productoActualizado) {
         Producto productoActual= productoRepo.findById(productoActualizado.getCodigo_barras()).orElse(null);
