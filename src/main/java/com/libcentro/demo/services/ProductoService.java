@@ -138,7 +138,7 @@ public class ProductoService implements IproductoService {
 
     @Override
     public void deleteProducto(Producto x) {
-        productoRepo.delete(x);
+        productoRepo.deleteById(x.getCodigo_barras());
         productoRepo.flush();
     }
 
@@ -154,9 +154,10 @@ public class ProductoService implements IproductoService {
 
     @Override
     public void updateProductoCSV(Producto producto){
-        Producto productoFinal = getProducto(producto.getCodigo_barras());
-        productoFinal.setStock(producto.getStock()+productoFinal.getStock());
-        updateProducto(productoFinal);
+
+        Producto productoObtenido = getProducto(producto.getCodigo_barras());
+        producto.setStock(producto.getStock()+productoObtenido.getStock());
+        updateProducto(producto);
     }
     @Override
     public void updateProducto(Producto productoActualizado) {
