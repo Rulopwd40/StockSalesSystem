@@ -18,6 +18,7 @@ import com.libcentro.demo.services.interfaces.IcategoriaService;
 import com.libcentro.demo.utils.FieldAnalyzer;
 import com.libcentro.demo.utils.command.CommandInvoker;
 import com.libcentro.demo.utils.filters.Filter;
+import com.libcentro.demo.view.ConfirmarDialog;
 import com.libcentro.demo.view.productos.*;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -167,7 +168,12 @@ public class ProductosController {
         });
         productosFrame.getDeshacerTodoButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                deshacerTodo();
+                ConfirmarDialog confirmarDialog = new ConfirmarDialog("Confirmar deshacer todo");
+                confirmarDialog.setVisible(true);
+
+                if(confirmarDialog.isAceptar()) {
+                    deshacerTodo();
+                }
             }
         });
 

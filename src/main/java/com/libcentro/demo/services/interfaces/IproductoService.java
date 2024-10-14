@@ -17,6 +17,7 @@ public interface IproductoService {
 
     Producto crearProducto(Producto producto);
 
+    @Transactional
     boolean importarCSV(String path);
 
     public void deleteProducto(Producto x);

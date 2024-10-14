@@ -14,12 +14,14 @@ import com.libcentro.demo.utils.command.*;
 import com.libcentro.demo.view.productos.ProgresoProductos;
 import jakarta.transaction.Transactional;
 import org.hibernate.ObjectNotFoundException;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.repository.IproductoRepository;
 import com.libcentro.demo.services.interfaces.IproductoService;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.swing.*;
 
@@ -31,6 +33,8 @@ public class ProductoService implements IproductoService {
     private IhistorialCostosService historialCostosService;
     @Autowired
     private IhistorialPreciosService historialPreciosService;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
 
     ProductosCSV productosCSV = new ProductosCSV();
 
@@ -93,12 +97,15 @@ public class ProductoService implements IproductoService {
                     Producto producto = productosARC.get(i);
                     try {
                         if (productos.contains(producto)) {
-                            updateProductoCSV(producto); // Actualizar producto existente
+                            // Ejecutar comando de actualización usando el invocador
+                            commandInvoker.executeCommand(new UpdateProductCommand(ProductoService.this, historialCostosService, historialPreciosService, getProducto(producto.getCodigo_barras()), producto));
                             cuentaActualizados++;
                         } else {
-                            crearProducto(producto); // Crear nuevo producto
+                            // Ejecutar comando de creación usando el invocador
+                            commandInvoker.executeCommand(new AddProductCommand(ProductoService.this, producto, historialPreciosService, historialCostosService));
                             cuentaCreados++;
                         }
+
                         // Publicar el progreso
                         publish(i + 1); // Actualizar la barra de progreso
                     } catch (Exception e) {
@@ -154,10 +161,9 @@ public class ProductoService implements IproductoService {
 
     @Override
     public void updateProductoCSV(Producto producto){
-
         Producto productoObtenido = getProducto(producto.getCodigo_barras());
         producto.setStock(producto.getStock()+productoObtenido.getStock());
-        updateProducto(producto);
+        ((ProductoService) AopContext.currentProxy()).updateProducto(producto);
     }
     @Override
     public void updateProducto(Producto productoActualizado) {
