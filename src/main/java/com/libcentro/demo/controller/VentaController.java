@@ -11,6 +11,7 @@ import com.libcentro.demo.services.VentaService;
 import com.libcentro.demo.services.interfaces.IproductoService;
 import com.libcentro.demo.services.interfaces.IventaService;
 import com.libcentro.demo.utils.FieldAnalyzer;
+import com.libcentro.demo.utils.GeneradorTicket;
 import com.libcentro.demo.utils.filters.Filter;
 import com.libcentro.demo.view.venta.ApfsDialog;
 import com.libcentro.demo.view.venta.VentaFrame;
@@ -180,6 +181,16 @@ public class VentaController {
 
             }
         });
+
+        //Vender
+        ventaFrame.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke(KeyEvent.VK_F3,0),"vender");
+        ventaFrame.getRootPane().getActionMap().put("vender", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                vender();
+            }
+        });
     }
 
     private void setVentaListeners(){
@@ -219,7 +230,16 @@ public class VentaController {
             }
             updateTableVenta();
         });
+
+        ventaFrame.getGenerarTicketF3Button().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                vender();
+            }
+        });
     }
+
+
 
     private void openApfsDialog() {
         apfsDialog = new ApfsDialog();
@@ -395,6 +415,9 @@ public class VentaController {
         return producto;
     }
 
-
+    private void vender() {
+        GeneradorTicket generadorTicket = new GeneradorTicket();
+        generadorTicket.generarTicket(venta);
+    }
 
 }

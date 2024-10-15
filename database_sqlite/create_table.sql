@@ -21,16 +21,22 @@ CREATE TABLE venta_producto(
                                id_venta integer REFERENCES venta(id),
                                codigo_barras TEXT REFERENCES producto(codigo_barras),
                                precio_venta NUMERIC,
-                               total NUMERIC,
+                               descuento NUMERIC,
                                cantidad INTEGER
+                               total NUMERIC
+
 );
+
 
 CREATE TABLE producto_fuera_de_stock(
                                         id integer PRIMARY KEY,
+                                        id_venta integer references venta(id),
                                         nombre TEXT,
                                         precio_venta NUMERIC,
-                                        cantidad INTEGER
+                                        cantidad INTEGER,
+                                        descuento NUMERIC
 );
+
 
 CREATE TABLE detalle_venta(
                               id_venta integer REFERENCES venta(id),

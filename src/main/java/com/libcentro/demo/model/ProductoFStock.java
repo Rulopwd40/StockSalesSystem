@@ -26,7 +26,7 @@ public class ProductoFStock {
 
 
     @ManyToOne
-    @JoinColumn(name = "venta_id")
+    @JoinColumn(name = "id_venta")
     private Venta venta;
 
     public ProductoFStock() {
@@ -70,6 +70,10 @@ public class ProductoFStock {
     public void setDescuento(float descuento) {
         this.descuento = descuento;
     }
+
+    public float getTotal(){
+        return precio_venta*cantidad-descuento/100*cantidad*precio_venta;
+    };
 
     @Override
     public boolean equals(Object o) {
