@@ -13,6 +13,7 @@ public class MenuFrame extends JFrame {
     private JPanel ButtonContainer1;
     private JPanel ButtonContainer2;
     private JLabel Menu;
+    private JButton backUpButton;
 
     public MenuFrame() {
         setContentPane(panelMenu);
