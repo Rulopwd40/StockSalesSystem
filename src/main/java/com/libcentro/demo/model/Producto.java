@@ -24,9 +24,9 @@ public class Producto {
     private HistorialCosto costo_inicial;
     @Column(name = "stock")
     private int stock;
-    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true) // Cascade ALL
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = false) // Cascade ALL
     private Set<HistorialPrecio> historial_precios = new HashSet<>();
-    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = false)
     private Set<HistorialCosto> historial_costos = new HashSet<>();
 
 

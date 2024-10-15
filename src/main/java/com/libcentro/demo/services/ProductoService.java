@@ -1,24 +1,29 @@
 package com.libcentro.demo.services;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.libcentro.demo.exceptions.InsufficientStockException;
 import com.libcentro.demo.model.Categoria;
 import com.libcentro.demo.model.HistorialPrecio;
-import com.libcentro.demo.repository.IhistorialcostosRepository;
-import com.libcentro.demo.repository.IhistorialpreciosRepository;
 import com.libcentro.demo.services.interfaces.IhistorialCostosService;
 import com.libcentro.demo.services.interfaces.IhistorialPreciosService;
+import com.libcentro.demo.utils.ProductosCSV;
 import com.libcentro.demo.utils.command.*;
+import com.libcentro.demo.view.productos.ProgresoProductos;
 import jakarta.transaction.Transactional;
 import org.hibernate.ObjectNotFoundException;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.repository.IproductoRepository;
 import com.libcentro.demo.services.interfaces.IproductoService;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import javax.swing.*;
 
 @Service
 public class ProductoService implements IproductoService {
@@ -28,11 +33,15 @@ public class ProductoService implements IproductoService {
     private IhistorialCostosService historialCostosService;
     @Autowired
     private IhistorialPreciosService historialPreciosService;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
 
-
+    ProductosCSV productosCSV = new ProductosCSV();
 
 
     private final CommandInvoker commandInvoker = new CommandInvoker();
+    @Autowired
+    private CategoriaService categoriaService;
 
     @Override
     public List<Producto> getAll() {
@@ -44,7 +53,6 @@ public class ProductoService implements IproductoService {
         productoRepo.save(x);
     }
     @Override
-    @Transactional
     public Producto crearProducto(Producto producto) {
 
         Producto existingProducto = productoRepo.findById(producto.getCodigo_barras()).orElse(null);
@@ -58,9 +66,86 @@ public class ProductoService implements IproductoService {
         return producto;
     }
 
+
+    @Override
+    public boolean importarCSV(String path) {
+        List<Producto> productosARC;
+
+        // Obtener productos desde el archivo CSV
+        try {
+            productosARC = productosCSV.obtenerProductos(path, categoriaService);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        // Obtener los productos ya existentes
+        List<Producto> productos = getAll();
+
+        // Inicializar el diálogo de progreso con la cantidad total de productos a procesar
+        ProgresoProductos progresoDialog = new ProgresoProductos(null, productosARC.size());
+
+        // Crear un SwingWorker para procesar los productos en segundo plano
+        SwingWorker<Void, Integer> worker = new SwingWorker<Void, Integer>() {
+            int cuentaActualizados = 0;
+            int cuentaCreados = 0;
+
+            @Override
+            protected Void doInBackground() throws Exception {
+                // Mostrar el diálogo de progreso
+                SwingUtilities.invokeLater(() -> progresoDialog.mostrar());
+
+                for (int i = 0; i < productosARC.size(); i++) {
+                    Producto producto = productosARC.get(i);
+                    try {
+                        if (productos.contains(producto)) {
+                            // Ejecutar comando de actualización usando el invocador
+                            commandInvoker.executeCommand(new UpdateProductCommand(ProductoService.this, historialCostosService, historialPreciosService, getProducto(producto.getCodigo_barras()), producto));
+                            cuentaActualizados++;
+                        } else {
+                            // Ejecutar comando de creación usando el invocador
+                            commandInvoker.executeCommand(new AddProductCommand(ProductoService.this, producto, historialPreciosService, historialCostosService));
+                            cuentaCreados++;
+                        }
+
+                        // Publicar el progreso
+                        publish(i + 1); // Actualizar la barra de progreso
+                    } catch (Exception e) {
+                        // Manejo de errores dentro del ciclo
+                        JOptionPane.showMessageDialog(null, "Error al procesar el producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+                return null;
+            }
+
+            @Override
+            protected void process(List<Integer> chunks) {
+                // Actualizar la barra de progreso con el progreso actual
+                int productosProcesados = chunks.get(chunks.size() - 1);
+                progresoDialog.actualizarProgreso(productosProcesados, productosARC.size());
+            }
+
+            @Override
+            protected void done() {
+                // Finalizar el diálogo cuando el proceso esté completo
+                progresoDialog.finalizar();
+                try {
+                    get(); // Asegurar que no haya excepciones
+                    JOptionPane.showMessageDialog(null, "Productos creados: " + cuentaCreados + " Productos actualizados: " + cuentaActualizados, "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null, "Error durante el procesamiento: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                } finally {
+                    progresoDialog.cerrar();
+                }
+            }
+        };
+
+        // Ejecutar el SwingWorker
+        worker.execute();
+        return true;
+    }
+
     @Override
     public void deleteProducto(Producto x) {
-        productoRepo.delete(x);
+        productoRepo.deleteById(x.getCodigo_barras());
         productoRepo.flush();
     }
 
@@ -75,11 +160,19 @@ public class ProductoService implements IproductoService {
     }
 
     @Override
+    public void updateProductoCSV(Producto producto){
+        Producto productoObtenido = getProducto(producto.getCodigo_barras());
+        producto.setStock(producto.getStock()+productoObtenido.getStock());
+        ((ProductoService) AopContext.currentProxy()).updateProducto(producto);
+    }
+    @Override
     public void updateProducto(Producto productoActualizado) {
         Producto productoActual= productoRepo.findById(productoActualizado.getCodigo_barras()).orElse(null);
-
+        assert productoActual != null;
+        productoActualizado.setCosto_inicial(productoActual.getCosto_inicial());
         commandInvoker.executeCommand(new UpdateProductCommand(this, historialCostosService, historialPreciosService,productoActual,productoActualizado));
     }
+
 
     @Override
     public void updateProductosBy(Categoria categoria, float porcentaje) {

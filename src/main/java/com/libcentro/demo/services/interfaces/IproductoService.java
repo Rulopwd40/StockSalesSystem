@@ -11,18 +11,22 @@ public interface IproductoService {
     //las interfaces del service nos sirven para tener un código más ordenado, y 
     //que en el service(productoService), no haya un quilombo de métodos.
     //realmente esto se podría saltear, pero queda más aesthethic...
-    @Transactional
     public List<Producto> getAll();
     @Transactional
     public void saveProducto(Producto x);
-    @Transactional
+
     Producto crearProducto(Producto producto);
+
     @Transactional
+    boolean importarCSV(String path);
+
     public void deleteProducto(Producto x);
 
     void deleteProductoByCodigo(String codigo_barras);
 
     void deleteProducto(String codigo_barras);
+
+    void updateProductoCSV(Producto producto);
 
     @Transactional
     public void updateProducto(Producto x);

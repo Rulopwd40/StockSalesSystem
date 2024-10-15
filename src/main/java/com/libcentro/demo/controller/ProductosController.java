@@ -2,6 +2,7 @@ package com.libcentro.demo.controller;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -17,6 +18,7 @@ import com.libcentro.demo.services.interfaces.IcategoriaService;
 import com.libcentro.demo.utils.FieldAnalyzer;
 import com.libcentro.demo.utils.command.CommandInvoker;
 import com.libcentro.demo.utils.filters.Filter;
+import com.libcentro.demo.view.ConfirmarDialog;
 import com.libcentro.demo.view.productos.*;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,6 +135,13 @@ public class ProductosController {
                agregarProducto();
            }
         });
+
+        productosFrame.getImportarCsvButton().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                importarCSV();
+            }
+        });
+
         productosFrame.getAgregarCategoriaButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 agregarCategoria();
@@ -159,7 +168,12 @@ public class ProductosController {
         });
         productosFrame.getDeshacerTodoButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                deshacerTodo();
+                ConfirmarDialog confirmarDialog = new ConfirmarDialog("Confirmar deshacer todo");
+                confirmarDialog.setVisible(true);
+
+                if(confirmarDialog.isAceptar()) {
+                    deshacerTodo();
+                }
             }
         });
 
@@ -196,6 +210,9 @@ public class ProductosController {
         });
     }
 
+
+
+    //Agregar
     private void agregarProducto() {
         categorias = getAllCategoria();
         agregarProducto = new AgregarProducto();
@@ -235,6 +252,50 @@ public class ProductosController {
 
         agregarProducto.setVisible(true);
 
+    }
+
+    private void importarCSV(){
+        ImportarCSV importarCSV= new ImportarCSV();
+
+        importarCSV.getBuscarButton().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser jFileChooser = new JFileChooser();
+                jFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                int result = jFileChooser.showOpenDialog(null);
+                if(result == JFileChooser.APPROVE_OPTION){
+                    importarCSV.getLocationField().setText(jFileChooser.getSelectedFile().getAbsolutePath());
+                } else{
+                    JOptionPane.showMessageDialog(null,"No se seleccionó archivo","Error",JOptionPane.INFORMATION_MESSAGE);
+                    throw new RuntimeException("No se seleccionó archivo");
+                }
+            }
+        });
+
+        importarCSV.getSubirButton().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if(productoService.importarCSV(importarCSV.getLocationField().getText())){
+                productosFrameUpdateTable();
+                }
+            }
+        });
+        importarCSV.getButtonOK().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                productosFrameUpdateTable();
+            }
+        });
+        importarCSV.getButtonCancel().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                productosFrameUpdateTable();
+            }
+        });
+        importarCSV.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                productosFrameUpdateTable();
+            }
+        });
+
+        importarCSV.setVisible(true);
     }
 
     //Actualizacion
@@ -289,7 +350,9 @@ public class ProductosController {
                     productoService.updateProducto(productoNuevo);
                 }catch (RuntimeException ex) {
                     JOptionPane.showMessageDialog(null,ex.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
+                    throw new RuntimeException(ex);
                 }
+                JOptionPane.showMessageDialog(null,"Producto actualizado","Éxito",JOptionPane.INFORMATION_MESSAGE);
                 productosFrameUpdateTable();
             }
         });
@@ -396,13 +459,16 @@ public class ProductosController {
 
     //Eliminación
     private void eliminarProducto(){
-       int fila= productosFrame.getTable().getSelectedRow();
-       if(fila==-1){
+       int[] fila= productosFrame.getTable().getSelectedRows();
+       if(fila.length==0){
            JOptionPane.showMessageDialog(null,"Seleccione un producto en la tabla","Error",JOptionPane.ERROR_MESSAGE);
            throw new RuntimeException("Seleccione un producto en la tabla");
        }
        try {
-           productoService.deleteProducto(productosFrame.getTable().getValueAt(fila, 0).toString());
+           for(Integer i: fila){
+               productoService.deleteProducto(productosFrame.getTable().getValueAt(i, 0).toString());
+           }
+
        }catch (RuntimeException e){
            JOptionPane.showMessageDialog(null, e.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
        }

@@ -31,7 +31,7 @@ public class HistorialCostosService implements IhistorialCostosService {
 
     @Override
     public HistorialCosto findFirstByProductoOrderByIdDesc(Producto nuevoProducto) {
-        return repository.findFirstByProductoOrderByIdDesc(nuevoProducto);
+        return repository.findFirstByProductoOrderByIdDesc(nuevoProducto.getCodigo_barras());
     }
 
     @Override
