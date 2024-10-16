@@ -416,8 +416,7 @@ public class VentaController {
     }
 
     private void vender() {
-        GeneradorTicket generadorTicket = new GeneradorTicket();
-        generadorTicket.generarTicket(venta);
+        ventaService.vender(venta);
     }
 
 }

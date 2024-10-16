@@ -12,4 +12,6 @@ public interface IventaService {
     public void deleteVenta(Venta x);
 
     public void updateVenta(Venta x);
+
+    public void vender(Venta venta);
 }
