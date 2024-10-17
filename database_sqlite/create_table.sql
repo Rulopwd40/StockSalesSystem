@@ -12,9 +12,10 @@ CREATE TABLE producto(
 );
 
 CREATE TABLE venta(
-                         id integer PRIMARY KEY,
-                         fecha TEXT DEFAULT (datetime('now', 'localtime')),
-                         total NUMERIC
+                      id integer PRIMARY KEY,
+                      fecha TEXT DEFAULT CURRENT_TIMESTAMP,
+                      total NUMERIC,
+                      estado boolean
 );
 
 CREATE TABLE venta_producto(

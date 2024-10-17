@@ -12,7 +12,7 @@ public class Venta_Producto {
         private int id;
 
         @ManyToOne
-        @JoinColumn(name = "venta_id")
+        @JoinColumn(name = "id_venta")
         private Venta venta;
 
         @ManyToOne
@@ -30,6 +30,15 @@ public class Venta_Producto {
 
         @Column(name="total")
         private float total;
+
+
+    public Venta_Producto(Venta venta) {
+        this.venta = venta;
+    }
+
+    public Venta_Producto() {
+
+    }
 
     public float getDescuento() {
         return descuento;
@@ -73,8 +82,12 @@ public class Venta_Producto {
     }
 
     private void updateTotal() {
-        total = precio_venta * cantidad - precio_venta * cantidad * descuento/100;
-    };
+        // Calcular el total antes de redondear
+        total = precio_venta * cantidad - precio_venta * cantidad * descuento / 100;
+
+        // Redondear a 2 decimales
+        total = Math.round(total * 100.00f) / 100.00f;
+    }
 
     public float getPrecio_venta() {
         return precio_venta;

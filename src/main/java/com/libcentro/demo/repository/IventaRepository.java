@@ -6,4 +6,5 @@ import com.libcentro.demo.model.Venta;
 
 @Repository
 public interface IventaRepository extends JpaRepository<Venta, Integer> {
+
 }

@@ -17,24 +17,24 @@ public class Venta {
     private String fecha;
     @Column(name = "total")
     private float total;
+    @Column(name = "estado")
+    private boolean estado;
 
-    @OneToMany(mappedBy = "venta")
+    @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Venta_Producto> listaProductos = new HashSet<>();
 
-    @OneToMany(mappedBy = "venta")
+    @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProductoFStock> listaProductosF = new HashSet<>();
 
     public Venta() {
         total= 0;
-
+        estado = true;
     }
 
     public void addProducto(Producto p,int cantidad){
-        Venta_Producto v = new Venta_Producto();
+        Venta_Producto v = new Venta_Producto(this);
         v.setProducto(p,cantidad);
         listaProductos.add(v);
-
-
     }
     public void addProducto(ProductoFStock p){
         listaProductosF.add(p);
@@ -72,6 +72,7 @@ public class Venta {
             totalProducto=p.getCantidad() * p.getPrecio_venta();
             total+= totalProducto - totalProducto * p.getDescuento()/100;
         }
+        total = Math.round(total * 100.0f) / 100.0f;
     }
 
     public Set<Venta_Producto> getListaProductos() {

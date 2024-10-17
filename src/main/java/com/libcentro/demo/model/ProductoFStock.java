@@ -33,7 +33,8 @@ public class ProductoFStock {
         descuento=0;
     }
 
-    public ProductoFStock(String nombre, String cantidad, String precio, String descuento) {
+    public ProductoFStock(Venta venta, String nombre, String cantidad, String precio, String descuento) {
+        this.venta = venta;
         this.nombre = nombre;
         this.cantidad = Integer.parseInt(cantidad);
         this.precio_venta = Float.parseFloat(precio);
@@ -75,6 +76,7 @@ public class ProductoFStock {
         return precio_venta*cantidad-descuento/100*cantidad*precio_venta;
     };
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true; // Si son la misma instancia
@@ -90,4 +92,5 @@ public class ProductoFStock {
     public int hashCode() {
         return nombre != null ? nombre.hashCode() : 0;
     }
+
 }

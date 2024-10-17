@@ -253,7 +253,7 @@ public class VentaController {
                     String precio = apfsDialog.getPrecioField().getText();
 
                     ProductoFStock producto;
-                    producto = new ProductoFStock(nombre,cantidad,precio,"0");
+                    producto = new ProductoFStock(venta,nombre,cantidad,precio,"0");
                     venta.addProducto(producto);
 
 
@@ -416,7 +416,16 @@ public class VentaController {
     }
 
     private void vender() {
-        ventaService.vender(venta);
+        try{
+            ventaService.vender(venta);
+        }catch(Exception e){
+            JOptionPane.showMessageDialog(null, "No se puede vender el producto: " + e.getMessage());
+        }
+
+        JOptionPane.showMessageDialog(ventaFrame,"Venta realizada con éxito","Éxito",JOptionPane.INFORMATION_MESSAGE);
+        ventaFrame.dispose();
+        ventaFrame = null;
+        venta = null;
     }
 
 }

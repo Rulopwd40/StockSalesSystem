@@ -7,7 +7,7 @@ import com.libcentro.demo.model.Venta;
 public interface IventaService {
     public List<Venta> getAll();
 
-    public void saveVenta(Venta x);
+    public Venta saveVenta(Venta x);
 
     public void deleteVenta(Venta x);
 

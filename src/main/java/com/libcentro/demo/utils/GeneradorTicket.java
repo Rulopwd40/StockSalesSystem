@@ -55,6 +55,29 @@ public class GeneradorTicket implements Printable {
             // Alinear el total a la derecha
             productos.append(String.format("%" + ANCHO_TICKET + "s\n", total));
         }
+        for (ProductoFStock productoF : venta.getListaProductosF()) {
+            String nombreF = productoF.getNombre(); // Asumiendo que ProductoFStock tiene un método getNombre()
+            String precioF = String.format("$%.2f", productoF.getPrecio_venta());
+            String cantidadF = String.valueOf(productoF.getCantidad());
+            String descuentoF = (productoF.getDescuento() > 0)
+                    ? String.format("- $%.2f", (productoF.getPrecio_venta() * productoF.getCantidad() * productoF.getDescuento() / 100))
+                    : "";
+            String porcentajeF = (productoF.getDescuento() > 0) ? String.format("%.2f", productoF.getDescuento()) : "";
+            String totalF = String.format("= $%.2f", productoF.getPrecio_venta() * productoF.getCantidad() - (productoF.getPrecio_venta() * productoF.getCantidad() * productoF.getDescuento() / 100));
+
+            // Imprimir el nombre del producto
+            productos.append(String.format("%-30s\n", nombreF));
+            // Imprimir precio y cantidad en la siguiente línea
+            productos.append(String.format("%-5s x %-2s\n", precioF, cantidadF));
+
+            // Imprimir descuento en una nueva línea, alineado a la derecha
+            if (!descuentoF.isEmpty()) {
+                productos.append(String.format("    %s(%s%%)\n", descuentoF, porcentajeF));
+            }
+
+            // Alinear el total a la derecha
+            productos.append(String.format("%" + ANCHO_TICKET + "s\n", totalF));
+        }
 
         // Calcular el total final y formatearlo
         float totalVenta = venta.getTotal(); // Obtener el total como float
