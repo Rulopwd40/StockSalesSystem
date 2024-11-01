@@ -19,7 +19,7 @@
   - Modificación de precios por porcentaje (incremento o disminución) en diferentes rangos (general,por categoria).
   - Historial de precios de venta y costos de compra para rastrear cambios a lo largo del tiempo.
 
-- **Reportes**:
+- **Reportes(WIP)**:
   - Generación de reportes de ventas, stock y precios.
   - Visualización de datos para una mejor toma de decisiones.
 
