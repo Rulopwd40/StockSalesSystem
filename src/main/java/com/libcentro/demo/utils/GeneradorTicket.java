@@ -33,7 +33,7 @@ public class GeneradorTicket implements Printable {
 
         // Productos en la venta
         for (Venta_Producto ventaProducto : venta.getListaProductos()) {
-            String nombre = ventaProducto.getProducto().getNombre();
+            String nombre = ventaProducto.getProducto().getNombre().toUpperCase();
             String precio = String.format("$%.2f", ventaProducto.getProducto().getPrecio_venta());
             String cantidad = String.valueOf(ventaProducto.getCantidad());
             String descuento = (ventaProducto.getDescuento() > 0)
@@ -56,7 +56,7 @@ public class GeneradorTicket implements Printable {
             productos.append(String.format("%" + ANCHO_TICKET + "s\n", total));
         }
         for (ProductoFStock productoF : venta.getListaProductosF()) {
-            String nombreF = productoF.getNombre(); // Asumiendo que ProductoFStock tiene un método getNombre()
+            String nombreF = productoF.getNombre().toUpperCase(); // Asumiendo que ProductoFStock tiene un método getNombre()
             String precioF = String.format("$%.2f", productoF.getPrecio_venta());
             String cantidadF = String.valueOf(productoF.getCantidad());
             String descuentoF = (productoF.getDescuento() > 0)

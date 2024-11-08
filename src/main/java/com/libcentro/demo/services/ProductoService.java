@@ -27,6 +27,7 @@ import javax.swing.*;
 
 @Service
 public class ProductoService implements IproductoService {
+
     @Autowired
     private IproductoRepository productoRepo;
     @Autowired
@@ -250,6 +251,11 @@ public class ProductoService implements IproductoService {
     @Override
     public void save(){
         commandInvoker.save();
+    }
+
+    @Override
+    public List<Producto> getProductosByCantidad(int cantidad) {
+        return productoRepo.findByStockLessThanEqual(cantidad);
     }
 
 

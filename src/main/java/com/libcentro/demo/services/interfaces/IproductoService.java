@@ -44,4 +44,6 @@ public interface IproductoService {
     void undoAll();
 
     void save();
+
+    List<Producto> getProductosByCantidad(int cantidad);
 }

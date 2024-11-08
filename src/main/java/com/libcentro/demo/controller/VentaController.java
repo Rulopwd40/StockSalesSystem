@@ -40,6 +40,9 @@ public class VentaController {
     private final IventaService ventaService;
     @Autowired
     private final IproductoService productoService;
+
+    private final StockController stockController;
+
     Venta venta;
     VentaFrame ventaFrame;
     ViewController viewController;
@@ -51,10 +54,11 @@ public class VentaController {
 
 
     @Autowired
-    public VentaController(@Lazy ViewController viewController, VentaService ventaService, ProductoService productoService) {
+    public VentaController(@Lazy ViewController viewController, VentaService ventaService, ProductoService productoService, StockController stockController) {
         this.viewController = viewController;
         this.ventaService = ventaService;
         this.productoService = productoService;
+        this.stockController = stockController;
     }
 
     void openVentaFrame() {
@@ -423,9 +427,11 @@ public class VentaController {
         }
 
         JOptionPane.showMessageDialog(ventaFrame,"Venta realizada con éxito","Éxito",JOptionPane.INFORMATION_MESSAGE);
+        stockController.stockControl();
         ventaFrame.dispose();
-        ventaFrame = null;
-        venta = null;
+
+
+
     }
 
 }
