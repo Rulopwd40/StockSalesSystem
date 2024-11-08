@@ -22,8 +22,9 @@ CREATE TABLE venta_producto(
                                id_venta integer REFERENCES venta(id),
                                codigo_barras TEXT REFERENCES producto(codigo_barras),
                                precio_venta NUMERIC,
+                               costo_compra NUMERIC,
                                descuento NUMERIC,
-                               cantidad INTEGER
+                               cantidad INTEGER,
                                total NUMERIC
 
 );

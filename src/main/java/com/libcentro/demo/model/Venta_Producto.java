@@ -5,11 +5,14 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name="venta_producto")
+@IdClass(VentaProductoId.class)
 public class Venta_Producto {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private int id;
+        private int idventa;
+
+        @Id
+        private String codigo_barras;
 
         @ManyToOne
         @JoinColumn(name = "id_venta")
@@ -27,6 +30,9 @@ public class Venta_Producto {
 
         @Column(name="precio_venta")
         private float precio_venta;
+
+        @Column(name="costo_compra")
+        private float costo_compra;
 
         @Column(name="total")
         private float total;
@@ -77,6 +83,7 @@ public class Venta_Producto {
     public void setProducto(Producto producto, int cantidad) {
         this.producto = producto;
         precio_venta = producto.getPrecio_venta();
+        costo_compra = producto.getCosto_compra();
         this.cantidad = cantidad;
         updateTotal();
     }
@@ -91,5 +98,9 @@ public class Venta_Producto {
 
     public float getPrecio_venta() {
         return precio_venta;
+    }
+
+    public float getCosto_compra() {
+        return costo_compra;
     }
 }
