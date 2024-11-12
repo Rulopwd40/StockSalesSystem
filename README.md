@@ -1,31 +1,28 @@
 # StockSalesSystem
 
-**StockSalesSystem** es una aplicación de escritorio desarrollada en Java, diseñada específicamente para la gestión de inventario y ventas en una papelería o librería. Este sistema facilita el control de productos, seguimiento de ventas, actualización de precios y generación de reportes, brindando una solución completa para pequeñas y medianas empresas.
+**StockSalesSystem** is a standalone Java application, designed especifically for inventory management and sales for a local Stationery. The system allows products control, sales tracking, prices update and generation of stats graphics and reports, giving a complete solution for small and medium businesses.
 
-## Características
+## Characteristics
 
-- **Gestión de Productos**: 
-  - Registro de nuevos productos con detalles como nombre, descripción, código de barras, costo de compra y precio de venta.
-  - Actualización de productos.
-  - Actualización de stock al registrar una venta.
-  - Alerta de stock bajo.
+- **Products Management**: 
+  - Create new products with attributes like name, barcode, purchase cost and sale price.
+  - Individual, Category and General product update.
+  - Low-Stock alert.
+  - Each product has its own prices and cost history.
 
-- **Gestión de Ventas**: 
-  - Registro de ventas detalladas.
-  - Emisión de tickets de venta con impresión.
-  - Actualización automática del inventario tras cada venta.
+- **Sales**:
+  - Product Addition with Barcode Scanning and also an option to add a product out of the DB.
+  - Sale Ticket generation with print option.
+  - Automatic product inventory update.
+  - Discounts Applied to Specific or All Products.
 
-- **Gestión de Precios**:
-  - Modificación de precios por porcentaje (incremento o disminución) en diferentes rangos (general,por categoria).
-  - Historial de precios de venta y costos de compra para rastrear cambios a lo largo del tiempo.
+- **Reports(WIP)**:
+  - Sales, Earnings and Products stats generation.
+  - Refund generation.
 
-- **Reportes(WIP)**:
-  - Generación de reportes de ventas, stock y precios.
-  - Visualización de datos para una mejor toma de decisiones.
+## Technologies:
 
-## Tecnologías Utilizadas
-
-- **Backend**: Java con Spring Boot
-- **Frontend**: Java Swing para la interfaz gráfica
-- **ORM**: Hibernate para la persistencia de datos
-- **Base de Datos**: SQLite
+- **Backend**: Java SpringBoot to allow a Web version.
+- **Frontend**: Java Swing for GUI.
+- **ORM**: Hibernate.
+- **DataBase**: SQLite.
