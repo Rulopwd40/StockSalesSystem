@@ -7,7 +7,7 @@
 - **Products Management**: 
   - Create new products with attributes like name, barcode, purchase cost and sale price.
   - Individual, Category and General product update.
-  - Low-Stock alert.
+  - Low Stock alert.
   - Each product has its own prices and cost history.
 
 - **Sales**:
