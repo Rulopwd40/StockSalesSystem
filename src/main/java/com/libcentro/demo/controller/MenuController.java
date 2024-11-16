@@ -30,7 +30,7 @@ public class MenuController {
         // Menu Listeners
         menuFrame.getProductosButton().addActionListener(e -> viewController.openProductosView());
         menuFrame.getVentaButton().addActionListener(e -> viewController.newVenta());
-        menuFrame.getReportesButton().addActionListener(e -> viewController.openEstadisticasView());
+        menuFrame.getReportesButton().addActionListener(e -> viewController.openReportesView());
 
         menuFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {

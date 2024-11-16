@@ -12,7 +12,7 @@ public class Venta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
     @Column(name = "fecha")
     private String fecha;
     @Column(name = "total")
@@ -41,7 +41,7 @@ public class Venta {
 
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 

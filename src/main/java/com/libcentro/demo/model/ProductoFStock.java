@@ -13,7 +13,7 @@ public class ProductoFStock {
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private int id;
+    private long id;
     @Column(name="nombre")
     private String nombre;
     @Column(name="precio_venta")

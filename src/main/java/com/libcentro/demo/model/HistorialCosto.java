@@ -17,7 +17,7 @@ public class HistorialCosto {
     @JoinColumn(name="codigo_barras", referencedColumnName = "codigo_barras")
     private Producto producto;
     @Column(name = "costo_compra")
-    private float costo_compra;
+    private double costo_compra;
     @Column(name = "cantidad")
     private int cantidad;
     @Column(name = "estado")
@@ -25,7 +25,7 @@ public class HistorialCosto {
     @Column(name = "fecha")
     private String fecha;
 
-    public HistorialCosto(Producto producto, float costo_compra, int cantidad) {
+    public HistorialCosto(Producto producto, double costo_compra, int cantidad) {
         this.producto = producto;
         this.costo_compra = costo_compra;
         this.cantidad = cantidad;
@@ -42,7 +42,7 @@ public class HistorialCosto {
         this.producto = producto;
     }
 
-    public void setCosto_compra(float costo_compra) {
+    public void setCosto_compra(double costo_compra) {
         this.costo_compra = costo_compra;
     }
 
@@ -74,7 +74,7 @@ public class HistorialCosto {
         return cantidad;
     }
 
-    public float getCosto_compra() {
+    public double getCosto_compra() {
         return costo_compra;
     }
 

@@ -4,6 +4,7 @@ import java.util.List;
 import com.libcentro.demo.model.Categoria;
 import com.libcentro.demo.model.Producto;
 
+import com.libcentro.demo.model.dto.ProductoDTO;
 import jakarta.transaction.Transactional;
 
 public interface IproductoService {
@@ -15,7 +16,7 @@ public interface IproductoService {
     @Transactional
     public void saveProducto(Producto x);
 
-    Producto crearProducto(Producto producto);
+    Producto crearProducto(ProductoDTO producto);
 
     @Transactional
     boolean importarCSV(String path);
@@ -26,12 +27,11 @@ public interface IproductoService {
 
     void deleteProducto(String codigo_barras);
 
-    void updateProductoCSV(Producto producto);
 
     @Transactional
     public void updateProducto(Producto x);
 
-    void updateProductosBy(Categoria categoria, float porcentaje);
+    void updateProductosBy(Categoria categoria, double porcentaje);
 
     Producto getProducto(String codigo_barras);
 

@@ -5,6 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
@@ -20,7 +21,7 @@ public class Main {
 
         if (GraphicsEnvironment.isHeadless()) {
             System.out.println("Entorno es headless, no se puede abrir una ventana gráfica.");
-            return; // Salimos si no hay entorno gráfico
+            return;
         }
 
         ApplicationContext contexto = SpringApplication.run(Main.class, args);
@@ -28,6 +29,8 @@ public class Main {
         ViewController viewController = contexto.getBean(ViewController.class);
 
         viewController.openMenuView();
+        viewController.openStockControlView();
+
 
     }
 }

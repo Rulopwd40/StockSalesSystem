@@ -11,7 +11,6 @@ import com.libcentro.demo.services.VentaService;
 import com.libcentro.demo.services.interfaces.IproductoService;
 import com.libcentro.demo.services.interfaces.IventaService;
 import com.libcentro.demo.utils.FieldAnalyzer;
-import com.libcentro.demo.utils.GeneradorTicket;
 import com.libcentro.demo.utils.filters.Filter;
 import com.libcentro.demo.view.venta.ApfsDialog;
 import com.libcentro.demo.view.venta.VentaFrame;
@@ -21,15 +20,11 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Optional;
 
 import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 
@@ -349,7 +344,7 @@ public class VentaController {
 
     private void agregarProducto(String codigo_barras, int cantidad) {
         if (cantidad <= 0) {
-            JOptionPane.showMessageDialog(null, "Ingrese cantidad del producto mayor a 0");
+            JOptionPane.showMessageDialog(null, "La cantidad debe ser mayor que cero");
             throw new IllegalArgumentException("La cantidad debe ser mayor que cero");
         }
         Producto producto=null;
@@ -424,10 +419,11 @@ public class VentaController {
             ventaService.vender(venta);
         }catch(Exception e){
             JOptionPane.showMessageDialog(null, "No se puede vender el producto: " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
 
         JOptionPane.showMessageDialog(ventaFrame,"Venta realizada con éxito","Éxito",JOptionPane.INFORMATION_MESSAGE);
-        stockController.stockControl();
+        stockController.stockControl(false);
         ventaFrame.dispose();
 
 

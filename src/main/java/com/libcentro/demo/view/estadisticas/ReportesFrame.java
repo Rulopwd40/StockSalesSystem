@@ -1,0 +1,71 @@
+package com.libcentro.demo.view.estadisticas;
+
+import javax.swing.*;
+
+public class ReportesFrame extends JFrame{
+
+    private JPanel reportesPanel;
+    private JButton ventasButton;
+    private JButton productosButton;
+    private JButton gananciasButton;
+    private JButton generarReembolsoButton;
+    private JButton okButton;
+    private JPanel contenidoPane;
+    private JLabel pestanaLabel;
+    private JButton generarGraficaButton;
+    private JButton contabilizarButton;
+    private JComboBox periodoBox;
+    private JPanel graphPane;
+    private JTextField codigoField;
+
+    public ReportesFrame(){
+        setContentPane(reportesPanel);
+        setSize(945,630);
+        setLocationRelativeTo(null);
+        setFocusable(true);
+    }
+
+    public JPanel getGraphPane() {
+        return graphPane;
+    }
+
+    public JButton getProductosButton() {
+        return productosButton;
+    }
+
+    public JButton getGananciasButton() {
+        return gananciasButton;
+    }
+
+    public JButton getGenerarReembolsoButton() {
+        return generarReembolsoButton;
+    }
+
+    public JButton getVentasButton() {
+        return ventasButton;
+    }
+
+    public JButton getOkButton() {
+        return okButton;
+    }
+
+    public JButton getContabilizarButton() {
+        return contabilizarButton;
+    }
+
+    public JButton getGenerarGraficaButton() {
+        return generarGraficaButton;
+    }
+
+    public JLabel getPestanaLabel() {
+        return pestanaLabel;
+    }
+
+    public JComboBox getPeriodoBox() {
+        return periodoBox;
+    }
+
+    public JTextField getCodigoField() {
+        return codigoField;
+    }
+}

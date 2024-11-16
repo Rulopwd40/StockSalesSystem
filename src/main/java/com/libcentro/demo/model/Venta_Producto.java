@@ -9,33 +9,33 @@ import jakarta.persistence.*;
 public class Venta_Producto {
 
         @Id
-        private int idventa;
+        private long id_venta;
 
         @Id
         private String codigo_barras;
 
         @ManyToOne
-        @JoinColumn(name = "id_venta")
+        @JoinColumn(name = "id_venta", insertable = false, updatable = false)
         private Venta venta;
 
         @ManyToOne
-        @JoinColumn(name = "codigo_barras")
+        @JoinColumn(name = "codigo_barras", insertable = false, updatable = false)
         private Producto producto;
 
         @Column(name="cantidad")
         private int cantidad;
 
         @Column(name="descuento")
-        private float descuento;
+        private double descuento;
 
         @Column(name="precio_venta")
-        private float precio_venta;
+        private double precio_venta;
 
         @Column(name="costo_compra")
-        private float costo_compra;
+        private double costo_compra;
 
         @Column(name="total")
-        private float total;
+        private double total;
 
 
     public Venta_Producto(Venta venta) {
@@ -46,7 +46,7 @@ public class Venta_Producto {
 
     }
 
-    public float getDescuento() {
+    public double getDescuento() {
         return descuento;
     }
 
@@ -76,11 +76,12 @@ public class Venta_Producto {
         return producto;
     }
 
-    public float getTotal() {
+    public double getTotal() {
         return total;
     }
 
     public void setProducto(Producto producto, int cantidad) {
+        this.codigo_barras= producto.getCodigo_barras();
         this.producto = producto;
         precio_venta = producto.getPrecio_venta();
         costo_compra = producto.getCosto_compra();
@@ -96,11 +97,11 @@ public class Venta_Producto {
         total = Math.round(total * 100.00f) / 100.00f;
     }
 
-    public float getPrecio_venta() {
+    public double getPrecio_venta() {
         return precio_venta;
     }
 
-    public float getCosto_compra() {
+    public double getCosto_compra() {
         return costo_compra;
     }
 }

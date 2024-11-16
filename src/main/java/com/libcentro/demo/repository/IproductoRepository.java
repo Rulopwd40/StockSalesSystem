@@ -14,8 +14,6 @@ public interface IproductoRepository extends JpaRepository<Producto, String> {
 
     List<Producto> findAllByCategoria(Categoria categoria);
 
-
-
     @Query("SELECT p FROM Producto p " +
             "LEFT JOIN FETCH p.historial_precios hp " +
             "LEFT JOIN FETCH p.historial_costos hc " +

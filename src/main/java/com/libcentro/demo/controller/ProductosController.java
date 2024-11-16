@@ -13,6 +13,8 @@ import com.libcentro.demo.exceptions.OutOfBounds;
 import com.libcentro.demo.exceptions.ProductExistsInDataBase;
 import com.libcentro.demo.exceptions.ProductNameExists;
 import com.libcentro.demo.model.Categoria;
+import com.libcentro.demo.model.dto.CategoriaDTO;
+import com.libcentro.demo.model.dto.ProductoDTO;
 import com.libcentro.demo.services.CategoriaService;
 import com.libcentro.demo.services.interfaces.IcategoriaService;
 import com.libcentro.demo.utils.FieldAnalyzer;
@@ -229,7 +231,7 @@ public class ProductosController {
                     Categoria categoriaP = categorias.stream()
                             .filter(categoria -> categoria.getNombre().equals(agregarProducto.getCategoriaBox().getSelectedItem().toString()))
                             .findFirst().orElseThrow();
-                    Producto producto = new Producto(
+                    ProductoDTO producto = new ProductoDTO(
                             agregarProducto.getCodigoField().getText(),
                             agregarProducto.getNombreField().getText(),
                             categoriaP,
@@ -238,13 +240,13 @@ public class ProductosController {
                             Integer.parseInt(agregarProducto.getCantidadField().getText())
                     );
 
-                        existeProducto(producto);
                         productoService.crearProducto(producto);
-                        agregarProducto.onOK();
+
                     }catch(RuntimeException ex) {
                         JOptionPane.showMessageDialog(null,ex.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
                         throw new RuntimeException(ex);
                     }
+                    agregarProducto.onOK();
                     productosFrameUpdateTable();
                 }
         });
@@ -273,9 +275,14 @@ public class ProductosController {
 
         importarCSV.getSubirButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if(productoService.importarCSV(importarCSV.getLocationField().getText())){
-                productosFrameUpdateTable();
+                try{
+                    productoService.importarCSV(importarCSV.getLocationField().getText());
+                }catch (RuntimeException ex){
+                    JOptionPane.showMessageDialog(null,ex.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
+                    throw new RuntimeException(ex.getMessage());
+
                 }
+                productosFrameUpdateTable();
             }
         });
         importarCSV.getButtonOK().addActionListener(new ActionListener() {

@@ -20,12 +20,12 @@ public class HistorialPrecio {
     private Producto producto;
 
     @Column(name="precio_venta")
-    private float precio_venta;
+    private double precio_venta;
 
     @Column(name="fecha")
     private String fecha;
 
-    public HistorialPrecio(Producto producto, float precio_venta) {
+    public HistorialPrecio(Producto producto, double precio_venta) {
         this.producto = producto;
         this.precio_venta = precio_venta;
         this.fecha = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
@@ -46,11 +46,11 @@ public class HistorialPrecio {
         this.fecha = fecha;
     }
 
-    public float getPrecio_venta() {
+    public double getPrecio_venta() {
         return precio_venta;
     }
 
-    public void setPrecio_venta(float precio_venta) {
+    public void setPrecio_venta(double precio_venta) {
         this.precio_venta = precio_venta;
     }
 

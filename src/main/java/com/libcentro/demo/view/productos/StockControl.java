@@ -9,8 +9,8 @@ public class StockControl extends JDialog {
 
     public StockControl() {
         setContentPane(contentPane);
-        setModal(true);
         getRootPane().setDefaultButton(buttonOK);
+        requestFocus(true);
         pack();
         setLocationRelativeTo(null);
     }

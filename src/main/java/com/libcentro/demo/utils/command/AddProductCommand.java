@@ -13,36 +13,24 @@ public class AddProductCommand implements Command {
 
     private final Producto producto;
     private final IproductoService _productoService;
-    private final IhistorialPreciosService _historialPrecio;
-    private final IhistorialCostosService _historialCosto;
+
     private HistorialPrecio historialPrecio;
     private HistorialCosto historialCosto;
 
 
-    public AddProductCommand(IproductoService productoService, Producto producto, IhistorialPreciosService historialPrecio, IhistorialCostosService historialCosto) {
+    public AddProductCommand(IproductoService productoService, Producto producto) {
         _productoService = productoService;
         this.producto = producto;
-        _historialPrecio = historialPrecio;
-        _historialCosto = historialCosto;
     }
 
 
     @Override
     public void execute() {
-
-        historialPrecio = new HistorialPrecio(producto, producto.getPrecio_venta());
-        historialCosto = new HistorialCosto(producto, producto.getCosto_compra(), producto.getStock());
-        producto.setCosto_inicial(historialCosto);
         _productoService.saveProducto(producto);
-        _historialPrecio.save(historialPrecio);
-        /*_historialCosto.save(historialCosto);*/
-
     }
 
     @Override
     public void undo() {
         _productoService.deleteProducto(producto);
-        _historialPrecio.delete(historialPrecio);
-        _historialCosto.delete(historialCosto);
     }
 }

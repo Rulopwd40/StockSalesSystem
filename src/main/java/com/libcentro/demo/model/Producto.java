@@ -1,12 +1,13 @@
 package com.libcentro.demo.model;
 
+import com.libcentro.demo.model.dto.ProductoDTO;
 import jakarta.persistence.*;
 
 
 import java.util.*;
 
 @Entity
-@Table(name = "Producto")
+@Table(name = "producto")
 public class Producto {
     @Id
     private String codigo_barras;
@@ -16,18 +17,18 @@ public class Producto {
     @JoinColumn(name = "categoria", referencedColumnName = "id")
     private Categoria categoria;
     @Column(name = "costo_compra")
-    private float costo_compra;
+    private double costo_compra;
     @Column(name = "precio_venta")
-    private float precio_venta;
+    private double precio_venta;
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL) // Cascade ALL
     @JoinColumn(name = "costo_inicial", referencedColumnName = "id")
     private HistorialCosto costo_inicial;
     @Column(name = "stock")
     private int stock;
-    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = false) // Cascade ALL
-    private Set<HistorialPrecio> historial_precios = new HashSet<>();
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = false)
-    private Set<HistorialCosto> historial_costos = new HashSet<>();
+    private Set<HistorialPrecio> historial_precios;
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = false)
+    private Set<HistorialCosto> historial_costos;
 
 
 
@@ -36,13 +37,15 @@ public class Producto {
     }
 
 
-    public Producto(String codigo_barras,String nombre,Categoria categoria, float costo_compra, float precio_venta, int stock) {
+    public Producto(String codigo_barras,String nombre,Categoria categoria, double costo_compra, double precio_venta, int stock) {
         this.codigo_barras = codigo_barras;
         this.nombre = nombre;
         this.categoria = categoria;
         this.costo_compra = costo_compra;
         this.precio_venta = precio_venta;
         this.stock = stock;
+        historial_precios = new HashSet<>();
+        historial_costos = new HashSet<>();
     }
 
     public Producto(Producto producto) {
@@ -52,7 +55,20 @@ public class Producto {
         this.precio_venta = producto.getPrecio_venta();
         this.costo_compra = producto.getCosto_compra();
         this.stock = producto.getStock();
-        // Copiar otros campos si los hay
+        historial_precios = new HashSet<>();
+        historial_costos = new HashSet<>();
+
+    }
+
+    public Producto(ProductoDTO producto) {
+        this.codigo_barras = producto.getCodigo_barras();
+        this.nombre = producto.getNombre();
+        this.categoria = producto.getCategoria();
+        this.precio_venta = producto.getPrecio_venta();
+        this.costo_compra = producto.getCosto_compra();
+        this.stock = producto.getStock();
+        historial_precios = new HashSet<>();
+        historial_costos = new HashSet<>();
     }
 
     public void agregarHistorial(HistorialCosto historialCosto) {
@@ -89,22 +105,22 @@ public class Producto {
     }
 
 
-    public float getCosto_compra() {
+    public double getCosto_compra() {
         return costo_compra;
     }
 
 
-    public void setCosto_compra(float costo_compra) {
+    public void setCosto_compra(double costo_compra) {
         this.costo_compra = costo_compra;
     }
 
 
-    public float getPrecio_venta() {
+    public double getPrecio_venta() {
         return precio_venta;
     }
 
 
-    public void setPrecio_venta(float precio_venta) {
+    public void setPrecio_venta(double precio_venta) {
         this.precio_venta = precio_venta;
     }
 
@@ -136,6 +152,21 @@ public class Producto {
         this.costo_inicial = costo_inicial;
     }
 
+    public Set<HistorialPrecio> getHistorial_precios() {
+        return historial_precios;
+    }
+
+    public Set<HistorialCosto> getHistorial_costos() {
+        return historial_costos;
+    }
+
+    public void setHistorial_costos(Set<HistorialCosto> historial_costos) {
+        this.historial_costos = historial_costos;
+    }
+
+    public void setHistorial_precios(Set<HistorialPrecio> historial_precios) {
+        this.historial_precios = historial_precios;
+    }
 
     @Override
     public boolean equals(Object o) {

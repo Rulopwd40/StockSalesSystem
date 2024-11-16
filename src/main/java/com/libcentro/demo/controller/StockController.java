@@ -2,7 +2,6 @@ package com.libcentro.demo.controller;
 
 
 import com.libcentro.demo.model.Producto;
-import com.libcentro.demo.services.ProductoService;
 import com.libcentro.demo.services.interfaces.IproductoService;
 import com.libcentro.demo.view.productos.StockControl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,19 +17,18 @@ public class StockController {
 
     IproductoService productoService;
 
+
     List<Producto> productos;
 
     @Autowired
     public StockController(IproductoService productoService) {
         this.productoService = productoService;
-        try{
-            stockControl();
-        } catch (RuntimeException ignored) {
-        }
+
+
 
     }
 
-    public void stockControl() {
+    public void stockControl(boolean modal) {
         productos= productoService.getProductosByCantidad(10);
 
         if(!productos.isEmpty()) {
@@ -60,6 +58,8 @@ public class StockController {
                     stockControl.dispose();
                 }
             });
+
+            stockControl.setModal(modal);
 
             stockControl.setVisible(true);
         }else throw new RuntimeException("No hay productos con stock menor a 10");

@@ -2,11 +2,14 @@ package com.libcentro.demo.services;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.libcentro.demo.exceptions.InsufficientStockException;
 import com.libcentro.demo.model.Categoria;
+import com.libcentro.demo.model.HistorialCosto;
 import com.libcentro.demo.model.HistorialPrecio;
+import com.libcentro.demo.model.dto.ProductoDTO;
 import com.libcentro.demo.services.interfaces.IhistorialCostosService;
 import com.libcentro.demo.services.interfaces.IhistorialPreciosService;
 import com.libcentro.demo.utils.ProductosCSV;
@@ -50,27 +53,44 @@ public class ProductoService implements IproductoService {
     }
 
     @Override
+    @Transactional
     public void saveProducto(Producto x) {
-        productoRepo.save(x);
+        productoRepo.saveAndFlush(x);
     }
+
     @Override
-    public Producto crearProducto(Producto producto) {
+    @Transactional
+    public Producto crearProducto ( ProductoDTO productoDto ){
 
-        Producto existingProducto = productoRepo.findById(producto.getCodigo_barras()).orElse(null);
-
-        if (existingProducto != null) {
-            throw new RuntimeException("El producto con codigo: " + producto.getCodigo_barras() + " ya existe.");
+        Optional<Producto> existingProducto = productoRepo.findById(productoDto.getCodigo_barras());
+        if (existingProducto.isPresent()) {
+            throw new RuntimeException ("El producto con codigo: " + productoDto.getCodigo_barras() + " ya existe.");
         }
-        commandInvoker.executeCommand(new AddProductCommand(this, producto, historialPreciosService, historialCostosService));
 
+        Producto producto = generarProductoCompleto (productoDto);
+
+        commandInvoker.executeCommand (new AddProductCommand (this,producto));
 
         return producto;
     }
 
+    private Producto generarProductoCompleto(ProductoDTO productoDto) {
+        Producto producto = new Producto (productoDto);
+
+        HistorialCosto historialCosto = new HistorialCosto (producto, producto.getCosto_compra (), producto.getStock ());
+        producto.getHistorial_costos ().add (historialCosto);
+
+        producto.setCosto_inicial (historialCosto);
+
+        HistorialPrecio historialPrecio = new HistorialPrecio (producto, producto.getPrecio_venta ());
+        producto.getHistorial_precios ().add (historialPrecio);
+
+        return producto;
+    }
 
     @Override
     public boolean importarCSV(String path) {
-        List<Producto> productosARC;
+        List<ProductoDTO> productosARC;
 
         // Obtener productos desde el archivo CSV
         try {
@@ -95,15 +115,16 @@ public class ProductoService implements IproductoService {
                 SwingUtilities.invokeLater(() -> progresoDialog.mostrar());
 
                 for (int i = 0; i < productosARC.size(); i++) {
-                    Producto producto = productosARC.get(i);
+                    ProductoDTO productoDTO = productosARC.get(i);
                     try {
-                        if (productos.contains(producto)) {
-                            // Ejecutar comando de actualización usando el invocador
+                        Producto producto;
+                        if (productos.stream().anyMatch (p -> p.getCodigo_barras().equals (productoDTO.getCodigo_barras ()))) {
+                            producto = getProducto(productoDTO.getCodigo_barras());
                             commandInvoker.executeCommand(new UpdateProductCommand(ProductoService.this, historialCostosService, historialPreciosService, getProducto(producto.getCodigo_barras()), producto));
                             cuentaActualizados++;
                         } else {
-                            // Ejecutar comando de creación usando el invocador
-                            commandInvoker.executeCommand(new AddProductCommand(ProductoService.this, producto, historialPreciosService, historialCostosService));
+                            producto = generarProductoCompleto (productoDTO);
+                            commandInvoker.executeCommand(new AddProductCommand(ProductoService.this, producto));
                             cuentaCreados++;
                         }
 
@@ -161,12 +182,6 @@ public class ProductoService implements IproductoService {
     }
 
     @Override
-    public void updateProductoCSV(Producto producto){
-        Producto productoObtenido = getProducto(producto.getCodigo_barras());
-        producto.setStock(producto.getStock()+productoObtenido.getStock());
-        ((ProductoService) AopContext.currentProxy()).updateProducto(producto);
-    }
-    @Override
     public void updateProducto(Producto productoActualizado) {
         Producto productoActual= productoRepo.findById(productoActualizado.getCodigo_barras()).orElse(null);
         assert productoActual != null;
@@ -176,7 +191,7 @@ public class ProductoService implements IproductoService {
 
 
     @Override
-    public void updateProductosBy(Categoria categoria, float porcentaje) {
+    public void updateProductosBy(Categoria categoria, double porcentaje) {
         List<Producto> productosViejos;
 
         if(porcentaje == 0){
@@ -193,7 +208,7 @@ public class ProductoService implements IproductoService {
         List<Producto> productosNuevos = productosViejos.stream()
                 .map(productoViejo -> {
                     Producto nuevoProducto = new Producto(productoViejo); // Asumimos que Producto tiene un constructor copia
-                    float nuevoPrecio = nuevoProducto.getPrecio_venta() + (nuevoProducto.getPrecio_venta() * porcentaje);
+                    double nuevoPrecio = nuevoProducto.getPrecio_venta() + (nuevoProducto.getPrecio_venta() * porcentaje);
                     nuevoProducto.setPrecio_venta(nuevoPrecio);
                     return nuevoProducto;
                 })

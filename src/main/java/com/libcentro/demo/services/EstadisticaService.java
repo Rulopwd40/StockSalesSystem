@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
 import java.io.*;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.awt.*;
 import java.text.SimpleDateFormat;
@@ -68,7 +69,7 @@ public class EstadisticaService implements IestadisticaService {
                 String fechaVenta = vp.getVenta().getFecha().toString(); // Asegúrate de obtener la fecha correctamente
 
                 // Calcular la ganancia neta: (precio_venta - costo_compra) * cantidad
-                float gananciaNeta = (vp.getPrecio_venta() - vp.getCosto_compra()) * vp.getCantidad();
+                double gananciaNeta = (vp.getPrecio_venta() - vp.getCosto_compra()) * vp.getCantidad();
 
                 // Escribir en el archivo CSV
                 writer.write(fechaVenta + "," + gananciaNeta + "\n");
@@ -121,21 +122,21 @@ public class EstadisticaService implements IestadisticaService {
             writer.write("Fecha,GananciaNeta\n");
 
             // Agrupar las ventas por fecha (o por cualquier otro criterio que necesites)
-            Map<String, Float> gananciasPorFecha = new HashMap<>();
+            Map<String, Double> gananciasPorFecha = new HashMap<>();
 
             for (Venta_Producto vp : ventaproductos) {
                 // Obtener la fecha de la venta (puedes cambiar la forma en que la formateas si es necesario)
                 String fechaVenta = vp.getVenta().getFecha(); // Asegúrate de obtener la fecha correctamente
 
                 // Calcular la ganancia neta: (precio_venta - costo_compra) * cantidad
-                float gananciaNeta = (vp.getPrecio_venta() - vp.getCosto_compra()) * vp.getCantidad();
+                double gananciaNeta = (vp.getPrecio_venta() - vp.getCosto_compra()) * vp.getCantidad();
 
                 // Agrupar las ganancias por fecha
-                gananciasPorFecha.put(fechaVenta, gananciasPorFecha.getOrDefault(fechaVenta, 0f) + gananciaNeta);
+                gananciasPorFecha.put(fechaVenta, gananciasPorFecha.getOrDefault(fechaVenta, 0d) + gananciaNeta);
             }
 
             // Escribir las ganancias agrupadas por fecha en el archivo CSV
-            for (Map.Entry<String, Float> entry : gananciasPorFecha.entrySet()) {
+            for (Map.Entry<String, Double> entry : gananciasPorFecha.entrySet()) {
                 writer.write(entry.getKey() + "," + entry.getValue() + "\n");
             }
 
@@ -182,8 +183,8 @@ public class EstadisticaService implements IestadisticaService {
 
 
     public String generarFecha(String tiempo) {
-        LocalDate fechaFin = LocalDate.now();
-        LocalDate fechaInicio;
+        LocalDateTime fechaFin = LocalDate.now().atStartOfDay();
+        LocalDateTime fechaInicio;
 
         switch (tiempo) {
             case "Ayer":
@@ -206,7 +207,7 @@ public class EstadisticaService implements IestadisticaService {
                 fechaInicio = fechaFin.minusYears(1);
             case "Todos los tiempos":
                 // Asumimos una fecha de inicio arbitraria para "Todos los tiempos"
-                fechaInicio = LocalDate.of(2000, 1, 1);
+                fechaInicio = LocalDate.of(2000, 1, 1).atStartOfDay();
                 break;
             case "Elegir período":
                 // Lógica adicional para permitir seleccionar un rango personalizado
