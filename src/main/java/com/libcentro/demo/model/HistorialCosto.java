@@ -10,11 +10,16 @@ import java.util.Objects;
 @Table(name="historial_costos")
 public class HistorialCosto {
 
-    @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
-    private long id;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="codigo_barras", referencedColumnName = "codigo_barras")
+    @EmbeddedId
+    @AttributeOverrides({
+            @AttributeOverride(name = "id", column = @Column(name = "id")),
+            @AttributeOverride(name = "codigoBarrasc", column = @Column(name = "codigo_barras"))
+    })
+    private HistorialCostoId id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("codigoBarrasc")
+    @JoinColumn(name = "codigo_barras", referencedColumnName = "codigo_barras", insertable = false, updatable = false)
     private Producto producto;
     @Column(name = "costo_compra")
     private double costo_compra;
@@ -26,7 +31,7 @@ public class HistorialCosto {
     private String fecha;
 
     public HistorialCosto(Producto producto, double costo_compra, int cantidad) {
-        this.producto = producto;
+        this.producto =producto;
         this.costo_compra = costo_compra;
         this.cantidad = cantidad;
         this.estado = true;
@@ -54,12 +59,10 @@ public class HistorialCosto {
         this.fecha = fecha;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
 
-    public Long getId() {
-        return id;
+
+    public Integer getId() {
+        return id.getId();
     }
 
     public String getFecha() {
@@ -82,8 +85,8 @@ public class HistorialCosto {
         return producto;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setId(Integer id) {
+        this.id.setId (id);
     }
 
     public void setEstado(boolean estado) {

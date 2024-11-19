@@ -120,6 +120,11 @@ public class ProductoService implements IproductoService {
                         Producto producto;
                         if (productos.stream().anyMatch (p -> p.getCodigo_barras().equals (productoDTO.getCodigo_barras ()))) {
                             producto = getProducto(productoDTO.getCodigo_barras());
+                            producto.setNombre (productoDTO.getNombre());
+                            producto.setCategoria (productoDTO.getCategoria());
+                            producto.setCosto_compra (productoDTO.getCosto_compra());
+                            producto.setPrecio_venta (productoDTO.getPrecio_venta());
+                            producto.setStock (producto.getStock() + productoDTO.getStock());
                             commandInvoker.executeCommand(new UpdateProductCommand(ProductoService.this, historialCostosService, historialPreciosService, getProducto(producto.getCodigo_barras()), producto));
                             cuentaActualizados++;
                         } else {

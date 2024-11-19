@@ -52,18 +52,20 @@ CREATE TABLE categoria (
 
 
 CREATE TABLE historial_costos(
-                                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                 Id INTEGER,
                                  codigo_barras TEXT REFERENCES producto(codigo_barras) ON DELETE CASCADE,
                                  costo_compra NUMERIC,
                                  cantidad INTEGER,
                                  estado BOOLEAN,
-                                 fecha TEXT DEFAULT (datetime('now', 'localtime'))
+                                 fecha TEXT DEFAULT (datetime('now', 'localtime')),
+                                 PRIMARY KEY (Id,codigo_barras)
 );
 
 CREATE TABLE historial_precios(
-                                  Id INTEGER PRIMARY KEY AUTOINCREMENT ,
+                                  Id INTEGER ,
                                   codigo_barras TEXT references producto(codigo_barras) ON DELETE CASCADE ,
-                                  precio_venta integer,
-                                  fecha TEXT DEFAULT (datetime('now','localtime'))
+                                  precio_venta NUMERIC,
+                                  fecha TEXT DEFAULT (datetime('now','localtime')),
+                                  PRIMARY KEY (Id,codigo_barras)
 );
 

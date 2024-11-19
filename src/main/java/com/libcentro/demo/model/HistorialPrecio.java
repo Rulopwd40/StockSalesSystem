@@ -11,16 +11,22 @@ import java.util.Objects;
 @Table(name="historial_precios")
 public class HistorialPrecio {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @EmbeddedId
+    @AttributeOverrides({
+            @AttributeOverride(name = "id", column = @Column(name = "id")),
+            @AttributeOverride(name = "codigoBarrasp", column = @Column(name = "codigo_barras"))
+    })
+    private HistorialPrecioId id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="codigo_barras",referencedColumnName = "codigo_barras")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("codigoBarrasp")
+    @JoinColumn(name = "codigo_barras", referencedColumnName = "codigo_barras", insertable = false, updatable = false)
     private Producto producto;
 
     @Column(name="precio_venta")
     private double precio_venta;
+
+
 
     @Column(name="fecha")
     private String fecha;
@@ -35,7 +41,7 @@ public class HistorialPrecio {
     }
 
     public long getId() {
-        return id;
+        return id.getId ();
     }
 
     public String getFecha() {
