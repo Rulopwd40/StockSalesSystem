@@ -1,8 +1,11 @@
 package com.libcentro.demo.model;
 
 
+import com.libcentro.demo.model.id.VentaProductoId;
 import jakarta.persistence.*;
+import lombok.Data;
 
+@Data
 @Entity
 @Table(name="venta_producto")
 @IdClass(VentaProductoId.class)
@@ -12,14 +15,14 @@ public class Venta_Producto {
         private long id_venta;
 
         @Id
-        private String codigo_barras;
+        private String codigobarras;
 
         @ManyToOne
         @JoinColumn(name = "id_venta", insertable = false, updatable = false)
         private Venta venta;
 
         @ManyToOne
-        @JoinColumn(name = "codigo_barras", insertable = false, updatable = false)
+        @JoinColumn(name = "codigobarras", insertable = false, updatable = false)
         private Producto producto;
 
         @Column(name="cantidad")
@@ -46,42 +49,23 @@ public class Venta_Producto {
 
     }
 
-    public double getDescuento() {
-        return descuento;
-    }
 
     public void setDescuento(float descuento) {
         this.descuento = descuento;
         updateTotal();
     }
 
-    public int getCantidad() {
-        return cantidad;
-    }
+
 
     public void setCantidad(int cantidad) {
         this.cantidad = cantidad;
         updateTotal();
     }
 
-    public Venta getVenta() {
-        return venta;
-    }
 
-    public void setVenta(Venta venta) {
-        this.venta = venta;
-    }
-
-    public Producto getProducto() {
-        return producto;
-    }
-
-    public double getTotal() {
-        return total;
-    }
 
     public void setProducto(Producto producto, int cantidad) {
-        this.codigo_barras= producto.getCodigo_barras();
+        this.codigobarras = producto.getCodigobarras ();
         this.producto = producto;
         precio_venta = producto.getPrecio_venta();
         costo_compra = producto.getCosto_compra();
@@ -97,11 +81,5 @@ public class Venta_Producto {
         total = Math.round(total * 100.00f) / 100.00f;
     }
 
-    public double getPrecio_venta() {
-        return precio_venta;
-    }
 
-    public double getCosto_compra() {
-        return costo_compra;
-    }
 }

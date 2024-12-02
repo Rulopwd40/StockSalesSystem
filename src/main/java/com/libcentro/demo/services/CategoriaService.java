@@ -1,6 +1,7 @@
 package com.libcentro.demo.services;
 
 import com.libcentro.demo.model.Categoria;
+import com.libcentro.demo.model.dto.CategoriaDTO;
 import com.libcentro.demo.repository.IcategoriaRepository;
 import com.libcentro.demo.services.interfaces.IcategoriaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,22 +16,22 @@ public class CategoriaService implements IcategoriaService {
     IcategoriaRepository icategoriaRepository;
 
     @Override
-    public Categoria getCategoria(String nombre) {
+    public CategoriaDTO getCategoria( String nombre) {
         return icategoriaRepository.findByNombre(nombre);
     }
 
     @Override
-    public List<Categoria> getAll() {
+    public List<CategoriaDTO> getAll() {
         return icategoriaRepository.findAll();
     }
 
     @Override
-    public void saveCategoria(Categoria x) {
+    public void saveCategoria( CategoriaDTO x) {
         icategoriaRepository.save(x);
     }
 
     @Override
-    public void deleteCategoria(Categoria x) {
+    public void deleteCategoria( CategoriaDTO x) {
         icategoriaRepository.delete(x);
     }
 

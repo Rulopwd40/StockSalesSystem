@@ -2,11 +2,8 @@ package com.libcentro.demo.controller;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import com.libcentro.demo.exceptions.EmptyFieldException;
 import com.libcentro.demo.exceptions.OutOfBounds;
@@ -15,10 +12,8 @@ import com.libcentro.demo.exceptions.ProductNameExists;
 import com.libcentro.demo.model.Categoria;
 import com.libcentro.demo.model.dto.CategoriaDTO;
 import com.libcentro.demo.model.dto.ProductoDTO;
-import com.libcentro.demo.services.CategoriaService;
 import com.libcentro.demo.services.interfaces.IcategoriaService;
 import com.libcentro.demo.utils.FieldAnalyzer;
-import com.libcentro.demo.utils.command.CommandInvoker;
 import com.libcentro.demo.utils.filters.Filter;
 import com.libcentro.demo.view.ConfirmarDialog;
 import com.libcentro.demo.view.productos.*;
@@ -49,9 +44,9 @@ public class ProductosController {
 
 
     //Productos
-    List<Producto> productos;
+    List<ProductoDTO> productos;
 
-    List<Categoria> categorias;
+    List<CategoriaDTO> categorias;
 
     ViewController viewController;
     ProductosFrame productosFrame;
@@ -220,7 +215,7 @@ public class ProductosController {
         agregarProducto = new AgregarProducto();
 
         System.out.println(categorias);
-        for(Categoria categoria : categorias) {
+        for(CategoriaDTO categoria : categorias) {
             agregarProducto.getCategoriaBox().addItem(categoria.getNombre());
 
         }
@@ -228,13 +223,13 @@ public class ProductosController {
             public void actionPerformed(ActionEvent e) {
                 try{
                     FieldAnalyzer.todosLosCamposLlenos(agregarProducto);
-                    Categoria categoriaP = categorias.stream()
+                    CategoriaDTO categoriaDTO = categorias.stream()
                             .filter(categoria -> categoria.getNombre().equals(agregarProducto.getCategoriaBox().getSelectedItem().toString()))
                             .findFirst().orElseThrow();
                     ProductoDTO producto = new ProductoDTO(
                             agregarProducto.getCodigoField().getText(),
                             agregarProducto.getNombreField().getText(),
-                            categoriaP,
+                            categoriaDTO,
                             Float.parseFloat(agregarProducto.getCostoField().getText()),
                             Float.parseFloat(agregarProducto.getPrecioField().getText()),
                             Integer.parseInt(agregarProducto.getCantidadField().getText())
@@ -312,7 +307,7 @@ public class ProductosController {
 
         final Producto[] producto = new Producto[1];
 
-        for(Categoria categoria : categorias) {
+        for(CategoriaDTO categoria : categorias) {
             actualizarUnProducto.getCategoriaBox().addItem(categoria.getNombre());
         }
 
@@ -345,8 +340,8 @@ public class ProductosController {
         actualizarUnProducto.getActualizarButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try{
-                    Categoria categoria = categoriaService.getCategoria(actualizarUnProducto.getCategoriaBox().getSelectedItem().toString());
-                    Producto productoNuevo = new Producto(
+                    CategoriaDTO categoria = categoriaService.getCategoria(actualizarUnProducto.getCategoriaBox().getSelectedItem().toString());
+                    ProductoDTO productoNuevo = new ProductoDTO (
                             actualizarUnProducto.getCodigoField().getText(),
                             actualizarUnProducto.getNombreField().getText(),
                             categoria,
@@ -401,7 +396,7 @@ public class ProductosController {
         actualizarPorCategoria = new ActualizarPorCategoria();
         categorias = categoriaService.getAll();
 
-        for(Categoria categoria: categorias){
+        for(CategoriaDTO categoria: categorias){
             actualizarPorCategoria.getCategoriaBox().addItem(categoria.getNombre());
         }
         JTextField porcentajeField = actualizarPorCategoria.getPorcentajeField();
@@ -418,7 +413,7 @@ public class ProductosController {
                 }
 
                 String cat = actualizarPorCategoria.getCategoriaBox().getSelectedItem().toString();
-                Categoria categoria = categorias.stream().filter(categ -> categ.getNombre().equals(cat)).findFirst().get();
+                CategoriaDTO categoria = categorias.stream().filter(categ -> categ.getNombre().equals(cat)).findFirst().get();
 
                 float porcentaje = Float.parseFloat(actualizarPorCategoria.getPorcentajeField().getText())/100;
                 try {
@@ -488,7 +483,7 @@ public class ProductosController {
         categoriasModel = (DefaultTableModel) agregarCategoria.getTablaCategorias().getModel();
         ListSelectionModel categoriasSelectionModel = (ListSelectionModel) agregarCategoria.getTablaCategorias().getSelectionModel();
 
-        for(Categoria categoria : categorias) {
+        for(CategoriaDTO categoria : categorias) {
             categoriasModel.addRow(new Object[]{categoria.getNombre()});
         }
 
@@ -502,7 +497,7 @@ public class ProductosController {
             public void actionPerformed(ActionEvent e) {
                 var filaSeleccionada = agregarCategoria.getTablaCategorias().getSelectedRow();
                 var columnaSeleccionada = agregarCategoria.getTablaCategorias().getSelectedColumn();
-                Categoria categoria = categorias.stream()
+                CategoriaDTO categoria = categorias.stream()
                         .filter(categoriaT -> categoriaT.getNombre() == categoriasModel.getValueAt(filaSeleccionada, columnaSeleccionada))
                         .findFirst().orElse(null);
 
@@ -547,7 +542,8 @@ public class ProductosController {
         });
         agregarCategoria.getAgregarButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                Categoria categoria = new Categoria(agregarCategoria.getCategoriaField().getText());
+                CategoriaDTO categoria= new CategoriaDTO ();
+                categoria.setNombre (agregarCategoria.getCategoriaField().getText());
                 try{
                     categoriaService.saveCategoria(categoria);
                 } catch (Exception exception){
@@ -583,7 +579,7 @@ public class ProductosController {
 
         List<Producto> productosFiltrados = productos.stream()
                 .filter(producto -> producto.getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
-                        producto.getCodigo_barras().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
+                        producto.getCodigobarras ().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
                         producto.getCategoria().getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*")
                 )
                 .toList();
@@ -607,7 +603,7 @@ public class ProductosController {
         return productoService.getAll();
     }
 
-    private List<Categoria> getAllCategoria(){
+    private List<CategoriaDTO> getAllCategoria(){
         return categoriaService.getAll();
     }
 
@@ -627,31 +623,16 @@ public class ProductosController {
         productoService.saveProducto(x);
     }
 
-    private void addProductoToTable(Producto producto){
-        Categoria categoria = producto.getCategoria();
-
+    private void addProductoToTable(ProductoDTO producto){
 
         productsModel.addRow(new Object[]{
-                producto.getCodigo_barras(),
+                producto.getCodigobarras(),
                 producto.getNombre(),
-                categoria == null? "null" : categoria.getNombre(),
+                producto.getCategoria().getNombre (),
                 producto.getStock(),
                 producto.getCosto_compra(),
                 producto.getPrecio_venta()
         });
-    }
-
-    private void existeProducto(Producto producto) throws RuntimeException {
-
-        Producto p = productos.stream().filter(prod -> prod.getCodigo_barras().equals(producto.getCodigo_barras()) || prod.getNombre().equals(producto.getNombre())).findFirst().orElse(null);
-        if(p != null) {
-            if(p.getNombre().equals(producto.getNombre())) {
-                throw new ProductNameExists("El producto con nombre: " + producto.getNombre() + " ya existe");
-            }
-        else if(p.getCodigo_barras().equals(producto.getCodigo_barras())){
-                throw new ProductExistsInDataBase("El producto con código: " + producto.getCodigo_barras() + " ya existe");
-            }
-        }
     }
 
 

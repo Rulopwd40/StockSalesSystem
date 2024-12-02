@@ -17,7 +17,7 @@ public interface IproductoRepository extends JpaRepository<Producto, String> {
     @Query("SELECT p FROM Producto p " +
             "LEFT JOIN FETCH p.historial_precios hp " +
             "LEFT JOIN FETCH p.historial_costos hc " +
-            "WHERE p.codigo_barras = :codigo")
+            "WHERE p.codigobarras = :codigo")
     Producto getProductoWithHistorialPrecioAndHistorialCosto(@Param("codigo") String codigo_barras);
 
     List<Producto> findByStockLessThanEqual(int cantidad);

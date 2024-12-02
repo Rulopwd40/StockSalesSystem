@@ -42,7 +42,7 @@ public class StockController {
 
             for(Producto producto: productos) {
                 tableModel.addRow(new Object[]{
-                        producto.getCodigo_barras(),
+                        producto.getCodigoBarras (),
                         producto.getNombre(),
                         producto.getStock()
                 });

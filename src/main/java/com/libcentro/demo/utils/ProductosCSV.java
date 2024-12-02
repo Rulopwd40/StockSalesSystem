@@ -5,6 +5,7 @@ import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.model.dto.ProductoDTO;
 import com.libcentro.demo.services.CategoriaService;
 import com.libcentro.demo.view.productos.TratarCategorias;
+import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -17,6 +18,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+@Component
 public class ProductosCSV {
     List<ProductoDTO> productos;
     Map<String,List<ProductoDTO>> productosATratar = new HashMap<>();
@@ -137,7 +139,7 @@ public class ProductosCSV {
         ProductoDTO producto = new ProductoDTO();
 
         if ( datos.length == 6) {
-            producto.setCodigo_barras(datos[0]);
+            producto.setCodigobarras(datos[0]);
             producto.setNombre(datos[1]);
             producto.setCategoria(categoria);
             producto.setStock(Integer.parseInt(datos[3]));
@@ -162,7 +164,8 @@ public class ProductosCSV {
     }
     private boolean crearCategorias(int row){
             String key= tableModel.getValueAt(row,0).toString();
-            Categoria categoria = new Categoria(key);
+            Categoria categoria = new Categoria();
+            categoria.setNombre (key);
             categoriaService.saveCategoria(categoria);
             categoriasCreadas.add(categoria);
 

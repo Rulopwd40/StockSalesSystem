@@ -2,12 +2,11 @@ package com.libcentro.demo.services;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
 
 import com.libcentro.demo.model.Producto;
-import com.libcentro.demo.model.ProductoFStock;
 import com.libcentro.demo.model.Venta_Producto;
+import com.libcentro.demo.model.dto.ProductoDTO;
 import com.libcentro.demo.utils.GeneradorTicket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -59,10 +58,17 @@ public class VentaService implements IventaService {
 
         for(Venta_Producto ventaProducto : venta.getListaProductos()){
             Producto productoVenta= ventaProducto.getProducto();
-            Producto productoO = productoService.getProducto(productoVenta.getCodigo_barras());
+            Producto productoO = productoService.getProducto(productoVenta.getCodigoBarras ());
 
-            productoO.setStock(productoO.getStock()-ventaProducto.getCantidad());
-            productoService.updateProducto(productoO);
+            ProductoDTO productoDTO = new ProductoDTO (productoO.getCodigoBarras (),
+                    productoO.getNombre (),
+                    productoO.getCategoria (),
+                    productoO.getCosto_compra (),
+                    productoO.getPrecio_venta (),
+                    productoO.getStock ());
+
+            productoDTO.setStock(productoO.getStock()-ventaProducto.getCantidad());
+            productoService.updateProducto(productoDTO);
         }
 
 

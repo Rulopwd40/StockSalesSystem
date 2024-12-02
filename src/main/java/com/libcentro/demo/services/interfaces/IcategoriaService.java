@@ -1,17 +1,18 @@
 package com.libcentro.demo.services.interfaces;
 
 import com.libcentro.demo.model.Categoria;
+import com.libcentro.demo.model.dto.CategoriaDTO;
 
 import java.util.List;
 
 public interface IcategoriaService {
 
 
-    Categoria getCategoria(String nombre);
+    CategoriaDTO getCategoria( String nombre);
 
-    public List<Categoria> getAll();
-    public void saveCategoria(Categoria x);
-    public void deleteCategoria(Categoria x);
+    public List<CategoriaDTO> getAll();
+    public void saveCategoria( CategoriaDTO x);
+    public void deleteCategoria( CategoriaDTO x);
     public void updateCategoria(Categoria x);
 
 }

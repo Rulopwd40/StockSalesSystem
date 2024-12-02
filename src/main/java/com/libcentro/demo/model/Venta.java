@@ -1,11 +1,13 @@
 package com.libcentro.demo.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 
 import java.time.LocalDate;
 import java.util.*;
 
+@Data
 @Entity
 @Table(name = "venta")
 public class Venta {
@@ -16,7 +18,7 @@ public class Venta {
     @Column(name = "fecha")
     private String fecha;
     @Column(name = "total")
-    private float total;
+    private double total;
     @Column(name = "estado")
     private boolean estado;
 
@@ -41,29 +43,9 @@ public class Venta {
 
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getFecha() {
-        return fecha;
-    }
-
-    public void setFecha(String fecha) {
-        this.fecha = fecha;
-    }
-
-    public float getTotal() {
-        return total;
-    }
-
     public void updateTotal() {
         total=0;
-        float totalProducto;
+        double totalProducto;
         for(Venta_Producto v : listaProductos){
             total+= v.getTotal();
         }
@@ -75,21 +57,7 @@ public class Venta {
         total = Math.round(total * 100.0f) / 100.0f;
     }
 
-    public Set<Venta_Producto> getListaProductos() {
-        return listaProductos;
-    }
 
-    public void setListaProductos(Set<Venta_Producto> listaProductos) {
-        this.listaProductos = listaProductos;
-    }
-
-    public Set<ProductoFStock> getListaProductosF() {
-        return listaProductosF;
-    }
-
-    public void setListaProductosF(Set<ProductoFStock> listaProductosF) {
-        this.listaProductosF = listaProductosF;
-    }
 
     public Set<Object> getTodosLosProductos(){
         Set<Object> productos = new HashSet<>();

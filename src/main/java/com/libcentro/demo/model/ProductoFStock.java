@@ -4,9 +4,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.util.Objects;
 
+@Data
 @Entity
 @Table(name="producto_fuera_de_stock")
 public class ProductoFStock {
@@ -33,64 +35,13 @@ public class ProductoFStock {
         descuento=0;
     }
 
-    public ProductoFStock(Venta venta, String nombre, String cantidad, String precio, String descuento) {
-        this.venta = venta;
+    public ProductoFStock(String nombre, String cantidad, String precio, String descuento) {
         this.nombre = nombre;
         this.cantidad = Integer.parseInt(cantidad);
         this.precio_venta = Float.parseFloat(precio);
         this.descuento = Float.parseFloat(descuento);
     }
 
-    public String getNombre() {
-        return nombre;
-    }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public float getPrecio_venta() {
-        return precio_venta;
-    }
-
-    public void setPrecio_venta(float precio_venta) {
-        this.precio_venta = precio_venta;
-    }
-
-    public int getCantidad() {
-        return cantidad;
-    }
-
-    public void setCantidad(int cantidad) {
-        this.cantidad = cantidad;
-    }
-    public float getDescuento() {
-        return descuento;
-    }
-
-    public void setDescuento(float descuento) {
-        this.descuento = descuento;
-    }
-
-    public float getTotal(){
-        return precio_venta*cantidad-descuento/100*cantidad*precio_venta;
-    };
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true; // Si son la misma instancia
-        if (o == null || getClass() != o.getClass()) return false; // Si el objeto es de otro tipo
-
-        ProductoFStock producto = (ProductoFStock) o;
-
-        // Comparamos por codigo_barras o por algún otro identificador único
-        return Objects.equals(nombre, producto.getNombre());
-    }
-
-    @Override
-    public int hashCode() {
-        return nombre != null ? nombre.hashCode() : 0;
-    }
 
 }

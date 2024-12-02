@@ -252,7 +252,7 @@ public class VentaController {
                     String precio = apfsDialog.getPrecioField().getText();
 
                     ProductoFStock producto;
-                    producto = new ProductoFStock(venta,nombre,cantidad,precio,"0");
+                    producto = new ProductoFStock(nombre,cantidad,precio,"0");
                     venta.addProducto(producto);
 
 
@@ -362,8 +362,8 @@ public class VentaController {
 
             if (ventaProducto != null) {
                 if (finalProducto.getStock() < ventaProducto.getCantidad() + cantidad) {
-                    JOptionPane.showMessageDialog(null, "El producto " + finalProducto.getNombre() + " con código: " + finalProducto.getCodigo_barras() + " no tiene stock suficiente.");
-                    throw new InsufficientStockException("El producto " + finalProducto.getNombre() + " con código: " + finalProducto.getCodigo_barras() + " no tiene stock suficiente.");
+                    JOptionPane.showMessageDialog(null, "El producto " + finalProducto.getNombre() + " con código: " + finalProducto.getCodigobarras () + " no tiene stock suficiente.");
+                    throw new InsufficientStockException("El producto " + finalProducto.getNombre() + " con código: " + finalProducto.getCodigobarras () + " no tiene stock suficiente.");
                 }
                 ventaProducto.setProducto(producto, ventaProducto.getCantidad() + cantidad);
             } else {
