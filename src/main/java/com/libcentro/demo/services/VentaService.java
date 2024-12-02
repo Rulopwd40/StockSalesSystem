@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.model.Venta_Producto;
+import com.libcentro.demo.model.dto.CategoriaDTO;
 import com.libcentro.demo.model.dto.ProductoDTO;
 import com.libcentro.demo.utils.GeneradorTicket;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,11 +59,13 @@ public class VentaService implements IventaService {
 
         for(Venta_Producto ventaProducto : venta.getListaProductos()){
             Producto productoVenta= ventaProducto.getProducto();
-            Producto productoO = productoService.getProducto(productoVenta.getCodigoBarras ());
+            Producto productoO = productoService.getProducto(productoVenta.getCodigobarras ());
 
-            ProductoDTO productoDTO = new ProductoDTO (productoO.getCodigoBarras (),
+            CategoriaDTO categoriaDTO = new CategoriaDTO(productoO.getCategoria ());
+
+            ProductoDTO productoDTO = new ProductoDTO (productoO.getCodigobarras (),
                     productoO.getNombre (),
-                    productoO.getCategoria (),
+                    categoriaDTO,
                     productoO.getCosto_compra (),
                     productoO.getPrecio_venta (),
                     productoO.getStock ());

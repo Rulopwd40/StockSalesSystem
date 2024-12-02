@@ -14,26 +14,24 @@ public class Producto {
 
     @Id
     private String codigobarras;
-    @Column(name = "nombre")
+
     private String nombre;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "categoria", referencedColumnName = "id")
     private Categoria categoria;
-    @Column(name = "costo_compra")
+
     private double costo_compra;
-    @Column(name = "precio_venta")
+
     private double precio_venta;
 
-    @Column(name = "costo_inicial")
     private Integer costo_inicial;
 
-    @Column(name = "stock")
     private int stock;
 
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<HistorialPrecio> historial_precios;
+    private List<HistorialPrecio> historial_precios = new ArrayList<>();
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<HistorialCosto> historial_costos;
+    private List<HistorialCosto> historial_costos = new ArrayList<>();
 
 
     public Producto() {
@@ -47,20 +45,19 @@ public class Producto {
         this.precio_venta = producto.getPrecio_venta();
         this.costo_compra = producto.getCosto_compra();
         this.stock = producto.getStock();
-        historial_precios = new HashSet<>();
-        historial_costos = new HashSet<>();
-
+        this.historial_precios = producto.getHistorial_precios ();
+        this.historial_costos = producto.getHistorial_costos ();
     }
 
     public Producto(ProductoDTO producto) {
         this.codigobarras = producto.getCodigobarras();
         this.nombre = producto.getNombre();
-        this.categoria = producto.getCategoria();
+        this.categoria = new Categoria (producto.getCategoria());
         this.precio_venta = producto.getPrecio_venta();
         this.costo_compra = producto.getCosto_compra();
         this.stock = producto.getStock();
-        historial_precios = new HashSet<>();
-        historial_costos = new HashSet<>();
+        this.historial_precios = new ArrayList<>();
+        this.historial_costos = new ArrayList<>();
     }
 
 
@@ -71,5 +68,7 @@ public class Producto {
         this.costo_compra = costoCompra;
         this.precio_venta = precioVenta;
         this.stock = stock;
+        this.historial_precios = new ArrayList<>();
+        this.historial_costos = new ArrayList<>();
     }
 }

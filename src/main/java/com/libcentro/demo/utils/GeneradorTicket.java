@@ -80,7 +80,7 @@ public class GeneradorTicket implements Printable {
         }
 
         // Calcular el total final y formatearlo
-        float totalVenta = venta.getTotal(); // Obtener el total como float
+        double totalVenta = venta.getTotal(); // Obtener el total como float
         String totalFormateado = String.format("$%.2f", totalVenta); // Formatear el total
 
         // Formatear fecha

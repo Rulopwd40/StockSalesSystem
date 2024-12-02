@@ -5,6 +5,11 @@ import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.services.interfaces.IhistorialService;
 import com.libcentro.demo.services.interfaces.IproductoService;
+import org.hibernate.Hibernate;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 public class UpdateProductCommand implements Command {
 
@@ -31,20 +36,30 @@ public class UpdateProductCommand implements Command {
         boolean cantidadCambiada = cantidad != 0;
         boolean precioVentaCambiado = viejoProducto.getPrecio_venta() != nuevoProducto.getPrecio_venta();
 
-        if (costoCambiado && cantidad > 0) {
-            historialService.crearHistorialCosto (nuevoProducto,nuevoProducto.getCosto_compra(),cantidad, HistorialCosto.Estado.INICIAL);
+        if (costoCambiado && cantidadCambiada) {
+            System.out.println("Entro primer if con cantidad:" + cantidad);
+            HistorialCosto historialCosto = historialService.crearHistorialCosto (nuevoProducto,nuevoProducto.getCosto_compra(),cantidad, HistorialCosto.Estado.SIGUIENTE);
+            nuevoProducto.getHistorial_costos ().add(historialCosto);
         } else if (cantidadCambiada && !costoCambiado) {
-            HistorialCosto historialExistente = historialService.findLastHistorialCosto(viejoProducto);
+            System.out.println("Entro 2do if: " + cantidad);
+            Hibernate.initialize (viejoProducto.getHistorial_costos ());
+            List<HistorialCosto> historialCostos = viejoProducto.getHistorial_costos();
 
-            historialExistente.setCantidad(historialExistente.getCantidad() + cantidad);
-            historialService.save(historialExistente);
+            Optional<HistorialCosto> historialCosto = historialCostos.stream()
+                    .max(Comparator.comparing(HistorialCosto::getFecha));
+
+            historialCosto.ifPresent (historialExistente -> {
+                historialExistente.setCantidad(historialExistente.getCantidad() + cantidad);
+            });
+
         } else if(costoCambiado && !cantidadCambiada){
             throw new RuntimeException("No se puede cambiar el costo sin una variación en la cantidad");
         }
 
         // Actualizar precio de venta
         if (precioVentaCambiado) {
-            HistorialPrecio nuevoHistorialPrecio = new HistorialPrecio(nuevoProducto,nuevoProducto.getPrecio_venta());
+            System.out.println("Entro 3do if");
+            HistorialPrecio nuevoHistorialPrecio = historialService.crearHistorialPrecio(nuevoProducto,nuevoProducto.getPrecio_venta());
             historialService.save(nuevoHistorialPrecio);
         }
         productoService.saveProducto(nuevoProducto);
@@ -53,27 +68,27 @@ public class UpdateProductCommand implements Command {
 
     @Override
     public void undo() {
-        // Revertir la cantidad y el costo de compra
+
         int cantidad = nuevoProducto.getStock() - viejoProducto.getStock();
         boolean costoCambiado = viejoProducto.getCosto_compra() != nuevoProducto.getCosto_compra();
         boolean cantidadCambiada = cantidad != 0;
         boolean precioVentaCambiado = viejoProducto.getPrecio_venta() != nuevoProducto.getPrecio_venta();
 
-        // Si el costo cambió y se creó un nuevo historial, eliminarlo
+
         if (costoCambiado && cantidad > 0) {
-            // Encontrar el último historial de costos y eliminarlo
+
             HistorialCosto ultimoHistorial = historialService.findLastHistorialCosto(nuevoProducto);
             historialService.delete(ultimoHistorial);
         } else if (cantidadCambiada && !costoCambiado) {
-            // Restar la cantidad agregada previamente al historial actual
+
             HistorialCosto historialExistente = historialService.findLastHistorialCosto(nuevoProducto);
             historialExistente.setCantidad(historialExistente.getCantidad() - cantidad);
             historialService.save(historialExistente);
         }
 
-        // Revertir el precio de venta
+
         if (precioVentaCambiado) {
-            // Encontrar y eliminar el último historial de precios
+
             HistorialPrecio ultimoHistorialPrecio = historialService.findLastHistorialPrecio(nuevoProducto);
             historialService.delete(ultimoHistorialPrecio);
         }

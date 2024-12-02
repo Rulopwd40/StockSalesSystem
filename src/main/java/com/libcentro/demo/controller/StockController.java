@@ -2,6 +2,7 @@ package com.libcentro.demo.controller;
 
 
 import com.libcentro.demo.model.Producto;
+import com.libcentro.demo.model.dto.ProductoDTO;
 import com.libcentro.demo.services.interfaces.IproductoService;
 import com.libcentro.demo.view.productos.StockControl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ public class StockController {
     IproductoService productoService;
 
 
-    List<Producto> productos;
+    List<ProductoDTO> productos;
 
     @Autowired
     public StockController(IproductoService productoService) {
@@ -40,9 +41,9 @@ public class StockController {
             tableModel.addColumn("Nombre");
             tableModel.addColumn("Cantidad");
 
-            for(Producto producto: productos) {
+            for(ProductoDTO producto: productos) {
                 tableModel.addRow(new Object[]{
-                        producto.getCodigoBarras (),
+                        producto.getCodigobarras (),
                         producto.getNombre(),
                         producto.getStock()
                 });

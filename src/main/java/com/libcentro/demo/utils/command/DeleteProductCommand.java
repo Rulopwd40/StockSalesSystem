@@ -5,7 +5,9 @@ import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.services.interfaces.IhistorialService;
 import com.libcentro.demo.services.interfaces.IproductoService;
+import org.hibernate.Hibernate;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,22 +26,26 @@ public class DeleteProductCommand implements Command {
 
         // Clona los historiales
         this.historialPrecioClonado = new HashSet<>();
-        for (HistorialPrecio precio : historialService.findAllPreciosByProducto(producto)) {
+        Hibernate.initialize (producto.getHistorial_precios ());
+        for (HistorialPrecio precio : producto.getHistorial_precios ()) {
             historialPrecioClonado.add(cloneHistorialPrecio(precio));
         }
+        producto.setHistorial_precios(Collections.emptyList ());
+
 
         this.historialCostoClonado = new HashSet<>();
-        for (HistorialCosto costo : historialService.findAllCostosByProducto(producto)) {
+        Hibernate.initialize (producto.getHistorial_costos ());
+        for (HistorialCosto costo : producto.getHistorial_costos ()) {
             historialCostoClonado.add(cloneHistorialCosto(costo));
         }
-
+        producto.setHistorial_costos(Collections.emptyList ());
         this.historialService = historialService;
 
     }
 
     @Override
     public void execute() {
-        productoService.deleteProductoByCodigo(productoOriginal.getCodigoBarras ());
+        productoService.deleteProductoByCodigo(productoOriginal.getCodigobarras ());
     }
 
     @Override
@@ -47,7 +53,7 @@ public class DeleteProductCommand implements Command {
         // Restaurar el producto
         Producto producto = new Producto(productoOriginal);
         productoService.saveProducto(producto);
-        producto = productoService.getProducto(productoOriginal.getCodigoBarras ());
+        producto = productoService.getProducto(productoOriginal.getCodigobarras ());
 
         // Restaurar los historiales
         for (HistorialPrecio precio : historialPrecioClonado) {
@@ -65,7 +71,7 @@ public class DeleteProductCommand implements Command {
         HistorialPrecio clone = new HistorialPrecio();
         clone.setPrecio_venta(original.getPrecio_venta());
         clone.setFecha(original.getFecha());
-        // Clonar otras propiedades según sea necesario
+
         return clone;
     }
 
@@ -75,7 +81,7 @@ public class DeleteProductCommand implements Command {
         clone.setCantidad(original.getCantidad());
         clone.setEstado(original.getEstado ());
         clone.setFecha(original.getFecha());
-        // Clonar otras propiedades según sea necesario
+
         return clone;
     }
 }

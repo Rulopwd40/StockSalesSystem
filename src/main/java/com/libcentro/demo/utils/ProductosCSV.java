@@ -2,6 +2,7 @@ package com.libcentro.demo.utils;
 
 import com.libcentro.demo.model.Categoria;
 import com.libcentro.demo.model.Producto;
+import com.libcentro.demo.model.dto.CategoriaDTO;
 import com.libcentro.demo.model.dto.ProductoDTO;
 import com.libcentro.demo.services.CategoriaService;
 import com.libcentro.demo.view.productos.TratarCategorias;
@@ -26,7 +27,7 @@ public class ProductosCSV {
     TratarCategorias tc;
     JTable table;
     DefaultTableModel tableModel;
-    Set<Categoria> categoriasCreadas=new HashSet<>();
+    List<CategoriaDTO> categoriasCreadas=new ArrayList<>();
 
 
     public List<ProductoDTO> obtenerProductos( String file, CategoriaService categoriaService) throws IOException {
@@ -45,7 +46,7 @@ public class ProductosCSV {
             while ((linea = br.readLine()) != null) {
                 String[] datos = linea.split(separador);
 
-                Categoria categoria= categoriaService.getCategoria(datos[2]);
+                CategoriaDTO categoria= categoriaService.getCategoria(datos[2]);
                 if(categoria==null) {
                     productosATratar.putIfAbsent(datos[2],new ArrayList<ProductoDTO>());
                 }
@@ -135,7 +136,7 @@ public class ProductosCSV {
         return productos;
     }
 
-    private static ProductoDTO getProductoDTO ( String[] datos, Categoria categoria ){
+    private static ProductoDTO getProductoDTO ( String[] datos, CategoriaDTO categoria ){
         ProductoDTO producto = new ProductoDTO();
 
         if ( datos.length == 6) {
@@ -164,7 +165,7 @@ public class ProductosCSV {
     }
     private boolean crearCategorias(int row){
             String key= tableModel.getValueAt(row,0).toString();
-            Categoria categoria = new Categoria();
+            CategoriaDTO categoria = new CategoriaDTO();
             categoria.setNombre (key);
             categoriaService.saveCategoria(categoria);
             categoriasCreadas.add(categoria);
@@ -190,9 +191,9 @@ public class ProductosCSV {
         tableCategoriasModel.setRowCount(0);
         tc.getElegirButton().setEnabled(true);
 
-        List<Categoria> categorias = categoriaService.getAll();
+        List<CategoriaDTO> categorias = categoriaService.getAll();
 
-        for (Categoria categoria : categorias) {
+        for (CategoriaDTO categoria : categorias) {
             tableCategoriasModel.addRow(new Object[]{categoria.getNombre()});
         }
 
@@ -226,7 +227,7 @@ public class ProductosCSV {
     }
 
     private boolean cambiarCategoria(String string,List<ProductoDTO> productosTratar) {
-        Categoria categoria = categoriaService.getCategoria(string);
+        CategoriaDTO categoria = categoriaService.getCategoria(string);
         for (ProductoDTO p : productosTratar) {
             p.setCategoria(categoria);
         }

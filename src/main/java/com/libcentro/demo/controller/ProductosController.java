@@ -7,9 +7,6 @@ import java.util.regex.Pattern;
 
 import com.libcentro.demo.exceptions.EmptyFieldException;
 import com.libcentro.demo.exceptions.OutOfBounds;
-import com.libcentro.demo.exceptions.ProductExistsInDataBase;
-import com.libcentro.demo.exceptions.ProductNameExists;
-import com.libcentro.demo.model.Categoria;
 import com.libcentro.demo.model.dto.CategoriaDTO;
 import com.libcentro.demo.model.dto.ProductoDTO;
 import com.libcentro.demo.services.interfaces.IcategoriaService;
@@ -577,7 +574,7 @@ public class ProductosController {
 
         String filterT = filter.toLowerCase();
 
-        List<Producto> productosFiltrados = productos.stream()
+        List<ProductoDTO> productosFiltrados = productos.stream()
                 .filter(producto -> producto.getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
                         producto.getCodigobarras ().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
                         producto.getCategoria().getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*")
@@ -589,7 +586,7 @@ public class ProductosController {
         }
 
         // Agregar los productos al modelo de la tabla
-        for (Producto producto : productosFiltrados) {
+        for (ProductoDTO producto : productosFiltrados) {
             addProductoToTable(producto);
         }
     }
@@ -599,24 +596,12 @@ public class ProductosController {
         productos = getAllProducto();
     }
 
-    private List<Producto> getAllProducto() {
+    private List<ProductoDTO> getAllProducto() {
         return productoService.getAll();
     }
 
     private List<CategoriaDTO> getAllCategoria(){
         return categoriaService.getAll();
-    }
-
-    public void cargarMasiva(List<Producto> testInventario) {
-        for (Producto d : testInventario) {
-            productoService.saveProducto(d);
-        }
-    }
-
-    public void listarProductos() {
-        for (Producto d : productoService.getAll()) {
-            System.out.println(d.toString());
-        }
     }
 
     public void saveProducto(Producto x) {

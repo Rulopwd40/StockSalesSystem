@@ -1,6 +1,7 @@
 package com.libcentro.demo.repository;
 
 import com.libcentro.demo.model.Categoria;
+import com.libcentro.demo.model.dto.CategoriaDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,7 +13,7 @@ import java.util.List;
 @Repository
 public interface IproductoRepository extends JpaRepository<Producto, String> {
 
-    List<Producto> findAllByCategoria(Categoria categoria);
+    List<Producto> findAllByCategoria( Categoria categoria );
 
     @Query("SELECT p FROM Producto p " +
             "LEFT JOIN FETCH p.historial_precios hp " +

@@ -11,8 +11,8 @@ public interface IcategoriaService {
     CategoriaDTO getCategoria( String nombre);
 
     public List<CategoriaDTO> getAll();
-    public void saveCategoria( CategoriaDTO x);
+    public CategoriaDTO saveCategoria( CategoriaDTO x);
     public void deleteCategoria( CategoriaDTO x);
-    public void updateCategoria(Categoria x);
+    public void updateCategoria(CategoriaDTO x);
 
 }
