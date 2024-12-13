@@ -21,6 +21,6 @@ public class AddProductCommand implements Command {
 
     @Override
     public void undo() {
-        productoService.deleteProducto(producto);
+        productoService.deleteProductoByCodigo (producto.getCodigobarras());
     }
 }

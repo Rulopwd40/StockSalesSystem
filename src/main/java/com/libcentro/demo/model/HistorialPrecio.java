@@ -28,10 +28,7 @@ public class HistorialPrecio  {
     @JoinColumn(name = "codigobarras")
     Producto producto;
 
-    @Column(name="precio_venta")
     private double precio_venta;
-
-    @Column(name="fecha")
     private String fecha;
 
 

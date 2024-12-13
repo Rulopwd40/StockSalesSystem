@@ -23,16 +23,13 @@ public class HistorialCosto {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "codigobarras") // Asegúrate de que esta columna exista en la tabla
+    @JoinColumn(name = "codigobarras")
     private Producto producto;
 
 
     private double costo_compra;
-
     private int cantidad;
-
     Estado estado;
-
     private String fecha;
 
 

@@ -19,13 +19,9 @@ public class Producto {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "categoria", referencedColumnName = "id")
     private Categoria categoria;
-
     private double costo_compra;
-
     private double precio_venta;
-
     private Integer costo_inicial;
-
     private int stock;
 
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

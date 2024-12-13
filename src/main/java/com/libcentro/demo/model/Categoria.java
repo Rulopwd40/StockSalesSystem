@@ -15,8 +15,6 @@ public class Categoria {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
-    @Column(name = "categoria", nullable = false)
     private String nombre;
 
     public Categoria ( CategoriaDTO categoria ){

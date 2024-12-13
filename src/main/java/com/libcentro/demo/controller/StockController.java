@@ -24,9 +24,6 @@ public class StockController {
     @Autowired
     public StockController(IproductoService productoService) {
         this.productoService = productoService;
-
-
-
     }
 
     public void stockControl(boolean modal) {

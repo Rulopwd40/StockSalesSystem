@@ -21,10 +21,13 @@ public class CategoriaService implements IcategoriaService {
     public CategoriaDTO getCategoria(String nombre) {
         Categoria categoria = categoriaRepository.findByNombre(nombre);
 
-        CategoriaDTO categoriaDTO = new CategoriaDTO();
-        categoriaDTO.setNombre(categoria.getNombre());
-        categoriaDTO.setId(categoria.getId());
-        return categoriaDTO;
+        if(categoria != null) {
+            CategoriaDTO categoriaDTO = new CategoriaDTO ();
+            categoriaDTO.setNombre (categoria.getNombre ());
+            categoriaDTO.setId (categoria.getId ());
+            return categoriaDTO;
+        }
+        return null;
     }
 
     @Override

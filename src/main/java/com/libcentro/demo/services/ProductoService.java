@@ -1,8 +1,6 @@
 package com.libcentro.demo.services;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -14,21 +12,20 @@ import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.model.dto.CategoriaDTO;
 import com.libcentro.demo.model.dto.ProductoDTO;
 import com.libcentro.demo.repository.IcategoriaRepository;
-import com.libcentro.demo.services.interfaces.IcategoriaService;
 import com.libcentro.demo.services.interfaces.IhistorialService;
 import com.libcentro.demo.utils.ProductosCSV;
 import com.libcentro.demo.utils.command.*;
 import com.libcentro.demo.view.productos.ProgresoProductos;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.repository.IproductoRepository;
 import com.libcentro.demo.services.interfaces.IproductoService;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.swing.*;
 
@@ -43,9 +40,7 @@ public class ProductoService implements IproductoService {
     private IcategoriaRepository categoriaRepository;
 
     @Autowired
-    private TransactionTemplate transactionTemplate;
-    @PersistenceContext
-    private EntityManager entityManager;
+    private EntityManager em;
 
     @Autowired
     ProductosCSV productosCSV;
@@ -97,27 +92,23 @@ public class ProductoService implements IproductoService {
     @Override
     public boolean importarCSV(String path) {
         List<ProductoDTO> productosARC;
-
-        // Obtener productos desde el archivo CSV
         try {
             productosARC = productosCSV.obtenerProductos(path, categoriaService);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        // Obtener los productos ya existentes
+
+        System.out.println("3");
         List<ProductoDTO> productos = getAll();
 
-        // Inicializar el diálogo de progreso con la cantidad total de productos a procesar
         ProgresoProductos progresoDialog = new ProgresoProductos(null, productosARC.size());
 
-        // Crear un SwingWorker para procesar los productos en segundo plano
         SwingWorker<Void, Integer> worker = new SwingWorker<Void, Integer>() {
             int cuentaActualizados = 0;
             int cuentaCreados = 0;
 
             @Override
             protected Void doInBackground() throws Exception {
-                // Mostrar el diálogo de progreso
                 SwingUtilities.invokeLater(() -> progresoDialog.mostrar());
 
                 for (int i = 0; i < productosARC.size(); i++) {
@@ -126,7 +117,7 @@ public class ProductoService implements IproductoService {
                         Optional<Producto> productoOpt;
                         Producto producto;
                         if ((productoOpt = productoRepository.findById(productoDTO.getCodigobarras())).isPresent ()) {
-                            Categoria categoria = categoriaRepository.findByNombre (productoDTO.getCategoria ().getNombre ());
+                            Categoria categoria = categoriaRepository.findByNombre (productoDTO.getCategoria().getNombre());
                             producto = productoOpt.get ();
                             producto.setNombre (productoDTO.getNombre());
                             producto.setCategoria (categoria);
@@ -141,10 +132,8 @@ public class ProductoService implements IproductoService {
                             cuentaCreados++;
                         }
 
-                        // Publicar el progreso
                         publish(i + 1); // Actualizar la barra de progreso
                     } catch (Exception e) {
-                        // Manejo de errores dentro del ciclo
                         JOptionPane.showMessageDialog(null, "Error al procesar el producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
@@ -153,17 +142,15 @@ public class ProductoService implements IproductoService {
 
             @Override
             protected void process(List<Integer> chunks) {
-                // Actualizar la barra de progreso con el progreso actual
                 int productosProcesados = chunks.get(chunks.size() - 1);
                 progresoDialog.actualizarProgreso(productosProcesados, productosARC.size());
             }
 
             @Override
             protected void done() {
-                // Finalizar el diálogo cuando el proceso esté completo
                 progresoDialog.finalizar();
                 try {
-                    get(); // Asegurar que no haya excepciones
+                    get();
                     JOptionPane.showMessageDialog(null, "Productos creados: " + cuentaCreados + " Productos actualizados: " + cuentaActualizados, "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(null, "Error durante el procesamiento: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -172,32 +159,15 @@ public class ProductoService implements IproductoService {
                 }
             }
         };
-
-        // Ejecutar el SwingWorker
         worker.execute();
         return true;
-    }
-
-    @Override
-    public void deleteProducto(Producto x) {
-        productoRepository.deleteById(x.getCodigobarras ());
-        productoRepository.flush();
     }
 
     @Override
     public void deleteProductoByCodigo(String codigo_barras){
         productoRepository.deleteById(codigo_barras);
     }
-    @Override
-    public void deleteProducto(String codigo_barras){
-        Producto producto = productoRepository.getProductoWithHistorialPrecioAndHistorialCosto(codigo_barras);
-        commandInvoker.executeCommand(new DeleteProductCommand(this, producto,historialService));
-    }
 
-    @Override
-    public void updateProductoCSV ( Producto producto ){
-
-    }
 
     @Override
     public void updateProducto( ProductoDTO productoActualizado) {
@@ -214,7 +184,6 @@ public class ProductoService implements IproductoService {
                 );
         commandInvoker.executeCommand(new UpdateProductCommand(this, historialService,productoActual,producto));
     }
-
 
     @Override
     public void updateProductosBy( CategoriaDTO categoriaDto, double porcentaje) {
@@ -234,8 +203,8 @@ public class ProductoService implements IproductoService {
 
         List<Producto> productosNuevos = productosViejos.stream()
                 .map(productoViejo -> {
-                    Producto nuevoProducto = new Producto(productoViejo); // Asumimos que Producto tiene un constructor copia
-                    double nuevoPrecio = Math.round (nuevoProducto.getPrecio_venta() + (nuevoProducto.getPrecio_venta() * porcentaje * 100d))/ 100d;
+                    Producto nuevoProducto = new Producto(productoViejo);
+                    double nuevoPrecio = nuevoProducto.getPrecio_venta() + Math.round(nuevoProducto.getPrecio_venta() * porcentaje * 100d)/ 100d;
                     nuevoProducto.setPrecio_venta(nuevoPrecio);
                     return nuevoProducto;
                 })
@@ -246,12 +215,15 @@ public class ProductoService implements IproductoService {
     }
 
     @Override
-    public Producto getProducto(String codigo_barras){
-        return productoRepository.findById(codigo_barras).orElse(null);
+    public ProductoDTO getProducto(String codigo_barras) throws ObjectNotFoundException{
+        return productoRepository.findById(codigo_barras).stream()
+                .map(ProductoDTO::new)
+                .findFirst()
+                .orElseThrow (ObjectNotFoundException::new(Producto.class,"Producto"));
     }
 
     @Override
-    public Producto getProducto(String codigo_barras, int cantidad) {
+    public ProductoDTO getProducto(String codigo_barras, int cantidad) {
         Producto producto= productoRepository.findById(codigo_barras).orElse(null);
         if(producto==null) {
             throw new RuntimeException("El producto con codigo: " + codigo_barras + " no existe.");
@@ -259,23 +231,8 @@ public class ProductoService implements IproductoService {
         else if(cantidad >= producto.getStock()){
             throw new InsufficientStockException("Cantidad insuficiente del producto: " + codigo_barras);
         }
-        return producto;
+        return new ProductoDTO(producto);
     }
-
-    @Override
-    public void venderProducto ( Producto producto, int cantidad ){
-
-    }
-
-   /* @Override
-    public void venderProducto(Producto producto, int cantidad){
-        Producto productoExistente = productoRepo.findById(producto.getCodigo_barras())
-                .orElseThrow(() -> new ObjectNotFoundException(Producto.class, producto.getCodigo_barras()));
-
-        productoExistente.setStock(producto.getStock()-cantidad);
-        productoRepo.save(productoExistente);
-    }
-*/
 
     @Override
     public void undo(){

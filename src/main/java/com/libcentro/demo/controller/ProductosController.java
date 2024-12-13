@@ -17,9 +17,8 @@ import com.libcentro.demo.view.productos.*;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Controller;
-
-import com.libcentro.demo.model.Producto;
 
 import com.libcentro.demo.services.interfaces.IproductoService;
 
@@ -36,26 +35,27 @@ import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 @Controller
 public class ProductosController {
 
+    //Services
     private final IproductoService productoService;
     private final IcategoriaService categoriaService;
 
-
-    //Productos
-    List<ProductoDTO> productos;
-
-    List<CategoriaDTO> categorias;
-
+    //Controllers
     ViewController viewController;
     ProductosFrame productosFrame;
 
-    DefaultTableModel productsModel;
-    DefaultTableModel categoriasModel;
+    //Productos
+    List<ProductoDTO> productos;
+    List<CategoriaDTO> categorias;
 
+    //Vistas
     AgregarProducto agregarProducto;
     ActualizarUnProducto actualizarUnProducto;
     ActualizarPorCategoria actualizarPorCategoria;
-
     AgregarCategoria agregarCategoria;
+
+    //Modelos de tabla
+    DefaultTableModel productsModel;
+    DefaultTableModel categoriasModel;
 
 
     @Autowired
@@ -100,7 +100,6 @@ public class ProductosController {
     }
 
     private void productosFrameAddListeners(){
-
         productosFrame.getSinStockCheckBox().addActionListener( new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 productosFrameUpdateTable();
@@ -124,12 +123,12 @@ public class ProductosController {
                 productosFrameUpdateTable(productosFrame.getBuscarField().getText());
             }
         });
+
         productosFrame.getUnProductoButton().addActionListener(new ActionListener() {
            public void actionPerformed(ActionEvent e) {
                agregarProducto();
            }
         });
-
         productosFrame.getImportarCsvButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 importarCSV();
@@ -177,7 +176,6 @@ public class ProductosController {
                 productosFrameUpdateTable();
             }
         });
-
         productosFrame.getGeneralButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -198,13 +196,15 @@ public class ProductosController {
         productosFrame.getEliminarProductoButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                    eliminarProducto();
-                    productosFrameUpdateTable();
+                    ConfirmarDialog cd = new ConfirmarDialog ("Borrar? esta accion no se puede deshacer");
+                    cd.setVisible(true);
+                    if(cd.isAceptar ()) {
+                        eliminarProducto ();
+                        productosFrameUpdateTable ();
+                    }
             }
         });
     }
-
-
 
     //Agregar
     private void agregarProducto() {
@@ -272,7 +272,6 @@ public class ProductosController {
                 }catch (RuntimeException ex){
                     JOptionPane.showMessageDialog(null,ex.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
                     throw new RuntimeException(ex.getMessage());
-
                 }
                 productosFrameUpdateTable();
             }
@@ -302,7 +301,7 @@ public class ProductosController {
         categorias= getAllCategoria();
         actualizarUnProducto = new ActualizarUnProducto();
 
-        final Producto[] producto = new Producto[1];
+        final ProductoDTO[] producto = new ProductoDTO[1];
 
         for(CategoriaDTO categoria : categorias) {
             actualizarUnProducto.getCategoriaBox().addItem(categoria.getNombre());
@@ -323,7 +322,7 @@ public class ProductosController {
                 }
                 try{
                        producto[0] = productoService.getProducto(codigo_barras);
-                }catch (ObjectNotFoundException e1){
+                }catch (ObjectNotFoundException ex){
                         JOptionPane.showMessageDialog(null, "El producto con codigo: " + codigo_barras + " no existe");
                     }
                 actualizarUnProducto.getNombreField().setText(producto[0].getNombre());
@@ -465,7 +464,7 @@ public class ProductosController {
        }
        try {
            for(Integer i: fila){
-               productoService.deleteProducto(productosFrame.getTable().getValueAt(i, 0).toString());
+               productoService.deleteProductoByCodigo (productosFrame.getTable().getValueAt(i, 0).toString());
            }
 
        }catch (RuntimeException e){
@@ -570,7 +569,7 @@ public class ProductosController {
         // Limpiar todas las filas actuales del modelo de la tabla
         productsModel.setRowCount(0);
 
-        productos = getAllProducto();
+        productos = productoService.getAll ();
 
         String filterT = filter.toLowerCase();
 
@@ -593,19 +592,11 @@ public class ProductosController {
 
     private void refreshProductos(){
         productos = null;
-        productos = getAllProducto();
-    }
-
-    private List<ProductoDTO> getAllProducto() {
-        return productoService.getAll();
+        productos = productoService.getAll ();
     }
 
     private List<CategoriaDTO> getAllCategoria(){
         return categoriaService.getAll();
-    }
-
-    public void saveProducto(Producto x) {
-        productoService.saveProducto(x);
     }
 
     private void addProductoToTable(ProductoDTO producto){
@@ -620,16 +611,15 @@ public class ProductosController {
         });
     }
 
-
-    protected void deshacer(){
+    private void deshacer(){
         productoService.undo();
         productosFrameUpdateTable();
     }
-    protected void deshacerTodo(){
+    private void deshacerTodo(){
         productoService.undoAll();
         productosFrameUpdateTable();
     }
-    protected void save(){
+    private void save(){
         productoService.save();
     }
 

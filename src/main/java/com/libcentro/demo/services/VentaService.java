@@ -5,9 +5,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import com.libcentro.demo.model.Producto;
-import com.libcentro.demo.model.Venta_Producto;
 import com.libcentro.demo.model.dto.CategoriaDTO;
 import com.libcentro.demo.model.dto.ProductoDTO;
+import com.libcentro.demo.model.dto.VentaDTO;
+import com.libcentro.demo.model.dto.Venta_ProductoDTO;
 import com.libcentro.demo.utils.GeneradorTicket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,7 +46,7 @@ public class VentaService implements IventaService {
     }
 
     @Override
-    public void vender(Venta venta) throws RuntimeException {
+    public void vender( VentaDTO venta) throws RuntimeException {
         GeneradorTicket generadorTicket=new GeneradorTicket();
 
 
@@ -57,7 +58,7 @@ public class VentaService implements IventaService {
 
         Venta ventaID = saveVenta(venta);
 
-        for(Venta_Producto ventaProducto : venta.getListaProductos()){
+        for(Venta_ProductoDTO ventaProducto : venta.getVenta_producto()){
             Producto productoVenta= ventaProducto.getProducto();
             Producto productoO = productoService.getProducto(productoVenta.getCodigobarras ());
 

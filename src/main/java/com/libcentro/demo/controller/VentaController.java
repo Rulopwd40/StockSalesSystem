@@ -6,6 +6,10 @@ import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.model.ProductoFStock;
 import com.libcentro.demo.model.Venta;
 import com.libcentro.demo.model.Venta_Producto;
+import com.libcentro.demo.model.dto.ProductoDTO;
+import com.libcentro.demo.model.dto.ProductoFStockDTO;
+import com.libcentro.demo.model.dto.VentaDTO;
+import com.libcentro.demo.model.dto.Venta_ProductoDTO;
 import com.libcentro.demo.services.ProductoService;
 import com.libcentro.demo.services.VentaService;
 import com.libcentro.demo.services.interfaces.IproductoService;
@@ -38,14 +42,12 @@ public class VentaController {
 
     private final StockController stockController;
 
-    Venta venta;
+    VentaDTO venta;
     VentaFrame ventaFrame;
     ViewController viewController;
     private JTable tableVenta;
     private DefaultTableModel ventaTableModel;
-    private ListSelectionModel ventaTableSelectionModel;
     ApfsDialog apfsDialog;
-    private String codigo_barras;
 
 
     @Autowired
@@ -57,7 +59,7 @@ public class VentaController {
     }
 
     void openVentaFrame() {
-        venta = new Venta();
+        venta = new VentaDTO ();
         if(ventaFrame == null) {
             ventaFrame = new VentaFrame();
             ventaFrame.setVisible(true);
@@ -76,7 +78,6 @@ public class VentaController {
 
         }
         ventaTableModel = (DefaultTableModel) tableVenta.getModel();
-        ventaTableSelectionModel = tableVenta.getSelectionModel();
 
         // KeyBinding para eliminar fila seleccionada al presionar "Suprimir"
         tableVenta.getInputMap(JTable.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "deleteRow");
@@ -89,11 +90,11 @@ public class VentaController {
                 if (selectedRow != -1) {
                     producto = getProductoFromVenta(productoNombre,selectedRow);
                     if(producto.getClass() == Venta_Producto.class) {
-                        venta.getListaProductos().remove(producto);
+                        venta.getVenta_producto().remove(producto);
                     }
                     else if(producto.getClass() == ProductoFStock.class) {
 
-                        venta.getListaProductosF().remove(producto);
+                        venta.getProducto_fstock().remove(producto);
                     }
 
                     updateTableVenta();
@@ -287,6 +288,7 @@ public class VentaController {
         apfsDialog.setVisible(true);
     }
     //Producto
+    //Update
     private void updateProducto(Object producto,String valor,int columna){
         if(producto instanceof Venta_Producto){
             updateProducto((Venta_Producto) producto,valor,columna);
@@ -300,7 +302,7 @@ public class VentaController {
 
 
     }
-    private void updateProducto(Venta_Producto ventaProducto,String valor,int columna) {
+    private void updateProducto(Venta_ProductoDTO ventaProducto,String valor,int columna) {
             switch (columna){
                 case 1:
                     ventaProducto.setCantidad(Integer.parseInt(valor));
@@ -312,7 +314,7 @@ public class VentaController {
                     throw new RuntimeException("No existe fila con numero: " + columna);
             }
     }
-    private void updateProducto(ProductoFStock ventaProducto,String valor,int columna) {
+    private void updateProducto(ProductoFStockDTO ventaProducto,String valor,int columna) {
         switch (columna){
             case 1:
                 ventaProducto.setCantidad(Integer.parseInt(valor));
@@ -325,7 +327,7 @@ public class VentaController {
         }
     }
 
-
+    //Agregar
     private void agregarProducto(){
         try{
             FieldAnalyzer.todosLosCamposLlenos(ventaFrame.getAgregarProductoFieldPanel());
@@ -333,7 +335,7 @@ public class VentaController {
             JOptionPane.showMessageDialog(ventaFrame, "Complete todos los campos");
             throw new EmptyFieldException("Completar todos los campos");
         }
-        this.codigo_barras = ventaFrame.getCodBar().getText();
+        String codigo_barras = ventaFrame.getCodBar ().getText ();
         var cantidad= Integer.parseInt(ventaFrame.getCant().getText());
         agregarProducto(codigo_barras,cantidad);
         ventaFrame.getCodBar().setText("");
@@ -341,21 +343,20 @@ public class VentaController {
         ventaFrame.setCodFocus();
 
     }
-
     private void agregarProducto(String codigo_barras, int cantidad) {
         if (cantidad <= 0) {
             JOptionPane.showMessageDialog(null, "La cantidad debe ser mayor que cero");
             throw new IllegalArgumentException("La cantidad debe ser mayor que cero");
         }
-        Producto producto=null;
+        ProductoDTO producto=null;
         try {
             producto = productoService.getProducto(codigo_barras, cantidad);
         } catch (ObjectNotFoundException | InsufficientStockException e) {
             JOptionPane.showMessageDialog(null, "No se puede agregar el producto: " + e.getMessage());
         }
-        Producto finalProducto = producto;
+        ProductoDTO finalProducto = producto;
         if(finalProducto != null) {
-            Venta_Producto ventaProducto = venta.getListaProductos().stream()
+            Venta_ProductoDTO ventaProducto = venta.getVenta_producto().stream()
                     .filter(ventap -> ventap.getProducto().equals(finalProducto))
                     .findFirst()
                     .orElse(null);
@@ -376,11 +377,11 @@ public class VentaController {
     private void updateTableVenta(){
         ventaTableModel.setRowCount(0);
 
-        for(Venta_Producto ventaProducto: venta.getListaProductos()){
-            Producto producto= ventaProducto.getProducto();
+        for(Venta_ProductoDTO ventaProducto: venta.getVenta_producto()){
+            ProductoDTO producto= ventaProducto.getProducto();
             ventaTableModel.addRow(new Object[] {producto.getNombre(),ventaProducto.getCantidad(),ventaProducto.getDescuento(),ventaProducto.getPrecio_venta()});
         }
-        for(ProductoFStock productoFStock: venta.getListaProductosF()){
+        for(ProductoFStockDTO productoFStock: venta.getProducto_fstock ()){
             ventaTableModel.addRow(new Object[] {productoFStock.getNombre(),productoFStock.getCantidad(), productoFStock.getDescuento(), productoFStock.getPrecio_venta() });
         }
 
@@ -396,16 +397,16 @@ public class VentaController {
     }
 
     private Object getProductoFromVenta(String nombre,int fila) {
-        // Intentar obtener el Producto de la lista de productos
+
         Object producto=null;
-        if(fila < venta.getListaProductos().size()) {
-            producto = (Venta_Producto) venta.getListaProductos().stream()
+        if(fila < venta.getVenta_producto().size()) {
+            producto = (Venta_ProductoDTO) venta.getVenta_producto().stream()
                     .filter(ventaProducto -> ventaProducto.getProducto().getNombre().equals(nombre))
                     .findFirst()
                     .orElse(null);
         }
         else {
-            producto= (ProductoFStock) venta.getListaProductosF().stream()
+            producto= (ProductoFStockDTO) venta.getProducto_fstock ().stream()
                     .filter(productoF -> productoF.getNombre().equals(nombre))
                     .findFirst()
                     .orElse(null);
@@ -425,8 +426,6 @@ public class VentaController {
         JOptionPane.showMessageDialog(ventaFrame,"Venta realizada con éxito","Éxito",JOptionPane.INFORMATION_MESSAGE);
         stockController.stockControl(false);
         ventaFrame.dispose();
-
-
 
     }
 
