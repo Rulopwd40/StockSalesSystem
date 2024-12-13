@@ -22,11 +22,11 @@ public class VentaDTO {
     private String fecha;
     private double total = 0;
     private boolean estado = true;
-    private Set<Venta_ProductoDTO> venta_producto;
-    private Set<ProductoFStockDTO> producto_fstock;
+    private Set<Venta_ProductoDTO> venta_producto = new HashSet<>();
+    private Set<ProductoFStockDTO> producto_fstock = new HashSet<>();
 
     public void addProducto(ProductoDTO p, int cantidad){
-        Venta_ProductoDTO v = new Venta_ProductoDTO(this);
+        Venta_ProductoDTO v = new Venta_ProductoDTO();
         v.setProducto(p,cantidad);
         venta_producto.add(v);
     }
@@ -43,9 +43,9 @@ public class VentaDTO {
 
         for(ProductoFStockDTO p : producto_fstock){
             totalProducto=p.getCantidad() * p.getPrecio_venta();
-            total+= totalProducto - totalProducto * p.getDescuento()/100;
+            total+= Math.round((totalProducto - totalProducto * p.getDescuento()/100)*100d) /100d;
         }
-        total = Math.round(total * 100.0f) / 100.0f;
+        total = Math.round(total * 100.0d) / 100.0d;
     }
 
 

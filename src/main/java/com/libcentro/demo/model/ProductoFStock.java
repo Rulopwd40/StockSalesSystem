@@ -1,5 +1,6 @@
 package com.libcentro.demo.model;
 
+import com.libcentro.demo.model.dto.ProductoFStockDTO;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -26,4 +27,10 @@ public class ProductoFStock {
     public ProductoFStock() {
     }
 
+    public ProductoFStock ( ProductoFStockDTO productoFStockDTO ){
+        this.nombre = productoFStockDTO.getNombre();
+        this.precio_venta = productoFStockDTO.getPrecio_venta();
+        this.cantidad = productoFStockDTO.getCantidad();
+        this.descuento = productoFStockDTO.getDescuento();
+    }
 }

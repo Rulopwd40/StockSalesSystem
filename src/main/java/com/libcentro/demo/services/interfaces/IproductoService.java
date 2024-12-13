@@ -1,19 +1,17 @@
 package com.libcentro.demo.services.interfaces;
 import java.util.List;
 
-import com.libcentro.demo.model.Categoria;
 import com.libcentro.demo.model.Producto;
 
 import com.libcentro.demo.model.dto.CategoriaDTO;
 import com.libcentro.demo.model.dto.ProductoDTO;
 import jakarta.transaction.Transactional;
 import org.hibernate.ObjectNotFoundException;
-import org.springframework.data.crossstore.ChangeSetPersister;
 
 public interface IproductoService {
     public List<ProductoDTO> getAll();
     @Transactional
-    public Producto saveProducto(Producto x);
+    public Producto venderProducto ( Producto x);
 
     ProductoDTO crearProducto( ProductoDTO productoDTO);
 
@@ -38,4 +36,7 @@ public interface IproductoService {
     void save();
 
     List<ProductoDTO> getProductosByCantidad(int cantidad);
+
+
+    void venderProducto ( ProductoDTO productoDTO );
 }

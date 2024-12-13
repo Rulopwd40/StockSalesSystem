@@ -8,7 +8,7 @@ import com.libcentro.demo.model.dto.VentaDTO;
 public interface IventaService {
     public List<Venta> getAll();
 
-    public Venta saveVenta(Venta x);
+    public Venta saveVenta(VentaDTO x);
 
     public void deleteVenta(Venta x);
 

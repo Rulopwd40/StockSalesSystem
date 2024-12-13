@@ -89,10 +89,10 @@ public class VentaController {
                 String productoNombre = (String) tableVenta.getValueAt(selectedRow, 0);
                 if (selectedRow != -1) {
                     producto = getProductoFromVenta(productoNombre,selectedRow);
-                    if(producto.getClass() == Venta_Producto.class) {
+                    if(producto.getClass() == Venta_ProductoDTO.class) {
                         venta.getVenta_producto().remove(producto);
                     }
-                    else if(producto.getClass() == ProductoFStock.class) {
+                    else if(producto.getClass() == ProductoFStockDTO.class) {
 
                         venta.getProducto_fstock().remove(producto);
                     }
@@ -215,16 +215,16 @@ public class VentaController {
                 throw new EmptyFieldException("Llene el campo");
             }
             float descuento= Float.parseFloat(ventaFrame.getDescuentoField().getText());
-            if(descuento >100f || descuento <0){
+            if(descuento >100d || descuento <0){
                 ventaFrame.getDescuentoField().setText("");
                 JOptionPane.showMessageDialog(ventaFrame, "Ingrese un descuento entre [0;100]", "Error", JOptionPane.ERROR_MESSAGE);
                 throw new IllegalArgumentException("Ingrese un descuento entre [0;100]");
             }
             for(Object producto: venta.getTodosLosProductos()) {
-                if(producto instanceof Venta_Producto p) {
+                if(producto instanceof Venta_ProductoDTO p) {
                    p.setDescuento(descuento);
                 }
-                if(producto instanceof ProductoFStock p) {
+                if(producto instanceof ProductoFStockDTO p) {
                     p.setDescuento(descuento);
                 }
             }
@@ -252,8 +252,8 @@ public class VentaController {
                     String cantidad = apfsDialog.getCantField().getText();
                     String precio = apfsDialog.getPrecioField().getText();
 
-                    ProductoFStock producto;
-                    producto = new ProductoFStock(nombre,cantidad,precio,"0");
+                    ProductoFStockDTO producto;
+                    producto = new ProductoFStockDTO(nombre,cantidad,precio,"0");
                     venta.addProducto(producto);
 
 
@@ -290,11 +290,11 @@ public class VentaController {
     //Producto
     //Update
     private void updateProducto(Object producto,String valor,int columna){
-        if(producto instanceof Venta_Producto){
-            updateProducto((Venta_Producto) producto,valor,columna);
+        if(producto instanceof Venta_ProductoDTO){
+            updateProducto((Venta_ProductoDTO) producto,valor,columna);
         }
-        else if(producto instanceof ProductoFStock){
-            updateProducto((ProductoFStock) producto,valor,columna);
+        else if(producto instanceof ProductoFStockDTO){
+            updateProducto((ProductoFStockDTO) producto,valor,columna);
         }
         else{
             throw new RuntimeException("La clase del producto no adhiere a la las clases predeterminadas");
@@ -311,7 +311,7 @@ public class VentaController {
                     ventaProducto.setDescuento(Float.parseFloat(valor));
                     break;
                 default:
-                    throw new RuntimeException("No existe fila con numero: " + columna);
+                    throw new RuntimeException("No se puede editar esta columna");
             }
     }
     private void updateProducto(ProductoFStockDTO ventaProducto,String valor,int columna) {
@@ -323,7 +323,7 @@ public class VentaController {
                 ventaProducto.setDescuento(Float.parseFloat(valor));
                 break;
             default:
-                throw new RuntimeException("No existe fila con numero: " + columna);
+                throw new RuntimeException("No se puede editar esta columna");
         }
     }
 
@@ -335,7 +335,7 @@ public class VentaController {
             JOptionPane.showMessageDialog(ventaFrame, "Complete todos los campos");
             throw new EmptyFieldException("Completar todos los campos");
         }
-        String codigo_barras = ventaFrame.getCodBar ().getText ();
+        String codigo_barras = ventaFrame.getCodBar().getText ();
         var cantidad= Integer.parseInt(ventaFrame.getCant().getText());
         agregarProducto(codigo_barras,cantidad);
         ventaFrame.getCodBar().setText("");
@@ -397,16 +397,15 @@ public class VentaController {
     }
 
     private Object getProductoFromVenta(String nombre,int fila) {
-
         Object producto=null;
         if(fila < venta.getVenta_producto().size()) {
-            producto = (Venta_ProductoDTO) venta.getVenta_producto().stream()
+            producto = venta.getVenta_producto().stream()
                     .filter(ventaProducto -> ventaProducto.getProducto().getNombre().equals(nombre))
                     .findFirst()
                     .orElse(null);
         }
         else {
-            producto= (ProductoFStockDTO) venta.getProducto_fstock ().stream()
+            producto= venta.getProducto_fstock ().stream()
                     .filter(productoF -> productoF.getNombre().equals(nombre))
                     .findFirst()
                     .orElse(null);

@@ -56,7 +56,7 @@ public class ProductoService implements IproductoService {
 
     @Override
     @Transactional
-    public Producto saveProducto( Producto x) {
+    public Producto venderProducto ( Producto x) {
        return productoRepository.saveAndFlush(x);
     }
 
@@ -124,8 +124,13 @@ public class ProductoService implements IproductoService {
                             producto.setCosto_compra (productoDTO.getCosto_compra());
                             producto.setPrecio_venta (productoDTO.getPrecio_venta());
                             producto.setStock (producto.getStock() + productoDTO.getStock());
-                            commandInvoker.executeCommand(new UpdateProductCommand(ProductoService.this, historialService, getProducto(producto.getCodigobarras ()), producto));
-                            cuentaActualizados++;
+                            Optional<Producto> productViejo = productoRepository.findById(producto.getCodigobarras());
+                            if (productViejo.isPresent()) {
+                                commandInvoker.executeCommand(new UpdateProductCommand(ProductoService.this, historialService, productViejo.get (), producto));
+                                cuentaActualizados++;
+                            }
+
+
                         } else {
                             producto = new Producto (productoDTO);
                             commandInvoker.executeCommand(new AddProductCommand(ProductoService.this, producto));
@@ -185,6 +190,7 @@ public class ProductoService implements IproductoService {
         commandInvoker.executeCommand(new UpdateProductCommand(this, historialService,productoActual,producto));
     }
 
+
     @Override
     public void updateProductosBy( CategoriaDTO categoriaDto, double porcentaje) {
         List<Producto> productosViejos;
@@ -219,7 +225,7 @@ public class ProductoService implements IproductoService {
         return productoRepository.findById(codigo_barras).stream()
                 .map(ProductoDTO::new)
                 .findFirst()
-                .orElseThrow (ObjectNotFoundException::new(Producto.class,"Producto"));
+                .orElseThrow(() -> new ObjectNotFoundException(Producto.class, "Producto no encontrado"));
     }
 
     @Override
@@ -262,7 +268,13 @@ public class ProductoService implements IproductoService {
         return productoRepository.findByStockLessThanEqual(cantidad).stream ().map (ProductoDTO::new).toList ();
     }
 
-
+    @Override
+    public void venderProducto ( ProductoDTO productoDTO ){
+        Optional<Producto> producto = productoRepository.findById(productoDTO.getCodigobarras());
+        producto.ifPresent(p -> {
+                p.setStock(productoDTO.getStock ());
+                productoRepository.save(p);});
+    }
 
 
 

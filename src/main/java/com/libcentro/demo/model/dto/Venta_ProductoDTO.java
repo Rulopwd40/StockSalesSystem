@@ -4,16 +4,17 @@ import com.libcentro.demo.model.Producto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 @AllArgsConstructor
 @NoArgsConstructor
 public class Venta_ProductoDTO {
 
     private long id_venta;
     private String codigobarras;
-    private VentaDTO venta;
     private ProductoDTO producto;
     private int cantidad;
     private double descuento;
@@ -21,9 +22,8 @@ public class Venta_ProductoDTO {
     private double costo_compra;
     private double total;
 
-    public Venta_ProductoDTO(VentaDTO venta) {
-        this.venta = venta;
-    }
+
+
     public void setDescuento(float descuento) {
         this.descuento = descuento;
         updateTotal();
