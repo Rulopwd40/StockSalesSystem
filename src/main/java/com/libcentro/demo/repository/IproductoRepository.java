@@ -2,6 +2,8 @@ package com.libcentro.demo.repository;
 
 import com.libcentro.demo.model.Categoria;
 import com.libcentro.demo.model.dto.CategoriaDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,12 +17,8 @@ public interface IproductoRepository extends JpaRepository<Producto, String> {
 
     List<Producto> findAllByCategoria( Categoria categoria );
 
-    @Query("SELECT p FROM Producto p " +
-            "LEFT JOIN FETCH p.historial_precios hp " +
-            "LEFT JOIN FETCH p.historial_costos hc " +
-            "WHERE p.codigobarras = :codigo")
-    Producto getProductoWithHistorialPrecioAndHistorialCosto(@Param("codigo") String codigo_barras);
-
     List<Producto> findByStockLessThanEqual(int cantidad);
+
+    Page<Producto> getProductos(final Pageable pageable);
 
 }

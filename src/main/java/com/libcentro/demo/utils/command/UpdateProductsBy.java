@@ -27,7 +27,7 @@ public class UpdateProductsBy implements Command {
         nuevosProductos.forEach(producto -> {
             HistorialPrecio historialPrecio = new HistorialPrecio(producto, producto.getPrecio_venta());
             historialService.save(historialPrecio);
-            productoService.venderProducto (producto);
+            productoService.crearProducto (producto);
         });
     }
 
@@ -50,7 +50,7 @@ public class UpdateProductsBy implements Command {
 
             // Revertir los cambios del producto al viejo producto
             nuevoProducto.setPrecio_venta(viejoProducto.getPrecio_venta());
-            productoService.venderProducto (nuevoProducto);
+            productoService.crearProducto (nuevoProducto);
         }
     }
 

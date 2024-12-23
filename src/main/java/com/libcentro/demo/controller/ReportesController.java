@@ -15,6 +15,7 @@ public class ReportesController {
 
     private IestadisticaService estadisticaService;
     private IventaService ventaService;
+
     private enum Estado{
         VENTA,
         PRODUCTO,

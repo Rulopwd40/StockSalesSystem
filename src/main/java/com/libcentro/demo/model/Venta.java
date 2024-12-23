@@ -38,8 +38,6 @@ public class Venta {
         this.fecha = ventaDTO.getFecha();
         this.total = ventaDTO.getTotal();
         this.estado = ventaDTO.isEstado();
-
-
     }
 
     public long getId (){

@@ -68,7 +68,7 @@ public class ProductosController {
     public void openProductosFrame() {
         if (productosFrame == null) {
             productosFrame = new ProductosFrame();
-
+            productosFrameAddListeners();
         }
 
         refreshProductos();
@@ -91,7 +91,7 @@ public class ProductosController {
             }
         });
 
-        productosFrameAddListeners();
+
         productosFrame.setVisible(true);
         productosFrame.setState(Frame.NORMAL); // Restaurar si está minimizado
         productosFrame.toFront();
@@ -205,7 +205,6 @@ public class ProductosController {
             }
         });
     }
-
     //Agregar
     private void agregarProducto() {
         categorias = getAllCategoria();
@@ -300,7 +299,6 @@ public class ProductosController {
     private void actualizarUnProducto(){
         categorias= getAllCategoria();
         actualizarUnProducto = new ActualizarUnProducto();
-
         final ProductoDTO[] producto = new ProductoDTO[1];
 
         for(CategoriaDTO categoria : categorias) {
@@ -561,10 +559,10 @@ public class ProductosController {
 
     }
 
+
     private void productosFrameUpdateTable(){
         productosFrameUpdateTable("");
     }
-
     private void productosFrameUpdateTable(String filter) {
         // Limpiar todas las filas actuales del modelo de la tabla
         productsModel.setRowCount(0);
@@ -589,16 +587,13 @@ public class ProductosController {
             addProductoToTable(producto);
         }
     }
-
     private void refreshProductos(){
         productos = null;
         productos = productoService.getAll ();
     }
-
     private List<CategoriaDTO> getAllCategoria(){
         return categoriaService.getAll();
     }
-
     private void addProductoToTable(ProductoDTO producto){
 
         productsModel.addRow(new Object[]{
@@ -610,7 +605,6 @@ public class ProductosController {
                 producto.getPrecio_venta()
         });
     }
-
     private void deshacer(){
         productoService.undo();
         productosFrameUpdateTable();

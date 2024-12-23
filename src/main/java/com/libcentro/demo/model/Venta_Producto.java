@@ -31,87 +31,84 @@ public class Venta_Producto {
         private double total;
 
 
-        public Venta_Producto(Venta venta) {
-            this.venta = venta;
-        }
         public Venta_Producto() {}
 
 
 
-    public Venta_Producto ( Venta_ProductoDTO ventaProductoDTO ){
-        this.id_venta = ventaProductoDTO.getId_venta();
-        this.codigobarras = ventaProductoDTO.getCodigobarras();
-        this.cantidad = ventaProductoDTO.getCantidad();
-        this.descuento = ventaProductoDTO.getDescuento();
-        this.precio_venta = ventaProductoDTO.getPrecio_venta();
-        this.costo_compra = ventaProductoDTO.getCosto_compra();
-        this.total = ventaProductoDTO.getTotal();
-    }
-
-    public void setDescuento(float descuento) {
-            this.descuento = descuento;
-            updateTotal();
+        public Venta_Producto ( Venta_ProductoDTO ventaProductoDTO ){
+            this.id_venta = ventaProductoDTO.getId_venta();
+            this.codigobarras = ventaProductoDTO.getCodigobarras();
+            this.cantidad = ventaProductoDTO.getCantidad();
+            this.descuento = ventaProductoDTO.getDescuento();
+            this.precio_venta = ventaProductoDTO.getPrecio_venta();
+            this.costo_compra = ventaProductoDTO.getCosto_compra();
+            this.total = ventaProductoDTO.getTotal();
         }
 
-    public void setCantidad(int cantidad) {
-            this.cantidad = cantidad;
-            updateTotal();
-    }
-        public void setVenta(Venta venta) {
-            this.venta = venta;
-            this.id_venta = venta.getId();
+        public void setDescuento(float descuento) {
+                this.descuento = descuento;
+                updateTotal();
+            }
+
+        public void setCantidad(int cantidad) {
+                this.cantidad = cantidad;
+                updateTotal();
+        }
+            public void setVenta(Venta venta) {
+                this.venta = venta;
+                this.id_venta = venta.getId();
+            }
+
+        public void setProducto(Producto producto, int cantidad) {
+                this.codigobarras = producto.getCodigobarras ();
+                this.producto = producto;
+                precio_venta = producto.getPrecio_venta();
+                costo_compra = producto.getCosto_compra();
+                this.cantidad = cantidad;
+                updateTotal();
+            }
+
+        private void updateTotal() {
+
+                total = precio_venta * cantidad - precio_venta * cantidad * descuento / 100;
+
+                // Redondear a 2 decimales
+                total = Math.round(total * 100.00d) / 100.00d;
+            }
+
+        public long getId_venta (){
+            return id_venta;
         }
 
-    public void setProducto(Producto producto, int cantidad) {
-            this.codigobarras = producto.getCodigobarras ();
-            this.producto = producto;
-            precio_venta = producto.getPrecio_venta();
-            costo_compra = producto.getCosto_compra();
-            this.cantidad = cantidad;
-            updateTotal();
+        public String getCodigobarras (){
+            return codigobarras;
         }
 
-    private void updateTotal() {
-
-            total = precio_venta * cantidad - precio_venta * cantidad * descuento / 100;
-
-            // Redondear a 2 decimales
-            total = Math.round(total * 100.00d) / 100.00d;
+        public Venta getVenta (){
+            return venta;
         }
 
-    public long getId_venta (){
-        return id_venta;
-    }
+        public Producto getProducto (){
+            return producto;
+        }
 
-    public String getCodigobarras (){
-        return codigobarras;
-    }
+        public int getCantidad (){
+            return cantidad;
+        }
 
-    public Venta getVenta (){
-        return venta;
-    }
+        public double getDescuento (){
+            return descuento;
+        }
 
-    public Producto getProducto (){
-        return producto;
-    }
+        public double getPrecio_venta (){
+            return precio_venta;
+        }
 
-    public int getCantidad (){
-        return cantidad;
-    }
+        public double getCosto_compra (){
+            return costo_compra;
+        }
 
-    public double getDescuento (){
-        return descuento;
-    }
-
-    public double getPrecio_venta (){
-        return precio_venta;
-    }
-
-    public double getCosto_compra (){
-        return costo_compra;
-    }
-
-    public double getTotal (){
-        return total;
-    }
+        public double getTotal (){
+            return total;
+        }
 }

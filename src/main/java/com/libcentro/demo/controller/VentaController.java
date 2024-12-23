@@ -423,7 +423,10 @@ public class VentaController {
         }
 
         JOptionPane.showMessageDialog(ventaFrame,"Venta realizada con éxito","Éxito",JOptionPane.INFORMATION_MESSAGE);
-        stockController.stockControl(false);
+        try {
+            stockController.stockControl (false);
+        }catch(Exception ignore){
+        }
         ventaFrame.dispose();
 
     }

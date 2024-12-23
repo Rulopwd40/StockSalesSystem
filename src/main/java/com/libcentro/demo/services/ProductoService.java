@@ -56,20 +56,16 @@ public class ProductoService implements IproductoService {
 
     @Override
     @Transactional
-    public Producto venderProducto ( Producto x) {
+    public Producto crearProducto ( Producto x) {
        return productoRepository.saveAndFlush(x);
     }
 
     @Override
     public ProductoDTO crearProducto ( ProductoDTO productoDto ){
-
-
         if (productoRepository.existsById (productoDto.getCodigobarras ())) {
             throw new RuntimeException ("El producto con codigo: " + productoDto.getCodigobarras() + " ya existe.");
         }
-
         Producto producto = new Producto (productoDto);
-
 
         HistorialCosto historialCosto = historialService.crearHistorialCosto (producto,
                 producto.getCosto_compra (),
@@ -87,7 +83,6 @@ public class ProductoService implements IproductoService {
 
         return productoDto;
     }
-
 
     @Override
     public boolean importarCSV(String path) {
@@ -173,7 +168,6 @@ public class ProductoService implements IproductoService {
         productoRepository.deleteById(codigo_barras);
     }
 
-
     @Override
     public void updateProducto( ProductoDTO productoActualizado) {
         Producto productoActual= productoRepository.findById(productoActualizado.getCodigobarras()).orElseThrow();
@@ -189,7 +183,6 @@ public class ProductoService implements IproductoService {
                 );
         commandInvoker.executeCommand(new UpdateProductCommand(this, historialService,productoActual,producto));
     }
-
 
     @Override
     public void updateProductosBy( CategoriaDTO categoriaDto, double porcentaje) {

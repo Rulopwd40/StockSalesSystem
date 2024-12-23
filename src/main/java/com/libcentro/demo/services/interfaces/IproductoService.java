@@ -11,7 +11,7 @@ import org.hibernate.ObjectNotFoundException;
 public interface IproductoService {
     public List<ProductoDTO> getAll();
     @Transactional
-    public Producto venderProducto ( Producto x);
+    public Producto crearProducto ( Producto x);
 
     ProductoDTO crearProducto( ProductoDTO productoDTO);
 
@@ -36,7 +36,6 @@ public interface IproductoService {
     void save();
 
     List<ProductoDTO> getProductosByCantidad(int cantidad);
-
 
     void venderProducto ( ProductoDTO productoDTO );
 }

@@ -5,11 +5,7 @@ import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.services.interfaces.IhistorialService;
 import com.libcentro.demo.services.interfaces.IproductoService;
-import org.hibernate.Hibernate;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import jakarta.transaction.Transactional;
 
 public class UpdateProductCommand implements Command {
 
@@ -28,6 +24,7 @@ public class UpdateProductCommand implements Command {
 
 
     @Override
+    @Transactional
     public void execute() {
 
         int cantidad = nuevoProducto.getStock()-viejoProducto.getStock();
@@ -37,32 +34,21 @@ public class UpdateProductCommand implements Command {
         boolean precioVentaCambiado = viejoProducto.getPrecio_venta() != nuevoProducto.getPrecio_venta();
 
         if (costoCambiado && cantidadCambiada) {
-            System.out.println("Entro primer if con cantidad:" + cantidad);
             HistorialCosto historialCosto = historialService.crearHistorialCosto (nuevoProducto,nuevoProducto.getCosto_compra(),cantidad, HistorialCosto.Estado.SIGUIENTE);
-            nuevoProducto.getHistorial_costos ().add(historialCosto);
-        } else if (cantidadCambiada && !costoCambiado) {
-            System.out.println("Entro 2do if: " + cantidad);
-            Hibernate.initialize (viejoProducto.getHistorial_costos ());
-            List<HistorialCosto> historialCostos = viejoProducto.getHistorial_costos();
+            historialService.save (historialCosto);
+        } else if ( cantidadCambiada ) {
+            HistorialCosto historialCosto = historialService.findLastHistorialCosto (viejoProducto);
 
-            Optional<HistorialCosto> historialCosto = historialCostos.stream()
-                    .max(Comparator.comparing(HistorialCosto::getFecha));
-
-            historialCosto.ifPresent (historialExistente -> {
-                historialExistente.setCantidad(historialExistente.getCantidad() + cantidad);
-            });
-
-        } else if(costoCambiado && !cantidadCambiada){
+            historialCosto.setCantidad(historialCosto.getCantidad() + cantidad);
+            historialService.save(historialCosto);
+        } else if( costoCambiado ){
             throw new RuntimeException("No se puede cambiar el costo sin una variación en la cantidad");
         }
-
-        // Actualizar precio de venta
         if (precioVentaCambiado) {
-            System.out.println("Entro 3do if");
             HistorialPrecio nuevoHistorialPrecio = historialService.crearHistorialPrecio(nuevoProducto,nuevoProducto.getPrecio_venta());
             historialService.save(nuevoHistorialPrecio);
         }
-        productoService.venderProducto (nuevoProducto);
+        productoService.crearProducto (nuevoProducto);
 
     }
 
@@ -76,11 +62,9 @@ public class UpdateProductCommand implements Command {
 
 
         if (costoCambiado && cantidad > 0) {
-
             HistorialCosto ultimoHistorial = historialService.findLastHistorialCosto(nuevoProducto);
             historialService.delete(ultimoHistorial);
         } else if (cantidadCambiada && !costoCambiado) {
-
             HistorialCosto historialExistente = historialService.findLastHistorialCosto(nuevoProducto);
             historialExistente.setCantidad(historialExistente.getCantidad() - cantidad);
             historialService.save(historialExistente);
@@ -93,10 +77,9 @@ public class UpdateProductCommand implements Command {
             historialService.delete(ultimoHistorialPrecio);
         }
 
-        // Finalmente, revertir el producto a su estado anterior
         nuevoProducto.setCosto_compra(viejoProducto.getCosto_compra());
         nuevoProducto.setPrecio_venta(viejoProducto.getPrecio_venta());
         nuevoProducto.setStock(viejoProducto.getStock());
-        productoService.venderProducto (viejoProducto);
+        productoService.crearProducto (viejoProducto);
     }
 }
