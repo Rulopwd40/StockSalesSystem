@@ -1,10 +1,16 @@
 package com.libcentro.demo.model;
 
+import com.libcentro.demo.model.dto.ProductoFStockDTO;
+import com.libcentro.demo.model.dto.VentaDTO;
+import com.libcentro.demo.model.dto.Venta_ProductoDTO;
 import jakarta.persistence.*;
+import lombok.Data;
 
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
+
 
 @Entity
 @Table(name = "venta")
@@ -12,92 +18,74 @@ public class Venta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    @Column(name = "fecha")
+    private long id;
     private String fecha;
-    @Column(name = "total")
-    private float total;
-    @Column(name = "estado")
+    private double total;
     private boolean estado;
 
-    @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Venta_Producto> listaProductos = new HashSet<>();
 
     @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ProductoFStock> listaProductosF = new HashSet<>();
+    private Set<Venta_Producto> venta_productos = new HashSet<>();
+
+    @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ProductoFStock> productoFStocks = new HashSet<>();
 
     public Venta() {
-        total= 0;
-        estado = true;
     }
 
-    public void addProducto(Producto p,int cantidad){
-        Venta_Producto v = new Venta_Producto(this);
-        v.setProducto(p,cantidad);
-        listaProductos.add(v);
-    }
-    public void addProducto(ProductoFStock p){
-        listaProductosF.add(p);
-
+    public Venta ( VentaDTO ventaDTO ){
+        this.id = ventaDTO.getId();
+        this.fecha = ventaDTO.getFecha();
+        this.total = ventaDTO.getTotal();
+        this.estado = ventaDTO.isEstado();
     }
 
-    public int getId() {
+    public long getId (){
         return id;
     }
 
-    public void setId(int id) {
+    public void setId ( long id ){
         this.id = id;
     }
 
-    public String getFecha() {
+    public String getFecha (){
         return fecha;
     }
 
-    public void setFecha(String fecha) {
+    public void setFecha ( String fecha ){
         this.fecha = fecha;
     }
 
-    public float getTotal() {
+    public double getTotal (){
         return total;
     }
 
-    public void updateTotal() {
-        total=0;
-        float totalProducto;
-        for(Venta_Producto v : listaProductos){
-            total+= v.getTotal();
-        }
-
-        for(ProductoFStock p : listaProductosF){
-            totalProducto=p.getCantidad() * p.getPrecio_venta();
-            total+= totalProducto - totalProducto * p.getDescuento()/100;
-        }
-        total = Math.round(total * 100.0f) / 100.0f;
+    public void setTotal ( double total ){
+        this.total = total;
     }
 
-    public Set<Venta_Producto> getListaProductos() {
-        return listaProductos;
+    public boolean isEstado (){
+        return estado;
     }
 
-    public void setListaProductos(Set<Venta_Producto> listaProductos) {
-        this.listaProductos = listaProductos;
+    public void setEstado ( boolean estado ){
+        this.estado = estado;
     }
 
-    public Set<ProductoFStock> getListaProductosF() {
-        return listaProductosF;
+    public Set<Venta_Producto> getVenta_productos (){
+        return venta_productos;
     }
 
-    public void setListaProductosF(Set<ProductoFStock> listaProductosF) {
-        this.listaProductosF = listaProductosF;
+    public void setVenta_productos ( Set<Venta_Producto> venta_productos ){
+        this.venta_productos = venta_productos;
     }
 
-    public Set<Object> getTodosLosProductos(){
-        Set<Object> productos = new HashSet<>();
+    public Set<ProductoFStock> getProductoFStocks (){
+        return productoFStocks;
+    }
 
-        productos.addAll(listaProductos);
-        productos.addAll(listaProductosF);
-        return productos;
-    };
-
+    public void setProductoFStocks ( Set<ProductoFStock> productoFStocks ){
+        this.productoFStocks = productoFStocks;
+    }
 }
 

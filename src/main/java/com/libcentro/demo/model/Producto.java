@@ -1,156 +1,70 @@
 package com.libcentro.demo.model;
 
+import com.libcentro.demo.model.dto.ProductoDTO;
 import jakarta.persistence.*;
+import lombok.Data;
 
 
 import java.util.*;
 
+@Data
 @Entity
-@Table(name = "Producto")
+@Table(name = "producto")
 public class Producto {
+
     @Id
-    private String codigo_barras;
-    @Column(name = "nombre")
+    private String codigobarras;
+
     private String nombre;
-    @ManyToOne(fetch = FetchType.EAGER) // O EAGER según lo que prefieras
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "categoria", referencedColumnName = "id")
     private Categoria categoria;
-    @Column(name = "costo_compra")
-    private float costo_compra;
-    @Column(name = "precio_venta")
-    private float precio_venta;
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL) // Cascade ALL
-    @JoinColumn(name = "costo_inicial", referencedColumnName = "id")
-    private HistorialCosto costo_inicial;
-    @Column(name = "stock")
+    private double costo_compra;
+    private double precio_venta;
+    private Integer costo_inicial;
     private int stock;
-    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = false) // Cascade ALL
-    private Set<HistorialPrecio> historial_precios = new HashSet<>();
-    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = false)
-    private Set<HistorialCosto> historial_costos = new HashSet<>();
 
-
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<HistorialPrecio> historial_precios = new ArrayList<>();
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<HistorialCosto> historial_costos = new ArrayList<>();
 
 
     public Producto() {
     }
 
 
-    public Producto(String codigo_barras,String nombre,Categoria categoria, float costo_compra, float precio_venta, int stock) {
-        this.codigo_barras = codigo_barras;
-        this.nombre = nombre;
-        this.categoria = categoria;
-        this.costo_compra = costo_compra;
-        this.precio_venta = precio_venta;
-        this.stock = stock;
-    }
-
     public Producto(Producto producto) {
-        this.codigo_barras = producto.getCodigo_barras();
+        this.codigobarras = producto.getCodigobarras ();
         this.nombre = producto.getNombre();
         this.categoria = producto.getCategoria();
         this.precio_venta = producto.getPrecio_venta();
         this.costo_compra = producto.getCosto_compra();
         this.stock = producto.getStock();
-        // Copiar otros campos si los hay
+        this.historial_precios = producto.getHistorial_precios ();
+        this.historial_costos = producto.getHistorial_costos ();
     }
 
-    public void agregarHistorial(HistorialCosto historialCosto) {
-        historialCosto.setProducto(this);
-        historial_costos.add(historialCosto);
-        if (costo_inicial == null) {
-            costo_inicial = historialCosto;
-        }
-    }
-    public void agregarHistorial(HistorialPrecio historialPrecio) {
-        historialPrecio.setProducto(this);
-        historial_precios.add(historialPrecio);
-    }
-
-
-
-    public String getNombre() {
-        return nombre;
+    public Producto(ProductoDTO producto) {
+        this.codigobarras = producto.getCodigobarras();
+        this.nombre = producto.getNombre();
+        this.categoria = new Categoria (producto.getCategoria());
+        this.precio_venta = producto.getPrecio_venta();
+        this.costo_compra = producto.getCosto_compra();
+        this.stock = producto.getStock();
+        this.historial_precios = new ArrayList<>();
+        this.historial_costos = new ArrayList<>();
     }
 
 
-    public void setNombre(String nombre) {
+    public Producto ( String codigobarras, String nombre, Categoria categoria, double costoCompra, double precioVenta, int stock ){
+        this.codigobarras = codigobarras;
         this.nombre = nombre;
-    }
-
-
-    public Categoria getCategoria() {
-        return categoria;
-    }
-
-
-    public void setCategoria(Categoria categoria) {
         this.categoria = categoria;
-    }
-
-
-    public float getCosto_compra() {
-        return costo_compra;
-    }
-
-
-    public void setCosto_compra(float costo_compra) {
-        this.costo_compra = costo_compra;
-    }
-
-
-    public float getPrecio_venta() {
-        return precio_venta;
-    }
-
-
-    public void setPrecio_venta(float precio_venta) {
-        this.precio_venta = precio_venta;
-    }
-
-
-    public int getStock() {
-        return stock;
-    }
-
-
-    public void setStock(int stock) {
+        this.costo_compra = costoCompra;
+        this.precio_venta = precioVenta;
         this.stock = stock;
+        this.historial_precios = new ArrayList<>();
+        this.historial_costos = new ArrayList<>();
     }
-
-
-    public String getCodigo_barras() {
-        return codigo_barras;
-    }
-
-
-    public void setCodigo_barras(String codigo_barras) {
-        this.codigo_barras = codigo_barras;
-    }
-
-    public HistorialCosto getCosto_inicial() {
-        return costo_inicial;
-    }
-
-    public void setCosto_inicial(HistorialCosto costo_inicial) {
-        this.costo_inicial = costo_inicial;
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true; // Si son la misma instancia
-        if (o == null || getClass() != o.getClass()) return false; // Si el objeto es de otro tipo
-
-        Producto producto = (Producto) o;
-
-        // Comparamos por codigo_barras o por algún otro identificador único
-        return Objects.equals(codigo_barras, producto.getCodigo_barras());
-    }
-
-    @Override
-    public int hashCode() {
-        return codigo_barras != null ? codigo_barras.hashCode() : 0;
-    }
-
 }

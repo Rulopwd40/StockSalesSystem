@@ -12,25 +12,26 @@ CREATE TABLE producto(
 );
 
 CREATE TABLE venta(
-                      id integer PRIMARY KEY,
+                      id BIGINT PRIMARY KEY,
                       fecha TEXT DEFAULT CURRENT_TIMESTAMP,
                       total NUMERIC,
                       estado boolean
 );
 
 CREATE TABLE venta_producto(
-                               id_venta integer REFERENCES venta(id),
+                               id_venta BIGINT REFERENCES venta(id),
                                codigo_barras TEXT REFERENCES producto(codigo_barras),
                                precio_venta NUMERIC,
+                               costo_compra NUMERIC,
                                descuento NUMERIC,
-                               cantidad INTEGER
+                               cantidad INTEGER,
                                total NUMERIC
 
 );
 
 
 CREATE TABLE producto_fuera_de_stock(
-                                        id integer PRIMARY KEY,
+                                        id BIGINT PRIMARY KEY,
                                         id_venta integer references venta(id),
                                         nombre TEXT,
                                         precio_venta NUMERIC,
@@ -40,8 +41,8 @@ CREATE TABLE producto_fuera_de_stock(
 
 
 CREATE TABLE detalle_venta(
-                              id_venta integer REFERENCES venta(id),
-                              id_producto integer REFERENCES producto_fuera_de_stock(id)
+                              id_venta BIGINT REFERENCES venta(id),
+                              id_producto BIGINT REFERENCES producto_fuera_de_stock(id)
 );
 
 CREATE TABLE categoria (
@@ -51,18 +52,20 @@ CREATE TABLE categoria (
 
 
 CREATE TABLE historial_costos(
-                                 Id integer PRIMARY KEY AUTOINCREMENT ,
-                                 codigo_barras TEXT references producto(codigo_barras) ON DELETE CASCADE ,
+                                 Id INTEGER,
+                                 codigo_barras TEXT REFERENCES producto(codigo_barras) ON DELETE CASCADE,
                                  costo_compra NUMERIC,
-                                 cantidad integer,
-                                 estado boolean,
-                                 fecha TEXT DEFAULT (datetime('now', 'localtime'))
-
+                                 cantidad INTEGER,
+                                 estado BOOLEAN,
+                                 fecha TEXT DEFAULT (datetime('now', 'localtime')),
+                                 PRIMARY KEY (Id,codigo_barras)
 );
 
 CREATE TABLE historial_precios(
-                                  Id integer PRIMARY KEY AUTOINCREMENT ,
+                                  Id INTEGER ,
                                   codigo_barras TEXT references producto(codigo_barras) ON DELETE CASCADE ,
-                                  precio_venta integer,
-                                  fecha TEXT DEFAULT (datetime('now','localtime'))
+                                  precio_venta NUMERIC,
+                                  fecha TEXT DEFAULT (datetime('now','localtime')),
+                                  PRIMARY KEY (Id,codigo_barras)
 );
+

@@ -2,26 +2,32 @@ package com.libcentro.demo.services;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.libcentro.demo.exceptions.InsufficientStockException;
 import com.libcentro.demo.model.Categoria;
+import com.libcentro.demo.model.HistorialCosto;
 import com.libcentro.demo.model.HistorialPrecio;
-import com.libcentro.demo.services.interfaces.IhistorialCostosService;
-import com.libcentro.demo.services.interfaces.IhistorialPreciosService;
+import com.libcentro.demo.model.dto.CategoriaDTO;
+import com.libcentro.demo.model.dto.ProductoDTO;
+import com.libcentro.demo.repository.IcategoriaRepository;
+import com.libcentro.demo.services.interfaces.IhistorialService;
 import com.libcentro.demo.utils.ProductosCSV;
 import com.libcentro.demo.utils.command.*;
 import com.libcentro.demo.view.productos.ProgresoProductos;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.hibernate.ObjectNotFoundException;
-import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.repository.IproductoRepository;
 import com.libcentro.demo.services.interfaces.IproductoService;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.swing.*;
 
@@ -29,88 +35,96 @@ import javax.swing.*;
 public class ProductoService implements IproductoService {
 
     @Autowired
-    private IproductoRepository productoRepo;
+    private IproductoRepository productoRepository;
     @Autowired
-    private IhistorialCostosService historialCostosService;
+    private IhistorialService historialService;
     @Autowired
-    private IhistorialPreciosService historialPreciosService;
-    @Autowired
-    private TransactionTemplate transactionTemplate;
+    private IcategoriaRepository categoriaRepository;
 
-    ProductosCSV productosCSV = new ProductosCSV();
+    @Autowired
+    private EntityManager em;
 
+    @Autowired
+    ProductosCSV productosCSV;
 
     private final CommandInvoker commandInvoker = new CommandInvoker();
     @Autowired
     private CategoriaService categoriaService;
 
     @Override
-    public List<Producto> getAll() {
-        return productoRepo.findAll();
+    public List<ProductoDTO> getAll() {
+        return productoRepository.findAll().stream().map (ProductoDTO::new).toList ();
     }
 
     @Override
-    public void saveProducto(Producto x) {
-        productoRepo.save(x);
+    @Transactional
+    public Producto crearProducto ( Producto x) {
+       return productoRepository.saveAndFlush(x);
     }
+
     @Override
-    public Producto crearProducto(Producto producto) {
-
-        Producto existingProducto = productoRepo.findById(producto.getCodigo_barras()).orElse(null);
-
-        if (existingProducto != null) {
-            throw new RuntimeException("El producto con codigo: " + producto.getCodigo_barras() + " ya existe.");
+    public ProductoDTO crearProducto ( ProductoDTO productoDto ){
+        if (productoRepository.existsById (productoDto.getCodigobarras ())) {
+            throw new RuntimeException ("El producto con codigo: " + productoDto.getCodigobarras() + " ya existe.");
         }
-        commandInvoker.executeCommand(new AddProductCommand(this, producto, historialPreciosService, historialCostosService));
+        Producto producto = new Producto (productoDto);
 
+        HistorialCosto historialCosto = historialService.crearHistorialCosto (producto,
+                producto.getCosto_compra (),
+                producto.getStock (),
+                HistorialCosto.Estado.INICIAL);
 
-        return producto;
+        producto.getHistorial_costos ().add(historialCosto);
+
+        HistorialPrecio historialPrecio = historialService.crearHistorialPrecio (producto,
+                producto.getPrecio_venta ());
+
+        producto.getHistorial_precios ().add(historialPrecio);
+
+        commandInvoker.executeCommand (new AddProductCommand (this,producto));
+
+        return productoDto;
     }
-
 
     @Override
     public boolean importarCSV(String path) {
-        List<Producto> productosARC;
-
-        // Obtener productos desde el archivo CSV
+        List<ProductoDTO> productosARC;
         try {
             productosARC = productosCSV.obtenerProductos(path, categoriaService);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        // Obtener los productos ya existentes
-        List<Producto> productos = getAll();
-
-        // Inicializar el diálogo de progreso con la cantidad total de productos a procesar
         ProgresoProductos progresoDialog = new ProgresoProductos(null, productosARC.size());
 
-        // Crear un SwingWorker para procesar los productos en segundo plano
         SwingWorker<Void, Integer> worker = new SwingWorker<Void, Integer>() {
             int cuentaActualizados = 0;
             int cuentaCreados = 0;
 
             @Override
             protected Void doInBackground() throws Exception {
-                // Mostrar el diálogo de progreso
                 SwingUtilities.invokeLater(() -> progresoDialog.mostrar());
 
                 for (int i = 0; i < productosARC.size(); i++) {
-                    Producto producto = productosARC.get(i);
+                    ProductoDTO productoDTO = productosARC.get(i);
                     try {
-                        if (productos.contains(producto)) {
-                            // Ejecutar comando de actualización usando el invocador
-                            commandInvoker.executeCommand(new UpdateProductCommand(ProductoService.this, historialCostosService, historialPreciosService, getProducto(producto.getCodigo_barras()), producto));
-                            cuentaActualizados++;
+                        Optional<Producto> productoOpt;
+                        Producto producto;
+                        if ((productoOpt = productoRepository.findById(productoDTO.getCodigobarras())).isPresent ()) {
+                            Categoria categoria = categoriaRepository.findByNombre (productoDTO.getCategoria().getNombre());
+                            producto = productoOpt.get ();
+                            producto.setNombre (productoDTO.getNombre());
+                            producto.setCategoria (categoria);
+                            producto.setCosto_compra (productoDTO.getCosto_compra());
+                            producto.setPrecio_venta (productoDTO.getPrecio_venta());
+                            producto.setStock (producto.getStock() + productoDTO.getStock());
+                                commandInvoker.executeCommand(new UpdateProductCommand(ProductoService.this, historialService, productoOpt.get(), producto));
+                                cuentaActualizados++;
                         } else {
-                            // Ejecutar comando de creación usando el invocador
-                            commandInvoker.executeCommand(new AddProductCommand(ProductoService.this, producto, historialPreciosService, historialCostosService));
+                            crearProducto (productoDTO);
                             cuentaCreados++;
                         }
-
-                        // Publicar el progreso
                         publish(i + 1); // Actualizar la barra de progreso
                     } catch (Exception e) {
-                        // Manejo de errores dentro del ciclo
                         JOptionPane.showMessageDialog(null, "Error al procesar el producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
@@ -119,17 +133,15 @@ public class ProductoService implements IproductoService {
 
             @Override
             protected void process(List<Integer> chunks) {
-                // Actualizar la barra de progreso con el progreso actual
                 int productosProcesados = chunks.get(chunks.size() - 1);
                 progresoDialog.actualizarProgreso(productosProcesados, productosARC.size());
             }
 
             @Override
             protected void done() {
-                // Finalizar el diálogo cuando el proceso esté completo
                 progresoDialog.finalizar();
                 try {
-                    get(); // Asegurar que no haya excepciones
+                    get();
                     JOptionPane.showMessageDialog(null, "Productos creados: " + cuentaCreados + " Productos actualizados: " + cuentaActualizados, "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(null, "Error durante el procesamiento: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -138,97 +150,105 @@ public class ProductoService implements IproductoService {
                 }
             }
         };
-
-        // Ejecutar el SwingWorker
         worker.execute();
         return true;
     }
 
     @Override
-    public void deleteProducto(Producto x) {
-        productoRepo.deleteById(x.getCodigo_barras());
-        productoRepo.flush();
-    }
-
-    @Override
     public void deleteProductoByCodigo(String codigo_barras){
-        productoRepo.deleteById(codigo_barras);
-    }
-    @Override
-    public void deleteProducto(String codigo_barras){
-        Producto producto = productoRepo.getProductoWithHistorialPrecioAndHistorialCosto(codigo_barras);
-        commandInvoker.executeCommand(new DeleteProductCommand(this, producto,historialPreciosService,historialCostosService));
+        productoRepository.deleteById(codigo_barras);
     }
 
     @Override
-    public void updateProductoCSV(Producto producto){
-        Producto productoObtenido = getProducto(producto.getCodigo_barras());
-        producto.setStock(producto.getStock()+productoObtenido.getStock());
-        ((ProductoService) AopContext.currentProxy()).updateProducto(producto);
-    }
-    @Override
-    public void updateProducto(Producto productoActualizado) {
-        Producto productoActual= productoRepo.findById(productoActualizado.getCodigo_barras()).orElse(null);
-        assert productoActual != null;
-        productoActualizado.setCosto_inicial(productoActual.getCosto_inicial());
-        commandInvoker.executeCommand(new UpdateProductCommand(this, historialCostosService, historialPreciosService,productoActual,productoActualizado));
+    public List<ProductoDTO> productosByPage ( int page,String filter, boolean sin_stock ){
+        List<ProductoDTO> productos;
+
+        String filterT = filter.toLowerCase();
+
+        if(sin_stock){
+           productos = productoRepository.findByStockLessThanEqual (0).stream ().map (ProductoDTO::new).filter(
+                   producto -> producto.getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
+                           producto.getCodigobarras ().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
+                           producto.getCategoria().getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*")
+           ).toList();
+            return productos;
+        }else if(filter != ""){
+            productos = productoRepository.findAll ().stream ().map (ProductoDTO::new).filter(
+                    producto -> producto.getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
+                    producto.getCodigobarras ().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
+                    producto.getCategoria().getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*")
+            ).toList();
+            return productos;
+        }
+
+        Page<Producto> productosPage = productoRepository.getProductosPage (PageRequest.of (page, 25));
+        return productosPage.stream().map(ProductoDTO::new).toList();
     }
 
+    @Override
+    public void updateProducto( ProductoDTO productoActualizado) {
+        Producto productoActual= productoRepository.findById(productoActualizado.getCodigobarras()).orElseThrow();
+
+        Categoria categoria = categoriaRepository.findByNombre (productoActualizado.getCategoria ().getNombre ());
+
+        Producto producto = new Producto (productoActualizado.getCodigobarras(),
+                productoActualizado.getNombre(),
+                categoria,
+                productoActualizado.getCosto_compra (),
+                productoActualizado.getPrecio_venta (),
+                productoActualizado.getStock ()
+                );
+        commandInvoker.executeCommand(new UpdateProductCommand(this, historialService,productoActual,producto));
+    }
 
     @Override
-    public void updateProductosBy(Categoria categoria, float porcentaje) {
+    public void updateProductosBy( CategoriaDTO categoriaDto, double porcentaje) {
         List<Producto> productosViejos;
 
         if(porcentaje == 0){
             throw new RuntimeException("Porcentaje no puede ser cero.");
         }
-        // Obtén los productos según la categoría (o todos si la categoría es null)
-        if (categoria == null) {
-            productosViejos = productoRepo.findAll();
+
+        if (categoriaDto == null) {
+            productosViejos = productoRepository.findAll();
         } else {
-            productosViejos = productoRepo.findAllByCategoria(categoria);
+            Categoria categoria = categoriaRepository.findByNombre (categoriaDto.getNombre ());
+            productosViejos = productoRepository.findAllByCategoria(categoria);
         }
 
-        // Crea una nueva lista de productos (productosNuevos) a partir de productosViejos
+
         List<Producto> productosNuevos = productosViejos.stream()
                 .map(productoViejo -> {
-                    Producto nuevoProducto = new Producto(productoViejo); // Asumimos que Producto tiene un constructor copia
-                    float nuevoPrecio = nuevoProducto.getPrecio_venta() + (nuevoProducto.getPrecio_venta() * porcentaje);
+                    Producto nuevoProducto = new Producto(productoViejo);
+                    double nuevoPrecio = nuevoProducto.getPrecio_venta() + Math.round(nuevoProducto.getPrecio_venta() * porcentaje * 100d)/ 100d;
                     nuevoProducto.setPrecio_venta(nuevoPrecio);
                     return nuevoProducto;
                 })
                 .collect(Collectors.toList());
 
-        // Guarda los productos actualizados en la base de datos
-        commandInvoker.executeCommand(new UpdateProductsBy(this,productosNuevos,productosViejos, historialPreciosService));
+
+        commandInvoker.executeCommand(new UpdateProductsBy(this,productosNuevos,productosViejos, historialService));
     }
 
     @Override
-    public Producto getProducto(String codigo_barras){
-        return productoRepo.findById(codigo_barras).orElse(null);
+    public ProductoDTO getProducto(String codigo_barras) throws ObjectNotFoundException{
+        return productoRepository.findById(codigo_barras).stream()
+                .map(ProductoDTO::new)
+                .findFirst()
+                .orElseThrow(() -> new ObjectNotFoundException(Producto.class, "Producto no encontrado"));
     }
 
     @Override
-    public Producto getProducto(String codigo_barras, int cantidad) {
-        Producto producto= productoRepo.findById(codigo_barras).orElse(null);
+    public ProductoDTO getProducto(String codigo_barras, int cantidad) {
+        Producto producto= productoRepository.findById(codigo_barras).orElse(null);
         if(producto==null) {
             throw new RuntimeException("El producto con codigo: " + codigo_barras + " no existe.");
         }
         else if(cantidad >= producto.getStock()){
             throw new InsufficientStockException("Cantidad insuficiente del producto: " + codigo_barras);
         }
-        return producto;
+        return new ProductoDTO(producto);
     }
-
-    @Override
-    public void venderProducto(Producto producto, int cantidad){
-        Producto productoExistente = productoRepo.findById(producto.getCodigo_barras())
-                .orElseThrow(() -> new ObjectNotFoundException(Producto.class, producto.getCodigo_barras()));
-
-        productoExistente.setStock(producto.getStock()-cantidad);
-        productoRepo.save(productoExistente);
-    }
-
 
     @Override
     public void undo(){
@@ -254,17 +274,17 @@ public class ProductoService implements IproductoService {
     }
 
     @Override
-    public List<Producto> getProductosByCantidad(int cantidad) {
-        return productoRepo.findByStockLessThanEqual(cantidad);
+    public List<ProductoDTO> getProductosByCantidad(int cantidad) {
+        return productoRepository.findByStockLessThanEqual(cantidad).stream ().map (ProductoDTO::new).toList ();
     }
 
-
-    public HistorialPrecio anadirHistorialPrecio(Producto producto){
-        HistorialPrecio historialPrecio= new HistorialPrecio(producto,producto.getPrecio_venta());
-        historialPreciosService.save(historialPrecio);
-        return historialPrecio;
+    @Override
+    public void venderProducto ( ProductoDTO productoDTO ){
+        Optional<Producto> producto = productoRepository.findById(productoDTO.getCodigobarras());
+        producto.ifPresent(p -> {
+                p.setStock(productoDTO.getStock ());
+                productoRepository.save(p);});
     }
-
 
 
 

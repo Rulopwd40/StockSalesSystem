@@ -2,8 +2,11 @@ package com.libcentro.demo.utils;
 
 import com.libcentro.demo.model.Categoria;
 import com.libcentro.demo.model.Producto;
+import com.libcentro.demo.model.dto.CategoriaDTO;
+import com.libcentro.demo.model.dto.ProductoDTO;
 import com.libcentro.demo.services.CategoriaService;
 import com.libcentro.demo.view.productos.TratarCategorias;
+import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -16,17 +19,18 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+@Component
 public class ProductosCSV {
-    List<Producto> productos;
-    Map<String,List<Producto>> productosATratar = new HashMap<>();
+    List<ProductoDTO> productos;
+    Map<String,List<ProductoDTO>> productosATratar = new HashMap<>();
     CategoriaService categoriaService;
     TratarCategorias tc;
     JTable table;
     DefaultTableModel tableModel;
-    Set<Categoria> categoriasCreadas=new HashSet<>();
+    List<CategoriaDTO> categoriasCreadas=new ArrayList<>();
 
 
-    public List<Producto> obtenerProductos(String file,CategoriaService categoriaService) throws IOException {
+    public List<ProductoDTO> obtenerProductos( String file, CategoriaService categoriaService) throws IOException {
         this.categoriaService = categoriaService;
         productos = new ArrayList<>();
         File csv = new File(file);
@@ -42,22 +46,11 @@ public class ProductosCSV {
             while ((linea = br.readLine()) != null) {
                 String[] datos = linea.split(separador);
 
-                Categoria categoria= categoriaService.getCategoria(datos[2]);
+                CategoriaDTO categoria= categoriaService.getCategoria(datos[2]);
                 if(categoria==null) {
-                    productosATratar.putIfAbsent(datos[2],new ArrayList<Producto>());
+                    productosATratar.putIfAbsent(datos[2],new ArrayList<ProductoDTO>());
                 }
-                Producto producto = new Producto();
-
-                if (datos.length == 6) {
-                    producto.setCodigo_barras(datos[0]);
-                    producto.setNombre(datos[1]);
-                    producto.setCategoria(categoria);
-                    producto.setStock(Integer.parseInt(datos[3]));
-                    producto.setCosto_compra(Float.parseFloat(datos[4]));
-                    producto.setPrecio_venta(Float.parseFloat(datos[5]));
-                }else{
-                    throw new RuntimeException("Formato incorrecto de archivo");
-                }
+                ProductoDTO producto = getProductoDTO(datos, categoria);
                 if(categoria==null) {
                     productosATratar.get(datos[2]).add(producto);
                 }else{
@@ -143,10 +136,26 @@ public class ProductosCSV {
         return productos;
     }
 
+    private static ProductoDTO getProductoDTO ( String[] datos, CategoriaDTO categoria ){
+        ProductoDTO producto = new ProductoDTO();
+
+        if ( datos.length == 6) {
+            producto.setCodigobarras(datos[0]);
+            producto.setNombre(datos[1]);
+            producto.setCategoria(categoria);
+            producto.setStock(Integer.parseInt(datos[3]));
+            producto.setCosto_compra(Float.parseFloat(datos[4]));
+            producto.setPrecio_venta(Float.parseFloat(datos[5]));
+        }else{
+            throw new RuntimeException("Formato incorrecto de archivo, revise su contenido");
+        }
+        return producto;
+    }
+
     private boolean anularProductos(int row){
             String key= tableModel.getValueAt(row,0).toString();
-            List<Producto> productosTratar = productosATratar.get(key);
-            for(Producto producto : productosTratar) {
+            List<ProductoDTO> productosTratar = productosATratar.get(key);
+            for(ProductoDTO producto : productosTratar) {
                 producto.setCategoria(producto.getCategoria());
             }
             productos.addAll(productosTratar);
@@ -156,13 +165,14 @@ public class ProductosCSV {
     }
     private boolean crearCategorias(int row){
             String key= tableModel.getValueAt(row,0).toString();
-            Categoria categoria = new Categoria(key);
+            CategoriaDTO categoria = new CategoriaDTO();
+            categoria.setNombre (key);
             categoriaService.saveCategoria(categoria);
             categoriasCreadas.add(categoria);
 
-            List<Producto> productosTratar = productosATratar.get(key);
+            List<ProductoDTO> productosTratar = productosATratar.get(key);
 
-            for(Producto producto : productosTratar) {
+            for(ProductoDTO producto : productosTratar) {
                 producto.setCategoria(categoria);
             }
             productos.addAll(productosTratar);
@@ -174,16 +184,16 @@ public class ProductosCSV {
     private boolean elegirOtraCategoria(int row) {
         String key = tableModel.getValueAt(row, 0).toString();
         final boolean[] bandera = {false};
-        List<Producto> productosTratar = productosATratar.get(key);
+        List<ProductoDTO> productosTratar = productosATratar.get(key);
         tc.getOptionalPane().setEnabled(true);
         tc.getTablaCategoriasExistentes().setEnabled(true);
         DefaultTableModel tableCategoriasModel = (DefaultTableModel) tc.getTablaCategoriasExistentes().getModel();
         tableCategoriasModel.setRowCount(0);
         tc.getElegirButton().setEnabled(true);
 
-        List<Categoria> categorias = categoriaService.getAll();
+        List<CategoriaDTO> categorias = categoriaService.getAll();
 
-        for (Categoria categoria : categorias) {
+        for (CategoriaDTO categoria : categorias) {
             tableCategoriasModel.addRow(new Object[]{categoria.getNombre()});
         }
 
@@ -216,9 +226,9 @@ public class ProductosCSV {
         return bandera[0];
     }
 
-    private boolean cambiarCategoria(String string,List<Producto> productosTratar) {
-        Categoria categoria = categoriaService.getCategoria(string);
-        for (Producto p : productosTratar) {
+    private boolean cambiarCategoria(String string,List<ProductoDTO> productosTratar) {
+        CategoriaDTO categoria = categoriaService.getCategoria(string);
+        for (ProductoDTO p : productosTratar) {
             p.setCategoria(categoria);
         }
         productos.addAll(productosTratar);

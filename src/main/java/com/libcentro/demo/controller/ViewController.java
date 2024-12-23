@@ -2,27 +2,41 @@ package com.libcentro.demo.controller;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 
 @Controller
 public class ViewController {
 
-    MenuController menuController;
-    VentaController ventaController;
-    ProductosController productosController;
+    final MenuController menuController;
+    final VentaController ventaController;
+    final ProductosController productosController;
+    final ReportesController reportesController;
+    final StockController stockController;
+
 
     @Autowired
-    public ViewController(MenuController menuController, VentaController ventaController, ProductosController productosController) {
+    public ViewController(MenuController menuController,
+                          VentaController ventaController,
+                          ProductosController productosController,
+                          ReportesController reportesController,
+                          StockController stockController) {
         this.menuController = menuController;
         this.ventaController = ventaController;
         this.productosController = productosController;
-
-
+        this.reportesController = reportesController;
+        this.stockController = stockController;
     }
 
     void openMenuView() {
         menuController.openMenuView();
+    }
+
+    void openStockControlView(){
+        try {
+            this.stockController.stockControl(true);
+        }catch(Exception ignore){
+            System.out.println("Stock Control: No");
+        };
     }
 
 
@@ -36,7 +50,6 @@ public class ViewController {
         ventaController.openVentaFrame();
     }
 
-    void openEstadisticasView() {
-        System.out.println("open estadisticas view");
-    }
+    void openReportesView(){ reportesController.openReportesFrame();};
+
 }

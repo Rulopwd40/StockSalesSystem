@@ -1,96 +1,36 @@
 package com.libcentro.demo.model;
 
+import com.libcentro.demo.model.dto.ProductoFStockDTO;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
-import java.util.Objects;
 
+@Data
 @Entity
 @Table(name="producto_fuera_de_stock")
 public class ProductoFStock {
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private int id;
-    @Column(name="nombre")
+    private long id;
     private String nombre;
-    @Column(name="precio_venta")
     private float precio_venta;
-    @Column(name="cantidad")
     private int cantidad;
-    @Column(name="descuento")
-    private float descuento;
-
-
-
+    private float descuento = 0;
     @ManyToOne
     @JoinColumn(name = "id_venta")
     private Venta venta;
 
     public ProductoFStock() {
-        descuento=0;
     }
 
-    public ProductoFStock(Venta venta, String nombre, String cantidad, String precio, String descuento) {
-        this.venta = venta;
-        this.nombre = nombre;
-        this.cantidad = Integer.parseInt(cantidad);
-        this.precio_venta = Float.parseFloat(precio);
-        this.descuento = Float.parseFloat(descuento);
+    public ProductoFStock ( ProductoFStockDTO productoFStockDTO ){
+        this.nombre = productoFStockDTO.getNombre();
+        this.precio_venta = productoFStockDTO.getPrecio_venta();
+        this.cantidad = productoFStockDTO.getCantidad();
+        this.descuento = productoFStockDTO.getDescuento();
     }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public float getPrecio_venta() {
-        return precio_venta;
-    }
-
-    public void setPrecio_venta(float precio_venta) {
-        this.precio_venta = precio_venta;
-    }
-
-    public int getCantidad() {
-        return cantidad;
-    }
-
-    public void setCantidad(int cantidad) {
-        this.cantidad = cantidad;
-    }
-    public float getDescuento() {
-        return descuento;
-    }
-
-    public void setDescuento(float descuento) {
-        this.descuento = descuento;
-    }
-
-    public float getTotal(){
-        return precio_venta*cantidad-descuento/100*cantidad*precio_venta;
-    };
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true; // Si son la misma instancia
-        if (o == null || getClass() != o.getClass()) return false; // Si el objeto es de otro tipo
-
-        ProductoFStock producto = (ProductoFStock) o;
-
-        // Comparamos por codigo_barras o por algún otro identificador único
-        return Objects.equals(nombre, producto.getNombre());
-    }
-
-    @Override
-    public int hashCode() {
-        return nombre != null ? nombre.hashCode() : 0;
-    }
-
 }

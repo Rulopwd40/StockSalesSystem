@@ -1,95 +1,114 @@
 package com.libcentro.demo.model;
 
 
+import com.libcentro.demo.model.dto.Venta_ProductoDTO;
+import com.libcentro.demo.model.id.VentaProductoId;
 import jakarta.persistence.*;
+import lombok.Data;
+
 
 @Entity
 @Table(name="venta_producto")
+@IdClass(VentaProductoId.class)
 public class Venta_Producto {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private int id;
+        private long id_venta;
+
+        @Id
+        private String codigobarras;
 
         @ManyToOne
-        @JoinColumn(name = "id_venta")
+        @JoinColumn(name = "id_venta", insertable = false, updatable = false)
         private Venta venta;
-
         @ManyToOne
-        @JoinColumn(name = "codigo_barras")
+        @JoinColumn(name = "codigobarras", insertable = false, updatable = false)
         private Producto producto;
-
-        @Column(name="cantidad")
         private int cantidad;
-
-        @Column(name="descuento")
-        private float descuento;
-
-        @Column(name="precio_venta")
-        private float precio_venta;
-
-        @Column(name="total")
-        private float total;
+        private double descuento;
+        private double precio_venta;
+        private double costo_compra;
+        private double total;
 
 
-    public Venta_Producto(Venta venta) {
-        this.venta = venta;
-    }
+        public Venta_Producto() {}
 
-    public Venta_Producto() {
 
-    }
 
-    public float getDescuento() {
-        return descuento;
-    }
+        public Venta_Producto ( Venta_ProductoDTO ventaProductoDTO ){
+            this.id_venta = ventaProductoDTO.getId_venta();
+            this.codigobarras = ventaProductoDTO.getCodigobarras();
+            this.cantidad = ventaProductoDTO.getCantidad();
+            this.descuento = ventaProductoDTO.getDescuento();
+            this.precio_venta = ventaProductoDTO.getPrecio_venta();
+            this.costo_compra = ventaProductoDTO.getCosto_compra();
+            this.total = ventaProductoDTO.getTotal();
+        }
 
-    public void setDescuento(float descuento) {
-        this.descuento = descuento;
-        updateTotal();
-    }
+        public void setDescuento(float descuento) {
+                this.descuento = descuento;
+                updateTotal();
+            }
 
-    public int getCantidad() {
-        return cantidad;
-    }
+        public void setCantidad(int cantidad) {
+                this.cantidad = cantidad;
+                updateTotal();
+        }
+            public void setVenta(Venta venta) {
+                this.venta = venta;
+                this.id_venta = venta.getId();
+            }
 
-    public void setCantidad(int cantidad) {
-        this.cantidad = cantidad;
-        updateTotal();
-    }
+        public void setProducto(Producto producto, int cantidad) {
+                this.codigobarras = producto.getCodigobarras ();
+                this.producto = producto;
+                precio_venta = producto.getPrecio_venta();
+                costo_compra = producto.getCosto_compra();
+                this.cantidad = cantidad;
+                updateTotal();
+            }
 
-    public Venta getVenta() {
-        return venta;
-    }
+        private void updateTotal() {
 
-    public void setVenta(Venta venta) {
-        this.venta = venta;
-    }
+                total = precio_venta * cantidad - precio_venta * cantidad * descuento / 100;
 
-    public Producto getProducto() {
-        return producto;
-    }
+                // Redondear a 2 decimales
+                total = Math.round(total * 100.00d) / 100.00d;
+            }
 
-    public float getTotal() {
-        return total;
-    }
+        public long getId_venta (){
+            return id_venta;
+        }
 
-    public void setProducto(Producto producto, int cantidad) {
-        this.producto = producto;
-        precio_venta = producto.getPrecio_venta();
-        this.cantidad = cantidad;
-        updateTotal();
-    }
+        public String getCodigobarras (){
+            return codigobarras;
+        }
 
-    private void updateTotal() {
-        // Calcular el total antes de redondear
-        total = precio_venta * cantidad - precio_venta * cantidad * descuento / 100;
+        public Venta getVenta (){
+            return venta;
+        }
 
-        // Redondear a 2 decimales
-        total = Math.round(total * 100.00f) / 100.00f;
-    }
+        public Producto getProducto (){
+            return producto;
+        }
 
-    public float getPrecio_venta() {
-        return precio_venta;
-    }
+        public int getCantidad (){
+            return cantidad;
+        }
+
+        public double getDescuento (){
+            return descuento;
+        }
+
+        public double getPrecio_venta (){
+            return precio_venta;
+        }
+
+        public double getCosto_compra (){
+            return costo_compra;
+        }
+
+        public double getTotal (){
+            return total;
+        }
 }
