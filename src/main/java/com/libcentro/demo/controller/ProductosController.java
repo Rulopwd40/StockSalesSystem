@@ -43,6 +43,9 @@ public class ProductosController {
     ViewController viewController;
     ProductosFrame productosFrame;
 
+    //Pagina
+    int page=0;
+
     //Productos
     List<ProductoDTO> productos;
     List<CategoriaDTO> categorias;
@@ -66,34 +69,37 @@ public class ProductosController {
     }
 
     public void openProductosFrame() {
+        this.page=0;
+
         if (productosFrame == null) {
             productosFrame = new ProductosFrame();
             productosFrameAddListeners();
+
+            // Añadir un mapeo para la tecla F5
+            productosFrame.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                    .put(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0), "refreshTable");
+
+            // Asignar una acción a la tecla F5
+            productosFrame.getRootPane().getActionMap().put("refreshTable", new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    productosFrameUpdateTable();
+                }
+            });
         }
 
-        refreshProductos();
 
         this.productsModel = (DefaultTableModel) productosFrame.getTable().getModel();
-        productosFrameUpdateTable(productosFrame.getBuscarField().getText());
+        productosFrameUpdateTable();
 
         categorias= getAllCategoria();
+        productosFrame.getPageCount ().setText (this.page + 1 + "");
+        pagina (0);
 
-        // Añadir un mapeo para la tecla F5
-        productosFrame.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-                .put(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0), "refreshTable");
-
-        // Asignar una acción a la tecla F5
-        productosFrame.getRootPane().getActionMap().put("refreshTable", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                refreshProductos();
-                productosFrameUpdateTable();
-            }
-        });
 
 
         productosFrame.setVisible(true);
-        productosFrame.setState(Frame.NORMAL); // Restaurar si está minimizado
+        productosFrame.setState(Frame.NORMAL);
         productosFrame.toFront();
         productosFrame.requestFocus();
 
@@ -204,7 +210,31 @@ public class ProductosController {
                     }
             }
         });
+
+        productosFrame.getAnteriorButton ().addActionListener (new ActionListener(){
+            @Override
+            public void actionPerformed ( ActionEvent e ){
+                pagina(-1);
+            }
+        });
+        productosFrame.getSiguienteButton ().addActionListener (new ActionListener(){
+            @Override
+            public void actionPerformed ( ActionEvent e ){
+                pagina(+1);
+            }
+        });
     }
+
+    private void pagina ( int i ){
+        productosFrame.getAnteriorButton ().setEnabled(this.page + i > 0);
+        this.page += i;
+
+        productosFrame.getPageCount ().setText (this.page + 1 + "");
+        productosFrameUpdateTable();
+
+        productosFrame.getSiguienteButton().setEnabled(this.productos.size () >= 25);
+    }
+
     //Agregar
     private void agregarProducto() {
         categorias = getAllCategoria();
@@ -567,30 +597,15 @@ public class ProductosController {
         // Limpiar todas las filas actuales del modelo de la tabla
         productsModel.setRowCount(0);
 
-        productos = productoService.getAll ();
 
-        String filterT = filter.toLowerCase();
-
-        List<ProductoDTO> productosFiltrados = productos.stream()
-                .filter(producto -> producto.getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
-                        producto.getCodigobarras ().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
-                        producto.getCategoria().getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*")
-                )
-                .toList();
-
-        if(productosFrame.getSinStockCheckBox().isSelected()) {
-            productosFiltrados = productosFiltrados.stream().filter(producto -> producto.getStock()==0).toList();
-        }
+       this.productos = productoService.productosByPage(this.page,filter,productosFrame.getSinStockCheckBox().isSelected());
 
         // Agregar los productos al modelo de la tabla
-        for (ProductoDTO producto : productosFiltrados) {
+        for (ProductoDTO producto : productos) {
             addProductoToTable(producto);
         }
     }
-    private void refreshProductos(){
-        productos = null;
-        productos = productoService.getAll ();
-    }
+
     private List<CategoriaDTO> getAllCategoria(){
         return categoriaService.getAll();
     }

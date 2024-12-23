@@ -20,6 +20,8 @@ public interface IproductoService {
 
     void deleteProductoByCodigo(String codigo_barras);
 
+    List<ProductoDTO> productosByPage(int page,String filter, boolean checkbox);
+
     @Transactional
     public void updateProducto(ProductoDTO x);
 

@@ -3,6 +3,7 @@ package com.libcentro.demo.services;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.libcentro.demo.exceptions.InsufficientStockException;
@@ -20,7 +21,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.libcentro.demo.model.Producto;
@@ -92,10 +94,6 @@ public class ProductoService implements IproductoService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        System.out.println("3");
-        List<ProductoDTO> productos = getAll();
-
         ProgresoProductos progresoDialog = new ProgresoProductos(null, productosARC.size());
 
         SwingWorker<Void, Integer> worker = new SwingWorker<Void, Integer>() {
@@ -119,19 +117,12 @@ public class ProductoService implements IproductoService {
                             producto.setCosto_compra (productoDTO.getCosto_compra());
                             producto.setPrecio_venta (productoDTO.getPrecio_venta());
                             producto.setStock (producto.getStock() + productoDTO.getStock());
-                            Optional<Producto> productViejo = productoRepository.findById(producto.getCodigobarras());
-                            if (productViejo.isPresent()) {
-                                commandInvoker.executeCommand(new UpdateProductCommand(ProductoService.this, historialService, productViejo.get (), producto));
+                                commandInvoker.executeCommand(new UpdateProductCommand(ProductoService.this, historialService, productoOpt.get(), producto));
                                 cuentaActualizados++;
-                            }
-
-
                         } else {
-                            producto = new Producto (productoDTO);
-                            commandInvoker.executeCommand(new AddProductCommand(ProductoService.this, producto));
+                            crearProducto (productoDTO);
                             cuentaCreados++;
                         }
-
                         publish(i + 1); // Actualizar la barra de progreso
                     } catch (Exception e) {
                         JOptionPane.showMessageDialog(null, "Error al procesar el producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -166,6 +157,32 @@ public class ProductoService implements IproductoService {
     @Override
     public void deleteProductoByCodigo(String codigo_barras){
         productoRepository.deleteById(codigo_barras);
+    }
+
+    @Override
+    public List<ProductoDTO> productosByPage ( int page,String filter, boolean sin_stock ){
+        List<ProductoDTO> productos;
+
+        String filterT = filter.toLowerCase();
+
+        if(sin_stock){
+           productos = productoRepository.findByStockLessThanEqual (0).stream ().map (ProductoDTO::new).filter(
+                   producto -> producto.getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
+                           producto.getCodigobarras ().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
+                           producto.getCategoria().getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*")
+           ).toList();
+            return productos;
+        }else if(filter != ""){
+            productos = productoRepository.findAll ().stream ().map (ProductoDTO::new).filter(
+                    producto -> producto.getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
+                    producto.getCodigobarras ().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
+                    producto.getCategoria().getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*")
+            ).toList();
+            return productos;
+        }
+
+        Page<Producto> productosPage = productoRepository.getProductosPage (PageRequest.of (page, 25));
+        return productosPage.stream().map(ProductoDTO::new).toList();
     }
 
     @Override

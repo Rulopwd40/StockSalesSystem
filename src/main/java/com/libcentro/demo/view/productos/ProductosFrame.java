@@ -22,6 +22,9 @@ public class ProductosFrame extends JFrame {
     private JPanel panelUpd;
     private JPanel panelClose;
     private JButton actualizarTablaButton;
+    private JButton siguienteButton;
+    private JButton anteriorButton;
+    private JLabel pageCount;
 
 
     public ProductosFrame(){
@@ -135,5 +138,15 @@ public class ProductosFrame extends JFrame {
         return actualizarTablaButton;
     }
 
+    public JButton getAnteriorButton (){
+        return anteriorButton;
+    }
 
+    public JButton getSiguienteButton (){
+        return siguienteButton;
+    }
+
+    public JLabel getPageCount (){
+        return pageCount;
+    }
 }
