@@ -5,8 +5,10 @@ import com.libcentro.demo.model.dto.Venta_ProductoDTO;
 import com.libcentro.demo.model.id.VentaProductoId;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 
 
+@Getter
 @Entity
 @Table(name="venta_producto")
 @IdClass(VentaProductoId.class)
@@ -76,39 +78,4 @@ public class Venta_Producto {
                 total = Math.round(total * 100.00d) / 100.00d;
             }
 
-        public long getId_venta (){
-            return id_venta;
-        }
-
-        public String getCodigobarras (){
-            return codigobarras;
-        }
-
-        public Venta getVenta (){
-            return venta;
-        }
-
-        public Producto getProducto (){
-            return producto;
-        }
-
-        public int getCantidad (){
-            return cantidad;
-        }
-
-        public double getDescuento (){
-            return descuento;
-        }
-
-        public double getPrecio_venta (){
-            return precio_venta;
-        }
-
-        public double getCosto_compra (){
-            return costo_compra;
-        }
-
-        public double getTotal (){
-            return total;
-        }
 }

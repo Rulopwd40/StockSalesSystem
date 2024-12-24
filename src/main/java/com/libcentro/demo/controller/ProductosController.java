@@ -180,6 +180,7 @@ public class ProductosController {
             @Override
             public void actionPerformed(ActionEvent e) {
                 productosFrameUpdateTable();
+                pagina (0);
             }
         });
         productosFrame.getGeneralButton().addActionListener(new ActionListener() {
@@ -604,6 +605,7 @@ public class ProductosController {
         for (ProductoDTO producto : productos) {
             addProductoToTable(producto);
         }
+
     }
 
     private List<CategoriaDTO> getAllCategoria(){

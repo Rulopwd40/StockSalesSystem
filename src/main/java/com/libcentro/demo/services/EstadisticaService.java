@@ -1,6 +1,7 @@
 package com.libcentro.demo.services;
 
 import com.libcentro.demo.model.Producto;
+import com.libcentro.demo.model.Venta;
 import com.libcentro.demo.model.Venta_Producto;
 import com.libcentro.demo.repository.IventaproductoRepository;
 import com.libcentro.demo.services.interfaces.IestadisticaService;
@@ -41,13 +42,17 @@ public class EstadisticaService implements IestadisticaService {
             throw new RuntimeException(e);
         }
 
-        ArrayList<Venta_Producto> ventaproductos = (ArrayList<Venta_Producto>) ventaproductoRepository.findByCodigo_barrasAndVentaFechaBetween(codigo, fechaInicio, fechaFin);
-
-        if (ventaproductos.isEmpty()) {
-            throw new RuntimeException("No existen productos en ese período");
-        }
-
         if (tipo == "producto") {
+            List<Venta_Producto> ventaproductos;
+            try {
+                ventaproductos = ventaproductoRepository.findByCodigo_barrasAndVentaFechaBetween (codigo, fechaInicio, fechaFin);
+            }catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            if(ventaproductos.isEmpty()) {
+                throw new RuntimeException("No se encontro inforación del producto");
+            }
             return generarGraficaProducto(ventaproductos, fechaInicio, fechaFin);
         } else if (tipo == "venta") {
             return generarGraficaVenta(ventaproductos, fechaInicio, fechaFin);
@@ -58,20 +63,15 @@ public class EstadisticaService implements IestadisticaService {
     }
 
     private Image generarGraficaProducto(ArrayList<Venta_Producto> ventaproductos, Date fechaInicio, Date fechaFin) {
-        // Generar CSV con los datos (como lo hicimos anteriormente)
         try {
             FileWriter writer = new FileWriter("producto_data.csv");
             writer.write("Fecha,GananciaNeta\n");
 
-            // Iterar sobre la lista de venta_productos para escribir los datos
             for (Venta_Producto vp : ventaproductos) {
-                // Obtener la fecha de la venta
                 String fechaVenta = vp.getVenta().getFecha().toString(); // Asegúrate de obtener la fecha correctamente
 
-                // Calcular la ganancia neta: (precio_venta - costo_compra) * cantidad
                 double gananciaNeta = (vp.getPrecio_venta() - vp.getCosto_compra()) * vp.getCantidad();
 
-                // Escribir en el archivo CSV
                 writer.write(fechaVenta + "," + gananciaNeta + "\n");
             }
             writer.close();
@@ -79,16 +79,12 @@ public class EstadisticaService implements IestadisticaService {
             throw new RuntimeException("Error al escribir el archivo CSV", e);
         }
 
-        // Ejecutar el script Python con ProcessBuilder
         try {
-            // Configura el comando para ejecutar el script de Python
             ProcessBuilder processBuilder = new ProcessBuilder("python", "generar_grafica.py", "producto_data.csv", "producto");
 
-            // Redirigir la salida de error y la salida estándar
             processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();
 
-            // Capturar la salida del proceso
             StringBuilder output = new StringBuilder();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
@@ -96,13 +92,11 @@ public class EstadisticaService implements IestadisticaService {
                 output.append(line).append("\n");
             }
 
-            // Esperar a que el proceso termine y verificar el código de salida
             int exitCode = process.waitFor();
             if (exitCode != 0) {
                 throw new RuntimeException("Error en el script Python. Código de salida: " + exitCode + "\n" + output.toString());
             }
 
-            // Leer la imagen generada por el script Python
             File file = new File("grafica.png");
             Image image = ImageIO.read(file);
 
@@ -115,7 +109,7 @@ public class EstadisticaService implements IestadisticaService {
 
 
 
-    public Image generarGraficaVenta(ArrayList<Venta_Producto> ventaproductos, Date fechaInicio, Date fechaFin) {
+    public Image generarGraficaVenta( ArrayList<Venta> ventaproductos, Date fechaInicio, Date fechaFin) {
         // Generar CSV con los datos (ventas y ganancia neta)
         try {
             FileWriter writer = new FileWriter("venta_data.csv");
