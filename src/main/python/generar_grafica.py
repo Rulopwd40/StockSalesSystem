@@ -3,32 +3,25 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 def generar_grafica(csv_file, tipo):
-    # Leer el archivo CSV
     data = pd.read_csv(csv_file)
-
-    # Crear la gráfica
     plt.figure(figsize=(10, 6))
 
     if tipo == "producto":
-        # Graficar la ganancia neta por producto
-        plt.bar(data['Fecha'], data['GananciaNeta'], color='blue')
+        plt.plot(data['Fecha'], data['GananciaNeta'], color='#42B0FF', marker='o', linestyle='-', label='Ganancia Neta')
         plt.xlabel('Fecha')
         plt.ylabel('Ganancia Neta')
         plt.title('Ganancia Neta por Producto')
 
     elif tipo == "venta":
-        # Graficar la ganancia neta por venta
-        plt.bar(data['Fecha'], data['GananciaNeta'], color='green')
+        plt.plot(data['Fecha'], data['GananciaNeta'], color='#42B0FF', marker='o', linestyle='-', label='Ganancia Neta')
         plt.xlabel('Fecha')
         plt.ylabel('Ganancia Neta')
         plt.title('Ganancia Neta por Venta')
 
-    # Guardar la gráfica como un archivo PNG
-    plt.xticks(rotation=45, ha="right")  # Rotar las etiquetas de las fechas para mejor legibilidad
+    plt.xticks(rotation=0, ha="right")  # Rotar las etiquetas de las fechas para mejor legibilidad
     plt.tight_layout()  # Ajustar el diseño
-    plt.savefig('grafica.png')  # Guardar el archivo PNG
+    plt.savefig('graph/grafica.png')  # Guardar el archivo PNG
 
-    # Cerrar la gráfica
     plt.close()
 
 if __name__ == "__main__":

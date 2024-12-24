@@ -428,7 +428,7 @@ public class VentaController {
         }catch(Exception ignore){
         }
         ventaFrame.dispose();
-
+        ventaFrame =null;
     }
 
 }

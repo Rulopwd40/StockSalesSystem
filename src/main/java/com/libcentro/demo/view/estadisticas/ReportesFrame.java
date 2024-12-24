@@ -20,7 +20,8 @@ public class ReportesFrame extends JFrame{
 
     public ReportesFrame(){
         setContentPane(reportesPanel);
-        setSize(945,630);
+        setSize(1360,768);
+        setResizable (false);
         setLocationRelativeTo(null);
         setFocusable(true);
     }
@@ -67,5 +68,9 @@ public class ReportesFrame extends JFrame{
 
     public JTextField getCodigoField() {
         return codigoField;
+    }
+
+    public void setGraphPane ( JPanel graphPane ){
+        this.graphPane = graphPane;
     }
 }

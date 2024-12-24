@@ -1,22 +1,21 @@
 package com.libcentro.demo.services;
 
-import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.model.Venta;
 import com.libcentro.demo.model.Venta_Producto;
+import com.libcentro.demo.repository.IventaRepository;
 import com.libcentro.demo.repository.IventaproductoRepository;
 import com.libcentro.demo.services.interfaces.IestadisticaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
 import javax.imageio.ImageIO;
 import java.io.*;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.*;
 import java.awt.*;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class EstadisticaService implements IestadisticaService {
@@ -24,25 +23,25 @@ public class EstadisticaService implements IestadisticaService {
     @Autowired
     IventaproductoRepository ventaproductoRepository;
 
+    @Autowired
+    IventaRepository ventaRepository;
+
+    static String python_path = "src/main/python/generar_grafica.py";
+
+    static String csv_path = "csv/";
+    static String graph_path = "graph/";
+
     @Override
     public Image generarGrafica(String codigo, String tipo, String tiempo) {
-      /*  String fecha = generarFecha(tiempo);
 
-        String[] fechas = fecha.split(",");
+        LocalDateTime[] fechas = generarFecha(tiempo);
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        if(fechas.length==0) throw new RuntimeException ("Error");
 
-        Date fechaInicio;
-        Date fechaFin;
-        try {
-            // Parsear la fecha de inicio (primera fecha del array)
-            fechaInicio = sdf.parse(fechas[0]);
-            fechaFin = sdf.parse(fechas[1]);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        LocalDateTime fechaInicio = fechas[0];
+        LocalDateTime fechaFin = fechas[1];
 
-        if (tipo == "producto") {
+      /*  if (tipo == "producto") {
             List<Venta_Producto> ventaproductos;
             try {
                 ventaproductos = ventaproductoRepository.findByCodigo_barrasAndVentaFechaBetween (codigo, fechaInicio, fechaFin);
@@ -53,17 +52,28 @@ public class EstadisticaService implements IestadisticaService {
             if(ventaproductos.isEmpty()) {
                 throw new RuntimeException("No se encontro inforación del producto");
             }
-            return generarGraficaProducto(ventaproductos, fechaInicio, fechaFin);
-        } else if (tipo == "venta") {
-            return generarGraficaVenta(ventaproductos, fechaInicio, fechaFin);
+             return generarGraficaProducto(ventaproductos, fechaInicio, fechaFin);
+        } else*/ if (tipo.equals ("venta")) {
+            List<Venta> ventas;
+            try {
+                List<Venta> ventasAll = ventaRepository.findAll();
+                ventas = ventasAll.stream()
+                        .filter(venta -> venta.getFecha().isAfter(fechaInicio) && venta.getFecha().isBefore(fechaFin))
+                        .collect(Collectors.toList());
+            }catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            if(ventas.isEmpty ()){
+                throw new RuntimeException("No hay informacion de ventas");
+            }
+
+            return generarGraficaVenta(ventas, fechaInicio, fechaFin);
         }
 
         return null;
-*/
-        return null;
     }
 
-    private Image generarGraficaProducto(ArrayList<Venta_Producto> ventaproductos, Date fechaInicio, Date fechaFin) {
+    private Image generarGraficaProducto( List<Venta_Producto> ventaproductos, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
         try {
             FileWriter writer = new FileWriter("producto_data.csv");
             writer.write("Fecha,GananciaNeta\n");
@@ -110,27 +120,21 @@ public class EstadisticaService implements IestadisticaService {
 
 
 
-    public Image generarGraficaVenta( ArrayList<Venta> venta, Date fechaInicio, Date fechaFin) {
-      /*  // Generar CSV con los datos (ventas y ganancia neta)
+    public Image generarGraficaVenta( List<Venta> ventas, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
         try {
-            FileWriter writer = new FileWriter("venta_data.csv");
+            FileWriter writer = new FileWriter(csv_path + "venta_data.csv");
             writer.write("Fecha,GananciaNeta\n");
 
-            // Agrupar las ventas por fecha (o por cualquier otro criterio que necesites)
             Map<String, Double> gananciasPorFecha = new HashMap<>();
 
-            for (Venta_Producto vp : ventaproductos) {
-                // Obtener la fecha de la venta (puedes cambiar la forma en que la formateas si es necesario)
-                String fechaVenta = vp.getVenta().getFecha(); // Asegúrate de obtener la fecha correctamente
+            for (Venta venta : ventas) {
+                String fechaVenta = String.valueOf (venta.getFecha());
 
-                // Calcular la ganancia neta: (precio_venta - costo_compra) * cantidad
-                double gananciaNeta = (vp.getPrecio_venta() - vp.getCosto_compra()) * vp.getCantidad();
+                double ganancia = venta.getTotal ();
 
-                // Agrupar las ganancias por fecha
-                gananciasPorFecha.put(fechaVenta, gananciasPorFecha.getOrDefault(fechaVenta, 0d) + gananciaNeta);
+                gananciasPorFecha.put(fechaVenta, gananciasPorFecha.getOrDefault(fechaVenta, 0d) + ganancia);
             }
 
-            // Escribir las ganancias agrupadas por fecha en el archivo CSV
             for (Map.Entry<String, Double> entry : gananciasPorFecha.entrySet()) {
                 writer.write(entry.getKey() + "," + entry.getValue() + "\n");
             }
@@ -140,16 +144,12 @@ public class EstadisticaService implements IestadisticaService {
             throw new RuntimeException("Error al escribir el archivo CSV", e);
         }
 
-        // Ejecutar el script Python con ProcessBuilder
         try {
-            // Configura el comando para ejecutar el script de Python
-            ProcessBuilder processBuilder = new ProcessBuilder("python", "generar_grafica.py", "venta_data.csv", "venta");
+            ProcessBuilder processBuilder = new ProcessBuilder("python", python_path, csv_path + "venta_data.csv", "venta");
 
-            // Redirigir la salida de error y la salida estándar
             processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();
 
-            // Capturar la salida del proceso
             StringBuilder output = new StringBuilder();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
@@ -157,14 +157,12 @@ public class EstadisticaService implements IestadisticaService {
                 output.append(line).append("\n");
             }
 
-            // Esperar a que el proceso termine y verificar el código de salida
             int exitCode = process.waitFor();
             if (exitCode != 0) {
                 throw new RuntimeException("Error en el script Python. Código de salida: " + exitCode + "\n" + output.toString());
             }
 
-            // Leer la imagen generada por el script Python
-            File file = new File("grafica.png");
+            File file = new File(graph_path +"grafica.png");
             Image image = ImageIO.read(file);
 
             return image;
@@ -172,47 +170,42 @@ public class EstadisticaService implements IestadisticaService {
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException("Error al ejecutar el script Python", e);
         }
-*/ return null;
     }
 
 
 
-    public String generarFecha(String tiempo) {
-        LocalDateTime fechaFin = LocalDate.now().atStartOfDay();
+    public LocalDateTime[] generarFecha(String tiempo) {
+        LocalDateTime fechaFin = LocalDate.now().atTime(LocalTime.MAX);
         LocalDateTime fechaInicio;
 
         switch (tiempo) {
             case "Ayer":
-                fechaInicio = fechaFin.minusDays(1);
-                fechaFin = fechaInicio;
+                fechaInicio = fechaFin.minusDays(1).with(LocalTime.MIN);
+                fechaFin = fechaFin.minusDays(1);
                 break;
             case "Ultima semana":
-                fechaInicio = fechaFin.minusWeeks(1);
+                fechaInicio = fechaFin.minusWeeks(1).with(DayOfWeek.MONDAY).with(LocalTime.MIN);
                 break;
             case "Ultimo mes":
-                fechaInicio = fechaFin.minusMonths(1);
+                fechaInicio = fechaFin.minusMonths(1).withDayOfMonth(1).with(LocalTime.MIN);
                 break;
             case "Ultimo trimestre":
-                fechaInicio = fechaFin.minusMonths(3);
+                fechaInicio = fechaFin.minusMonths(3).withMonth(1).withDayOfMonth(1).with(LocalTime.MIN);
                 break;
             case "Ultimo semestre":
-                fechaInicio = fechaFin.minusMonths(6);
+                fechaInicio = fechaFin.minusMonths(6).withMonth(1).withDayOfMonth(1).with(LocalTime.MIN);
                 break;
             case "Ultimo año":
-                fechaInicio = fechaFin.minusYears(1);
+                fechaInicio = fechaFin.minusYears(1).withDayOfYear(1).with(LocalTime.MIN);
+                break;
             case "Todos los tiempos":
-                // Asumimos una fecha de inicio arbitraria para "Todos los tiempos"
                 fechaInicio = LocalDate.of(2000, 1, 1).atStartOfDay();
                 break;
-            case "Elegir período":
-                // Lógica adicional para permitir seleccionar un rango personalizado
-                return "Seleccionar período personalizado";
             default:
                 throw new IllegalArgumentException("Opción de tiempo no válida: " + tiempo);
         }
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-        return fechaInicio.format(formatter) + "," + fechaFin.format(formatter);
+        return new LocalDateTime[]{fechaInicio, fechaFin};
     }
 
 

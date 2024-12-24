@@ -6,6 +6,8 @@ import com.libcentro.demo.view.estadisticas.ReportesFrame;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -79,10 +81,32 @@ public class ReportesController {
         
     }
 
-    private void generarGrafica() {
-            estadisticaService.generarGrafica(frame.getCodigoField().getText(),
+private void generarGrafica() {
+            Image image = estadisticaService.generarGrafica(frame.getCodigoField().getText(),
                     estado.toString().toLowerCase(),
                     (String) frame.getPeriodoBox().getSelectedItem());
+
+            if(image==null) throw new RuntimeException ("No se genero imagen");
+            int nuevoAncho = 900;
+            int nuevoAlto = 540;
+
+            Image imagenRedimensionada = image.getScaledInstance(nuevoAncho, nuevoAlto, Image.SCALE_SMOOTH);
+
+
+            JPanel picPane = new JPanel() {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    g.drawImage(imagenRedimensionada, 0, 0, getWidth(), getHeight(), null);
+                }
+            };
+            picPane.setPreferredSize(new Dimension(nuevoAncho, nuevoAlto));
+
+            frame.getGraphPane().add(picPane);
+
+            picPane.revalidate();
+            picPane.repaint();
+            picPane.setVisible(true);
     }
 
     private void generarReembolso() {
