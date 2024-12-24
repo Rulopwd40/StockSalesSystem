@@ -231,7 +231,7 @@ public class ProductosController {
         this.page += i;
 
         productosFrame.getPageCount ().setText (this.page + 1 + "");
-        productosFrameUpdateTable();
+        productosFrameUpdateTable(productosFrame.getBuscarField ().getText ());
 
         productosFrame.getSiguienteButton().setEnabled(this.productos.size () >= 25);
     }

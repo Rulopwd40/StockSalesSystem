@@ -26,7 +26,7 @@ public class EstadisticaService implements IestadisticaService {
 
     @Override
     public Image generarGrafica(String codigo, String tipo, String tiempo) {
-        String fecha = generarFecha(tiempo);
+      /*  String fecha = generarFecha(tiempo);
 
         String[] fechas = fecha.split(",");
 
@@ -59,7 +59,8 @@ public class EstadisticaService implements IestadisticaService {
         }
 
         return null;
-
+*/
+        return null;
     }
 
     private Image generarGraficaProducto(ArrayList<Venta_Producto> ventaproductos, Date fechaInicio, Date fechaFin) {
@@ -109,8 +110,8 @@ public class EstadisticaService implements IestadisticaService {
 
 
 
-    public Image generarGraficaVenta( ArrayList<Venta> ventaproductos, Date fechaInicio, Date fechaFin) {
-        // Generar CSV con los datos (ventas y ganancia neta)
+    public Image generarGraficaVenta( ArrayList<Venta> venta, Date fechaInicio, Date fechaFin) {
+      /*  // Generar CSV con los datos (ventas y ganancia neta)
         try {
             FileWriter writer = new FileWriter("venta_data.csv");
             writer.write("Fecha,GananciaNeta\n");
@@ -171,7 +172,7 @@ public class EstadisticaService implements IestadisticaService {
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException("Error al ejecutar el script Python", e);
         }
-
+*/ return null;
     }
 
 

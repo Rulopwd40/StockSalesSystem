@@ -17,7 +17,7 @@ public interface IproductoRepository extends JpaRepository<Producto, String> {
 
     List<Producto> findByStockLessThanEqual(int cantidad);
 
-    @Query("SELECT p FROM Producto p")
-    Page<Producto> getProductosPage (Pageable pageable);
+    @Query("SELECT p FROM Producto p WHERE p.codigobarras LIKE :filter OR p.nombre LIKE :filter OR (p.categoria.nombre LIKE :filter)")
+    Page<Producto> getProductosPage (Pageable pageable, String filter);
 
 }

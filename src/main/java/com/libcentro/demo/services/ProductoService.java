@@ -163,7 +163,7 @@ public class ProductoService implements IproductoService {
     public List<ProductoDTO> productosByPage ( int page,String filter, boolean sin_stock ){
         List<ProductoDTO> productos;
 
-        String filterT = filter.toLowerCase();
+        String filterT = "%" +  filter.toLowerCase() + "%";
 
         if(sin_stock){
            productos = productoRepository.findByStockLessThanEqual (0).stream ().map (ProductoDTO::new).filter(
@@ -172,16 +172,9 @@ public class ProductoService implements IproductoService {
                            producto.getCategoria().getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*")
            ).toList();
             return productos;
-        }else if(filter != ""){
-            productos = productoRepository.findAll ().stream ().map (ProductoDTO::new).filter(
-                    producto -> producto.getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
-                    producto.getCodigobarras ().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
-                    producto.getCategoria().getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*")
-            ).toList();
-            return productos;
         }
 
-        Page<Producto> productosPage = productoRepository.getProductosPage (PageRequest.of (page, 25));
+        Page<Producto> productosPage = productoRepository.getProductosPage (PageRequest.of (page, 25),filterT);
         return productosPage.stream().map(ProductoDTO::new).toList();
     }
 

@@ -83,10 +83,7 @@ public class VentaService implements IventaService {
 
 
         LocalDateTime dateTime = LocalDateTime.now();
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-        String formattedDateTime = dateTime.format(dateTimeFormatter);
-        ventaDTO.setFecha(formattedDateTime);
-
+        ventaDTO.setFecha(dateTime);
 
 
         Venta venta = saveVenta(ventaDTO);

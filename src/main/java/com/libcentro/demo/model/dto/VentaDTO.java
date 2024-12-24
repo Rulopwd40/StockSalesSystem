@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,7 +20,7 @@ public class VentaDTO {
 
 
     private long id;
-    private String fecha;
+    private LocalDateTime fecha;
     private double total = 0;
     private boolean estado = true;
     private Set<Venta_ProductoDTO> venta_producto = new HashSet<>();
