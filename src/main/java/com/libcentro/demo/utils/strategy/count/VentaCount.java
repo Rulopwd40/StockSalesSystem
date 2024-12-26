@@ -62,7 +62,6 @@ public class VentaCount implements CountStrategy<Venta> {
                 Ganancia promedio | %.2f
                 """;
 
-
         return String.format(pretext,cantidad,promedio_diario,monto_maximo,fechaFormateada,total,total_diario_promedio);
     }
 }

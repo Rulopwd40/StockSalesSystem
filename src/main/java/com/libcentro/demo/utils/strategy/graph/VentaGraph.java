@@ -7,6 +7,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.*;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,12 +17,15 @@ public class VentaGraph implements GraphStrategy<Venta> {
     public Image generarGrafica ( List<Venta> datos ){
         try {
             FileWriter writer = new FileWriter (AppConfig.csv_path + "venta_data.csv");
-            writer.write ("Fecha,GananciaNeta\n");
+            writer.write ("Fecha,Ganancia\n");
 
             Map<String, Double> gananciasPorFecha = new HashMap<> ();
 
             for (Venta venta : datos) {
-                String fechaVenta = String.valueOf (venta.getFecha ());
+
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+                String fechaVenta = venta.getFecha ().format(formatter);
 
                 double ganancia = venta.getTotal ();
 

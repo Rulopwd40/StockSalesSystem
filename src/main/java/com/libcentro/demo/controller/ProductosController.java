@@ -9,6 +9,7 @@ import com.libcentro.demo.exceptions.EmptyFieldException;
 import com.libcentro.demo.exceptions.OutOfBounds;
 import com.libcentro.demo.model.dto.CategoriaDTO;
 import com.libcentro.demo.model.dto.ProductoDTO;
+import com.libcentro.demo.model.dto.ProductoPageDTO;
 import com.libcentro.demo.services.interfaces.IcategoriaService;
 import com.libcentro.demo.utils.FieldAnalyzer;
 import com.libcentro.demo.utils.filters.Filter;
@@ -60,6 +61,7 @@ public class ProductosController {
     DefaultTableModel productsModel;
     DefaultTableModel categoriasModel;
 
+    private int pagsDisponibles;
 
     @Autowired
     public ProductosController(@Lazy ViewController viewController, IproductoService productoService, IcategoriaService categoriaService) {
@@ -93,7 +95,7 @@ public class ProductosController {
         productosFrameUpdateTable();
 
         categorias= getAllCategoria();
-        productosFrame.getPageCount ().setText (this.page + 1 + "");
+
         pagina (0);
 
 
@@ -104,7 +106,6 @@ public class ProductosController {
         productosFrame.requestFocus();
 
     }
-
     private void productosFrameAddListeners(){
         productosFrame.getSinStockCheckBox().addActionListener( new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -203,12 +204,10 @@ public class ProductosController {
         productosFrame.getEliminarProductoButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                    ConfirmarDialog cd = new ConfirmarDialog ("Borrar? esta accion no se puede deshacer");
-                    cd.setVisible(true);
-                    if(cd.isAceptar ()) {
+
                         eliminarProducto ();
                         productosFrameUpdateTable ();
-                    }
+
             }
         });
 
@@ -225,15 +224,11 @@ public class ProductosController {
             }
         });
     }
-
     private void pagina ( int i ){
-        productosFrame.getAnteriorButton ().setEnabled(this.page + i > 0);
         this.page += i;
 
-        productosFrame.getPageCount ().setText (this.page + 1 + "");
+        productosFrame.getPageCount ().setText (this.page + 1 + " de " + this.pagsDisponibles);
         productosFrameUpdateTable(productosFrame.getBuscarField ().getText ());
-
-        productosFrame.getSiguienteButton().setEnabled(this.productos.size () >= 25);
     }
 
     //Agregar
@@ -277,7 +272,6 @@ public class ProductosController {
         agregarProducto.setVisible(true);
 
     }
-
     private void importarCSV(){
         ImportarCSV importarCSV= new ImportarCSV();
 
@@ -416,7 +410,6 @@ public class ProductosController {
 
         actualizarUnProducto.setVisible(true);
     }
-
     private void actualizarProductoPorCategoria(){
         actualizarPorCategoria = new ActualizarPorCategoria();
         categorias = categoriaService.getAll();
@@ -460,7 +453,6 @@ public class ProductosController {
 
         actualizarPorCategoria.setVisible(true);
     }
-
     private void actualizacionGeneral(){
         ActualizarGeneral actualizarGeneral = new ActualizarGeneral();
 
@@ -487,10 +479,18 @@ public class ProductosController {
     //Eliminación
     private void eliminarProducto(){
        int[] fila= productosFrame.getTable().getSelectedRows();
+       System.out.println(fila.length);
+
        if(fila.length==0){
            JOptionPane.showMessageDialog(null,"Seleccione un producto en la tabla","Error",JOptionPane.ERROR_MESSAGE);
            throw new RuntimeException("Seleccione un producto en la tabla");
        }
+
+       ConfirmarDialog cd = new ConfirmarDialog ("Borrar? esta accion no se puede deshacer");
+       cd.setVisible(true);
+
+       if(!cd.isAceptar ()) return;
+
        try {
            for(Integer i: fila){
                productoService.deleteProductoByCodigo (productosFrame.getTable().getValueAt(i, 0).toString());
@@ -506,7 +506,7 @@ public class ProductosController {
         agregarCategoria = new AgregarCategoria();
 
         categoriasModel = (DefaultTableModel) agregarCategoria.getTablaCategorias().getModel();
-        ListSelectionModel categoriasSelectionModel = (ListSelectionModel) agregarCategoria.getTablaCategorias().getSelectionModel();
+        ListSelectionModel categoriasSelectionModel = agregarCategoria.getTablaCategorias().getSelectionModel();
 
         for(CategoriaDTO categoria : categorias) {
             categoriasModel.addRow(new Object[]{categoria.getNombre()});
@@ -536,8 +536,6 @@ public class ProductosController {
                 categoriasModel.removeRow(filaSeleccionada);
 
                 agregarCategoria.getEliminarButton().setEnabled(false);
-
-
             }
         });
         agregarCategoria.getCategoriaField().getDocument().addDocumentListener(new DocumentListener() {
@@ -557,12 +555,7 @@ public class ProductosController {
 
             }
             private void verificarCampo(){
-                if(agregarCategoria.getCategoriaField().getText().isEmpty()) {
-                    agregarCategoria.getAgregarButton().setEnabled(false);
-                }
-                else {
-                    agregarCategoria.getAgregarButton().setEnabled(true);
-                }
+                agregarCategoria.getAgregarButton().setEnabled(!agregarCategoria.getCategoriaField ().getText ().isEmpty ());
             }
         });
         agregarCategoria.getAgregarButton().addActionListener(new ActionListener() {
@@ -590,24 +583,24 @@ public class ProductosController {
 
     }
 
-
     private void productosFrameUpdateTable(){
         productosFrameUpdateTable("");
     }
     private void productosFrameUpdateTable(String filter) {
-        // Limpiar todas las filas actuales del modelo de la tabla
         productsModel.setRowCount(0);
 
+        ProductoPageDTO productoPageDTO = productoService.productosByPage(this.page,filter,productosFrame.getSinStockCheckBox().isSelected());
 
-       this.productos = productoService.productosByPage(this.page,filter,productosFrame.getSinStockCheckBox().isSelected());
+        this.productos = productoPageDTO.getProductos();
+        this.pagsDisponibles = productoPageDTO.getPaginas ();
 
-        // Agregar los productos al modelo de la tabla
         for (ProductoDTO producto : productos) {
             addProductoToTable(producto);
         }
 
+        productosFrame.getAnteriorButton ().setEnabled(this.page > 0);
+        productosFrame.getSiguienteButton().setEnabled(this.page+1 < this.pagsDisponibles);
     }
-
     private List<CategoriaDTO> getAllCategoria(){
         return categoriaService.getAll();
     }
@@ -622,6 +615,7 @@ public class ProductosController {
                 producto.getPrecio_venta()
         });
     }
+
     private void deshacer(){
         productoService.undo();
         productosFrameUpdateTable();

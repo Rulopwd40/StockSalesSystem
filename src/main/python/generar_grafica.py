@@ -7,16 +7,16 @@ def generar_grafica(csv_file, tipo):
     plt.figure(figsize=(10, 6))
 
     if tipo == "producto":
-        plt.plot(data['Fecha'], data['GananciaNeta'], color='#42B0FF', marker='o', linestyle='-', label='Ganancia Neta')
+        plt.plot(data['Fecha'], data['Ganancia'], color='#42B0FF', marker='o', linestyle='-', label='Ganancia')
         plt.xlabel('Fecha')
-        plt.ylabel('Ganancia Neta')
-        plt.title('Ganancia Neta por Producto')
+        plt.ylabel('Ganancia')
+        plt.title('Ganancia por Producto')
 
     elif tipo == "venta":
-        plt.plot(data['Fecha'], data['GananciaNeta'], color='#42B0FF', marker='o', linestyle='-', label='Ganancia Neta')
+        plt.plot(data['Fecha'], data['Ganancia'], color='#42B0FF', marker='o', linestyle='-', label='Ganancia')
         plt.xlabel('Fecha')
-        plt.ylabel('Ganancia Neta')
-        plt.title('Ganancia Neta por Venta')
+        plt.ylabel('Ganancia')
+        plt.title('Ganancia por Venta')
 
     plt.xticks(rotation=0, ha="right")  # Rotar las etiquetas de las fechas para mejor legibilidad
     plt.tight_layout()  # Ajustar el diseño

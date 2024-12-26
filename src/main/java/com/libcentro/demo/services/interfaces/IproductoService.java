@@ -5,6 +5,7 @@ import com.libcentro.demo.model.Producto;
 
 import com.libcentro.demo.model.dto.CategoriaDTO;
 import com.libcentro.demo.model.dto.ProductoDTO;
+import com.libcentro.demo.model.dto.ProductoPageDTO;
 import jakarta.transaction.Transactional;
 import org.hibernate.ObjectNotFoundException;
 
@@ -20,7 +21,7 @@ public interface IproductoService {
 
     void deleteProductoByCodigo(String codigo_barras);
 
-    List<ProductoDTO> productosByPage(int page,String filter, boolean checkbox);
+    ProductoPageDTO productosByPage( int page, String filter, boolean checkbox);
 
     @Transactional
     public void updateProducto(ProductoDTO x);

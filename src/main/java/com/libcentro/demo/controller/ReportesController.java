@@ -18,7 +18,6 @@ public class ReportesController {
 
 
     private IestadisticaService estadisticaService;
-    private IventaService ventaService;
 
     private enum Estado{
         VENTA,
@@ -29,20 +28,18 @@ public class ReportesController {
 
     private Estado estado= Estado.VENTA;
 
-
     ReportesFrame frame;
 
     @Autowired
-    public ReportesController(IestadisticaService estadisticaService, IventaService ventaService){
+    public ReportesController(IestadisticaService estadisticaService){
         this.estadisticaService = estadisticaService;
-        this.ventaService = ventaService;
     }
 
     public void openReportesFrame() {
+        if (frame == null) {
         frame = new ReportesFrame();
-
         addFrameListeners();
-
+        }
 
         frame.setVisible(true);
     }
@@ -85,8 +82,17 @@ public class ReportesController {
                 contabilizar();
             }
         });
+        frame.getOkButton ().addActionListener(new ActionListener() {
+           @Override
+           public void actionPerformed ( ActionEvent e ){
+               cerrar();
+           }
+        });
 
-        
+    }
+
+    private void cerrar (){
+        frame.setVisible(false);
     }
 
     private void contabilizar (){

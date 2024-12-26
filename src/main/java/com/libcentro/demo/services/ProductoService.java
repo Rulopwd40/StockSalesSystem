@@ -3,15 +3,16 @@ package com.libcentro.demo.services;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.libcentro.demo.config.AppConfig;
 import com.libcentro.demo.exceptions.InsufficientStockException;
 import com.libcentro.demo.model.Categoria;
 import com.libcentro.demo.model.HistorialCosto;
 import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.model.dto.CategoriaDTO;
 import com.libcentro.demo.model.dto.ProductoDTO;
+import com.libcentro.demo.model.dto.ProductoPageDTO;
 import com.libcentro.demo.repository.IcategoriaRepository;
 import com.libcentro.demo.services.interfaces.IhistorialService;
 import com.libcentro.demo.utils.ProductosCSV;
@@ -160,22 +161,12 @@ public class ProductoService implements IproductoService {
     }
 
     @Override
-    public List<ProductoDTO> productosByPage ( int page,String filter, boolean sin_stock ){
-        List<ProductoDTO> productos;
-
+    public ProductoPageDTO productosByPage ( int page, String filter, boolean sin_stock ){
         String filterT = "%" +  filter.toLowerCase() + "%";
 
-        if(sin_stock){
-           productos = productoRepository.findByStockLessThanEqual (0).stream ().map (ProductoDTO::new).filter(
-                   producto -> producto.getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
-                           producto.getCodigobarras ().toLowerCase().matches(Pattern.quote(filterT) + ".*") ||
-                           producto.getCategoria().getNombre().toLowerCase().matches(Pattern.quote(filterT) + ".*")
-           ).toList();
-            return productos;
-        }
+        Page<Producto> productosPage = productoRepository.getProductosPage (PageRequest.of (page, AppConfig.page_size),filterT,sin_stock);
 
-        Page<Producto> productosPage = productoRepository.getProductosPage (PageRequest.of (page, 25),filterT);
-        return productosPage.stream().map(ProductoDTO::new).toList();
+        return new ProductoPageDTO(productosPage.stream().map(ProductoDTO::new).toList(),productosPage.getTotalPages ());
     }
 
     @Override
