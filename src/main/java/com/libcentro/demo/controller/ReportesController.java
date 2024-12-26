@@ -7,9 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 
 @Controller
 public class ReportesController {
@@ -72,24 +74,52 @@ public class ReportesController {
             }
         });
         frame.getGenerarGraficaButton().addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 generarGrafica();
             }
         });
+        frame.getContabilizarButton ().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed ( ActionEvent e ){
+                contabilizar();
+            }
+        });
+
         
     }
 
-private void generarGrafica() {
+    private void contabilizar (){
+        String string = estadisticaService.contabilizar (frame.getCodigoField ().getText (),
+                estado.toString ().toLowerCase (),
+                (String) frame.getPeriodoBox().getSelectedItem());
+
+        DefaultTableModel tableModel = new DefaultTableModel(0,2);
+
+        String[] splited = string.split ("\n");
+
+
+        for(String s : splited){
+            tableModel.addRow (new String[]{s.split("\\|")[0],s.split("\\|")[1]});
+        }
+
+        frame.getTablaCount ().setModel (tableModel);
+
+
+    }
+
+    private void generarGrafica() {
+            frame.getGraphPane ().removeAll ();
+            frame.getGraphPane ().revalidate();
+
             Image image = estadisticaService.generarGrafica(frame.getCodigoField().getText(),
                     estado.toString().toLowerCase(),
                     (String) frame.getPeriodoBox().getSelectedItem());
 
             if(image==null) throw new RuntimeException ("No se genero imagen");
+
             int nuevoAncho = 900;
             int nuevoAlto = 540;
-
             Image imagenRedimensionada = image.getScaledInstance(nuevoAncho, nuevoAlto, Image.SCALE_SMOOTH);
 
 

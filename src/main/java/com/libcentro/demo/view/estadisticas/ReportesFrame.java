@@ -17,6 +17,9 @@ public class ReportesFrame extends JFrame{
     private JComboBox periodoBox;
     private JPanel graphPane;
     private JTextField codigoField;
+    private JTable tablaCount;
+
+
 
     public ReportesFrame(){
         setContentPane(reportesPanel);
@@ -72,5 +75,8 @@ public class ReportesFrame extends JFrame{
 
     public void setGraphPane ( JPanel graphPane ){
         this.graphPane = graphPane;
+    }
+    public JTable getTablaCount (){
+        return tablaCount;
     }
 }

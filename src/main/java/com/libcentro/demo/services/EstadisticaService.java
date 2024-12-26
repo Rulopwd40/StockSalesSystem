@@ -1,77 +1,106 @@
 package com.libcentro.demo.services;
 
-import com.libcentro.demo.model.Venta;
 import com.libcentro.demo.model.Venta_Producto;
+import com.libcentro.demo.repository.IproductoRepository;
 import com.libcentro.demo.repository.IventaRepository;
 import com.libcentro.demo.repository.IventaproductoRepository;
 import com.libcentro.demo.services.interfaces.IestadisticaService;
+import com.libcentro.demo.utils.strategy.count.CountContext;
+import com.libcentro.demo.utils.strategy.count.VentaCount;
+import com.libcentro.demo.utils.strategy.datefilter.DateFilterContext;
+import com.libcentro.demo.utils.strategy.datefilter.VentaDateFilter;
+import com.libcentro.demo.utils.strategy.graph.GraphContext;
+import com.libcentro.demo.utils.strategy.graph.VentaGraph;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 
 import javax.imageio.ImageIO;
 import java.io.*;
 import java.time.*;
-import java.util.*;
 import java.awt.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class EstadisticaService implements IestadisticaService {
 
-    @Autowired
-    IventaproductoRepository ventaproductoRepository;
+    private final IventaproductoRepository ventaproductoRepository;
+    private final IventaRepository ventaRepository;
+    private final IproductoRepository productoRepository;
+    private JpaRepository repository;
+
+    private final GraphContext graphContext;
+    private final DateFilterContext dateFilterContext;
+    private final CountContext countContext;
 
     @Autowired
-    IventaRepository ventaRepository;
+    public EstadisticaService( IventaproductoRepository ventaproductoRepository, IventaRepository ventaRepository, IproductoRepository productoRepository, GraphContext graphContext, DateFilterContext dateFilterContext, CountContext countContext ) {
+        this.ventaproductoRepository = ventaproductoRepository;
+        this.ventaRepository = ventaRepository;
+        this.productoRepository = productoRepository;
+        this.graphContext = graphContext;
+        this.dateFilterContext = dateFilterContext;
+        this.countContext = countContext;
+    }
 
-    static String python_path = "src/main/python/generar_grafica.py";
 
-    static String csv_path = "csv/";
-    static String graph_path = "graph/";
+    @Override
+    public String contabilizar ( String codigo, String tipo, String tiempo ){
+        setearEstrategia (tipo);
+
+        LocalDateTime[] fechas = generarFecha (tiempo);
+        if(fechas.length==0) throw new RuntimeException ("Error");
+
+        Duration duration = Duration.between(fechas[0], fechas[1]);
+        double duracionEnDias = duration.toHours() / 24.0;
+
+        List<?> datosFiltrados = obtenerYFiltrar (codigo,fechas);
+
+        try{
+            return countContext.ejecutar (datosFiltrados, duracionEnDias);
+        }catch (RuntimeException e){
+            throw new RuntimeException (e.getMessage ());
+        }
+    }
 
     @Override
     public Image generarGrafica(String codigo, String tipo, String tiempo) {
+        setearEstrategia(tipo);
 
         LocalDateTime[] fechas = generarFecha(tiempo);
-
         if(fechas.length==0) throw new RuntimeException ("Error");
 
-        LocalDateTime fechaInicio = fechas[0];
-        LocalDateTime fechaFin = fechas[1];
+        List <?> datosFiltrados = obtenerYFiltrar (codigo,fechas);
 
-      /*  if (tipo == "producto") {
-            List<Venta_Producto> ventaproductos;
-            try {
-                ventaproductos = ventaproductoRepository.findByCodigo_barrasAndVentaFechaBetween (codigo, fechaInicio, fechaFin);
-            }catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-
-            if(ventaproductos.isEmpty()) {
-                throw new RuntimeException("No se encontro inforación del producto");
-            }
-             return generarGraficaProducto(ventaproductos, fechaInicio, fechaFin);
-        } else*/ if (tipo.equals ("venta")) {
-            List<Venta> ventas;
-            try {
-                List<Venta> ventasAll = ventaRepository.findAll();
-                ventas = ventasAll.stream()
-                        .filter(venta -> venta.getFecha().isAfter(fechaInicio) && venta.getFecha().isBefore(fechaFin))
-                        .collect(Collectors.toList());
-            }catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            if(ventas.isEmpty ()){
-                throw new RuntimeException("No hay informacion de ventas");
-            }
-
-            return generarGraficaVenta(ventas, fechaInicio, fechaFin);
+        try {
+            return graphContext.ejecutar (datosFiltrados);
+        }catch (RuntimeException e){
+            throw new RuntimeException (e.getMessage ());
         }
-
-        return null;
     }
+
+    private void setearEstrategia ( String tipo ){
+        switch (tipo){
+            case "venta":
+                graphContext.setStrategy (new VentaGraph ());
+                repository = ventaRepository;
+                dateFilterContext.setStrategy (new VentaDateFilter ());
+                countContext.setStrategy (new VentaCount ());
+                break;
+            default:
+                throw new IllegalArgumentException ("Error: Estrategia Errónea");
+
+        }
+    }
+
+    private List<?> obtenerYFiltrar(String codigo, LocalDateTime[] fechas){
+        List<?> datos = repository.findAll();
+        if(datos.isEmpty()) throw new RuntimeException ("No hay informacion");
+        return dateFilterContext.ejecutar (datos,codigo,fechas);
+    }
+
+
 
     private Image generarGraficaProducto( List<Venta_Producto> ventaproductos, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
         try {
@@ -118,67 +147,15 @@ public class EstadisticaService implements IestadisticaService {
         }
     }
 
-
-
-    public Image generarGraficaVenta( List<Venta> ventas, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-        try {
-            FileWriter writer = new FileWriter(csv_path + "venta_data.csv");
-            writer.write("Fecha,GananciaNeta\n");
-
-            Map<String, Double> gananciasPorFecha = new HashMap<>();
-
-            for (Venta venta : ventas) {
-                String fechaVenta = String.valueOf (venta.getFecha());
-
-                double ganancia = venta.getTotal ();
-
-                gananciasPorFecha.put(fechaVenta, gananciasPorFecha.getOrDefault(fechaVenta, 0d) + ganancia);
-            }
-
-            for (Map.Entry<String, Double> entry : gananciasPorFecha.entrySet()) {
-                writer.write(entry.getKey() + "," + entry.getValue() + "\n");
-            }
-
-            writer.close();
-        } catch (IOException e) {
-            throw new RuntimeException("Error al escribir el archivo CSV", e);
-        }
-
-        try {
-            ProcessBuilder processBuilder = new ProcessBuilder("python", python_path, csv_path + "venta_data.csv", "venta");
-
-            processBuilder.redirectErrorStream(true);
-            Process process = processBuilder.start();
-
-            StringBuilder output = new StringBuilder();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line).append("\n");
-            }
-
-            int exitCode = process.waitFor();
-            if (exitCode != 0) {
-                throw new RuntimeException("Error en el script Python. Código de salida: " + exitCode + "\n" + output.toString());
-            }
-
-            File file = new File(graph_path +"grafica.png");
-            Image image = ImageIO.read(file);
-
-            return image;
-
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("Error al ejecutar el script Python", e);
-        }
-    }
-
-
-
     public LocalDateTime[] generarFecha(String tiempo) {
         LocalDateTime fechaFin = LocalDate.now().atTime(LocalTime.MAX);
         LocalDateTime fechaInicio;
 
         switch (tiempo) {
+            case "Hoy":
+                fechaInicio = LocalDate.now().atTime(LocalTime.MIN);
+                fechaFin = LocalDateTime.now();
+                break;
             case "Ayer":
                 fechaInicio = fechaFin.minusDays(1).with(LocalTime.MIN);
                 fechaFin = fechaFin.minusDays(1);
