@@ -41,7 +41,6 @@ public class ProductosController {
     private final IcategoriaService categoriaService;
 
     //Controllers
-    ViewController viewController;
     ProductosFrame productosFrame;
 
     //Pagina
@@ -62,10 +61,10 @@ public class ProductosController {
     DefaultTableModel categoriasModel;
 
     private int pagsDisponibles;
+    public int page_size= 25;
 
     @Autowired
-    public ProductosController(@Lazy ViewController viewController, IproductoService productoService, IcategoriaService categoriaService) {
-        this.viewController = viewController;
+    public ProductosController(IproductoService productoService, IcategoriaService categoriaService) {
         this.productoService = productoService;
         this.categoriaService = categoriaService;
     }
@@ -77,11 +76,8 @@ public class ProductosController {
             productosFrame = new ProductosFrame();
             productosFrameAddListeners();
 
-            // Añadir un mapeo para la tecla F5
             productosFrame.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
                     .put(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0), "refreshTable");
-
-            // Asignar una acción a la tecla F5
             productosFrame.getRootPane().getActionMap().put("refreshTable", new AbstractAction() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -89,8 +85,6 @@ public class ProductosController {
                 }
             });
         }
-
-
         this.productsModel = (DefaultTableModel) productosFrame.getTable().getModel();
         productosFrameUpdateTable();
 
@@ -98,36 +92,44 @@ public class ProductosController {
 
         pagina (0);
 
-
-
         productosFrame.setVisible(true);
         productosFrame.setState(Frame.NORMAL);
         productosFrame.toFront();
         productosFrame.requestFocus();
-
     }
     private void productosFrameAddListeners(){
+
+        productosFrame.addComponentListener (new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                    int height = productosFrame.getScrollPane().getHeight();
+                    int newPageSize = (int) Math.ceil(height * (5d / 79d));
+                    if (newPageSize > page_size * 1.5 || newPageSize < page_size / 1.5) {
+                        page_size = newPageSize;
+                        productosFrameUpdateTable();
+                    }
+            }
+        });
         productosFrame.getSinStockCheckBox().addActionListener( new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 productosFrameUpdateTable();
             }
         });
-
         productosFrame.getBuscarField().getDocument().addDocumentListener(new DocumentListener() {
 
             @Override
             public void insertUpdate(DocumentEvent e) {
-                productosFrameUpdateTable(productosFrame.getBuscarField().getText());
+                productosFrameUpdateTable();
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                productosFrameUpdateTable(productosFrame.getBuscarField().getText());
+                productosFrameUpdateTable();
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                productosFrameUpdateTable(productosFrame.getBuscarField().getText());
+                productosFrameUpdateTable();
             }
         });
 
@@ -228,7 +230,7 @@ public class ProductosController {
         this.page += i;
 
         productosFrame.getPageCount ().setText (this.page + 1 + " de " + this.pagsDisponibles);
-        productosFrameUpdateTable(productosFrame.getBuscarField ().getText ());
+        productosFrameUpdateTable();
     }
 
     //Agregar
@@ -574,7 +576,7 @@ public class ProductosController {
         agregarCategoria.getButtonOK().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                productosFrameUpdateTable("");
+                productosFrameUpdateTable();
             }
         });
 
@@ -583,13 +585,10 @@ public class ProductosController {
 
     }
 
-    private void productosFrameUpdateTable(){
-        productosFrameUpdateTable("");
-    }
-    private void productosFrameUpdateTable(String filter) {
+    private void productosFrameUpdateTable() {
         productsModel.setRowCount(0);
 
-        ProductoPageDTO productoPageDTO = productoService.productosByPage(this.page,filter,productosFrame.getSinStockCheckBox().isSelected());
+        ProductoPageDTO productoPageDTO = productoService.productosByPage(this.page,productosFrame.getBuscarField ().getText (),productosFrame.getSinStockCheckBox().isSelected(),this.page_size);
 
         this.productos = productoPageDTO.getProductos();
         this.pagsDisponibles = productoPageDTO.getPaginas ();
@@ -598,6 +597,7 @@ public class ProductosController {
             addProductoToTable(producto);
         }
 
+        productosFrame.getPageCount ().setText (this.page + 1 + " de " + this.pagsDisponibles);
         productosFrame.getAnteriorButton ().setEnabled(this.page > 0);
         productosFrame.getSiguienteButton().setEnabled(this.page+1 < this.pagsDisponibles);
     }

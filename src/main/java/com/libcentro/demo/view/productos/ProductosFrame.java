@@ -25,6 +25,7 @@ public class ProductosFrame extends JFrame {
     private JButton siguienteButton;
     private JButton anteriorButton;
     private JLabel pageCount;
+    private JScrollPane scrollPane;
 
 
     public ProductosFrame(){
@@ -42,22 +43,8 @@ public class ProductosFrame extends JFrame {
         ) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                // Aquí defines qué columnas son editables
-                switch (column) {
-                    case 0:
-                        return false;
-                    case 1:
-                        return true;// Cantidad
-                    case 2:
-                        return true;// Descuento(%)
-                    case 3: // Precio
-                        return true; // Estas columnas son editables
-                    case 4:
-                        return true;
-                    default:
                         return false; // Las demás columnas no son editables
-                }
-            }
+            }/*
             @Override
             public Class<?> getColumnClass(int columnIndex) {
                 switch (columnIndex) {
@@ -74,7 +61,7 @@ public class ProductosFrame extends JFrame {
                     default:
                         return Object.class;
                 }
-            }
+            }*/
         });
         table.getTableHeader().setReorderingAllowed(false);
         table.setAutoCreateRowSorter(true);
@@ -148,5 +135,9 @@ public class ProductosFrame extends JFrame {
 
     public JLabel getPageCount (){
         return pageCount;
+    }
+
+    public JScrollPane getScrollPane (){
+        return scrollPane;
     }
 }

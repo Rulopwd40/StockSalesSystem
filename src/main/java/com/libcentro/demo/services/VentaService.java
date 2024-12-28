@@ -101,8 +101,7 @@ public class VentaService implements IventaService {
                     productoO.getPrecio_venta (),
                     productoO.getStock ());
 
-            productoDTO.setStock(productoO.getStock()-ventaProducto.getCantidad());
-            productoService.venderProducto (productoDTO);
+            productoService.venderProducto (productoDTO,ventaProducto.getCantidad ());
         }
 
 

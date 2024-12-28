@@ -9,8 +9,7 @@ import com.libcentro.demo.services.interfaces.IhistorialService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Service
 public class HistorialService implements IhistorialService {
@@ -28,11 +27,10 @@ public class HistorialService implements IhistorialService {
             historialCosto.setEstado(estado);
             historialCosto.setProducto(nuevoProducto);
             historialCosto.setCosto_compra (costoCompra);
+            historialCosto.setCantidad_vendida (0);
 
-            Date fecha = new Date ();
-            SimpleDateFormat sdf = new SimpleDateFormat ("dd/MM/yyyy");
-            String fechaFormateada = sdf.format(fecha);
-            historialCosto.setFecha(fechaFormateada);
+            LocalDateTime fecha = LocalDateTime.now();
+            historialCosto.setFecha(fecha);
 
             return historialCosto;
     }
@@ -41,15 +39,21 @@ public class HistorialService implements IhistorialService {
         HistorialPrecio historialPrecio = new HistorialPrecio();
         historialPrecio.setPrecio_venta (precioVenta);
         historialPrecio.setProducto(producto);
-        Date fecha = new Date ();
-        SimpleDateFormat sdf = new SimpleDateFormat ("dd/MM/yyyy");
-        String fechaFormateada = sdf.format(fecha);
-        historialPrecio.setFecha(fechaFormateada);
+        LocalDateTime fecha = LocalDateTime.now();
+        historialPrecio.setFecha(fecha);
 
         return historialPrecio;
     }
 
+    @Override
+    public HistorialCosto findHistorialInicial ( Producto producto ){
+       return historialCostoRepository.findInicial(producto.getCodigobarras (), HistorialCosto.Estado.INICIAL);
+    }
 
+    @Override
+    public HistorialCosto findNext ( Producto producto ){
+        return historialCostoRepository.findNext(producto.getCodigobarras (), HistorialCosto.Estado.SIGUIENTE);
+    }
 
     @Override
     public void save ( HistorialCosto historialExistente ){

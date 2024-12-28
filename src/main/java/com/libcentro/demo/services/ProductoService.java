@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.libcentro.demo.config.AppConfig;
 import com.libcentro.demo.exceptions.InsufficientStockException;
 import com.libcentro.demo.model.Categoria;
 import com.libcentro.demo.model.HistorialCosto;
@@ -161,10 +160,10 @@ public class ProductoService implements IproductoService {
     }
 
     @Override
-    public ProductoPageDTO productosByPage ( int page, String filter, boolean sin_stock ){
+    public ProductoPageDTO productosByPage ( int page, String filter, boolean sin_stock,int page_size ){
         String filterT = "%" +  filter.toLowerCase() + "%";
 
-        Page<Producto> productosPage = productoRepository.getProductosPage (PageRequest.of (page, AppConfig.page_size),filterT,sin_stock);
+        Page<Producto> productosPage = productoRepository.getProductosPage (PageRequest.of (page, page_size),filterT,sin_stock);
 
         return new ProductoPageDTO(productosPage.stream().map(ProductoDTO::new).toList(),productosPage.getTotalPages ());
     }
@@ -200,7 +199,6 @@ public class ProductoService implements IproductoService {
             productosViejos = productoRepository.findAllByCategoria(categoria);
         }
 
-
         List<Producto> productosNuevos = productosViejos.stream()
                 .map(productoViejo -> {
                     Producto nuevoProducto = new Producto(productoViejo);
@@ -228,7 +226,7 @@ public class ProductoService implements IproductoService {
         if(producto==null) {
             throw new RuntimeException("El producto con codigo: " + codigo_barras + " no existe.");
         }
-        else if(cantidad >= producto.getStock()){
+        else if(cantidad > producto.getStock()){
             throw new InsufficientStockException("Cantidad insuficiente del producto: " + codigo_barras);
         }
         return new ProductoDTO(producto);
@@ -263,13 +261,29 @@ public class ProductoService implements IproductoService {
     }
 
     @Override
-    public void venderProducto ( ProductoDTO productoDTO ){
+    public void venderProducto ( ProductoDTO productoDTO, int cantidad ){
         Optional<Producto> producto = productoRepository.findById(productoDTO.getCodigobarras());
         producto.ifPresent(p -> {
-                p.setStock(productoDTO.getStock ());
+                p.setStock (productoDTO.getStock () - cantidad);
+                HistorialCosto historialCosto = historialService.findHistorialInicial (p);
+                if(historialCosto.getCantidad () > historialCosto.getCantidad () + cantidad){
+                    historialCosto.setCantidad_vendida (cantidad);
+                }else{
+                    int falta = historialCosto.getCantidad () - historialCosto.getCantidad_vendida ();
+                    int resto = cantidad-falta;
+                    HistorialCosto newHistorial= historialService.findNext (p);
+                    if(newHistorial != null){
+                            newHistorial.setCantidad_vendida (resto);
+                            newHistorial.setEstado (HistorialCosto.Estado.INICIAL);
+                            historialService.save(newHistorial);
+                    }
+
+                    historialCosto.setCantidad_vendida (historialCosto.getCantidad ());
+                    historialCosto.setEstado (HistorialCosto.Estado.INHABILITADO);
+                    historialService.save(historialCosto);
+                }
+
                 productoRepository.save(p);});
     }
-
-
 
 }

@@ -27,9 +27,8 @@ public class HistorialPrecio  {
     @ManyToOne
     @JoinColumn(name = "codigobarras")
     Producto producto;
-
     private double precio_venta;
-    private String fecha;
+    private LocalDateTime fecha;
 
 
     public HistorialPrecio ( Producto nuevoProducto, double precioVenta ){

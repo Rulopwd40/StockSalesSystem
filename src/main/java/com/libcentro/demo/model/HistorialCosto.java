@@ -30,7 +30,8 @@ public class HistorialCosto {
     private double costo_compra;
     private int cantidad;
     Estado estado;
-    private String fecha;
+    private LocalDateTime fecha;
+    private int cantidad_vendida;
 
 
 

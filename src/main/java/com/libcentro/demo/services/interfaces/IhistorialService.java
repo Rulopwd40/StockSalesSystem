@@ -9,6 +9,8 @@ public interface IhistorialService {
 
     HistorialCosto findLastHistorialCosto ( Producto viejoProducto );
 
+    HistorialCosto findNext ( Producto producto );
+
     void save ( HistorialCosto historialExistente );
 
     void save ( HistorialPrecio historialPrecio );
@@ -20,4 +22,6 @@ public interface IhistorialService {
     HistorialPrecio findLastHistorialPrecio ( Producto producto );
 
     HistorialPrecio crearHistorialPrecio ( Producto producto, double precioVenta );
+
+    HistorialCosto findHistorialInicial ( Producto producto );
 }

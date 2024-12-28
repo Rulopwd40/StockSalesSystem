@@ -21,11 +21,11 @@ public interface IproductoService {
 
     void deleteProductoByCodigo(String codigo_barras);
 
-    ProductoPageDTO productosByPage( int page, String filter, boolean checkbox);
-
+    ProductoPageDTO productosByPage( int page, String filter, boolean checkbox,int pagesize);
     @Transactional
     public void updateProducto(ProductoDTO x);
 
+    @Transactional
     void updateProductosBy( CategoriaDTO categoria, double porcentaje);
 
     ProductoDTO getProducto(String codigo_barras) throws ObjectNotFoundException;
@@ -40,5 +40,5 @@ public interface IproductoService {
 
     List<ProductoDTO> getProductosByCantidad(int cantidad);
 
-    void venderProducto ( ProductoDTO productoDTO );
+    void venderProducto ( ProductoDTO productoDTO, int cantidad );
 }

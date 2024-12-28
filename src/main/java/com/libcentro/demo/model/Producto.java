@@ -21,8 +21,8 @@ public class Producto {
     private Categoria categoria;
     private double costo_compra;
     private double precio_venta;
-    private Integer costo_inicial;
     private int stock;
+
 
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<HistorialPrecio> historial_precios = new ArrayList<>();
@@ -32,7 +32,6 @@ public class Producto {
 
     public Producto() {
     }
-
 
     public Producto(Producto producto) {
         this.codigobarras = producto.getCodigobarras ();
