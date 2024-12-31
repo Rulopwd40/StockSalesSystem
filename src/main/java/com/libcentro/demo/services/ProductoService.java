@@ -40,16 +40,11 @@ public class ProductoService implements IproductoService {
     private IhistorialService historialService;
     @Autowired
     private IcategoriaRepository categoriaRepository;
-
-    @Autowired
-    private EntityManager em;
-
-    @Autowired
-    ProductosCSV productosCSV;
-
-    private final CommandInvoker commandInvoker = new CommandInvoker();
     @Autowired
     private CategoriaService categoriaService;
+
+    private final ProductosCSV productosCSV = new ProductosCSV () ;
+    private final CommandInvoker commandInvoker = new CommandInvoker();
 
     @Override
     public List<ProductoDTO> getAll() {
@@ -114,8 +109,8 @@ public class ProductoService implements IproductoService {
                             producto = productoOpt.get ();
                             producto.setNombre (productoDTO.getNombre());
                             producto.setCategoria (categoria);
-                            producto.setCosto_compra (productoDTO.getCosto_compra());
-                            producto.setPrecio_venta (productoDTO.getPrecio_venta());
+                            producto.setCosto_compra (Math.round(productoDTO.getCosto_compra()*100d)/100d);
+                            producto.setPrecio_venta (Math.round(productoDTO.getPrecio_venta()*100d) /100d);
                             producto.setStock (producto.getStock() + productoDTO.getStock());
                                 commandInvoker.executeCommand(new UpdateProductCommand(ProductoService.this, historialService, productoOpt.get(), producto));
                                 cuentaActualizados++;
@@ -160,10 +155,10 @@ public class ProductoService implements IproductoService {
     }
 
     @Override
-    public ProductoPageDTO productosByPage ( int page, String filter, boolean sin_stock,int page_size ){
+    public ProductoPageDTO productosByPage ( int page, String filter, boolean sin_stock,int page_size,boolean categoria ){
         String filterT = "%" +  filter.toLowerCase() + "%";
 
-        Page<Producto> productosPage = productoRepository.getProductosPage (PageRequest.of (page, page_size),filterT,sin_stock);
+        Page<Producto> productosPage = productoRepository.getProductosPage (PageRequest.of (page, page_size),filterT,sin_stock,categoria);
 
         return new ProductoPageDTO(productosPage.stream().map(ProductoDTO::new).toList(),productosPage.getTotalPages ());
     }
@@ -284,6 +279,42 @@ public class ProductoService implements IproductoService {
                 }
 
                 productoRepository.save(p);});
+    }
+
+    @Override
+    public void actualizarCategorias ( List<ProductoDTO> productosSeleccionados, String string ){
+            Categoria categoria = categoriaRepository.findByNombre (string);
+
+            productosSeleccionados.forEach(p -> {
+                Producto productoActual = productoRepository.findById (p.getCodigobarras()).orElse(null);
+                Producto producto = new Producto (p.getCodigobarras(),
+                        p.getNombre(),
+                        categoria,
+                        p.getCosto_compra (),
+                        p.getPrecio_venta (),
+                        p.getStock ()
+                );
+
+                if(producto==null) { throw  new RuntimeException ("Producto no encontrado, código: " + p.getCodigobarras()); }
+
+                commandInvoker.executeCommand (new UpdateProductCommand (this,historialService,productoActual,producto));
+            });
+
+    }
+
+    @Override
+    public void updatePrecio ( List<ProductoDTO> productosDTO, double porcentaje ){
+
+        productosDTO.forEach(p -> {
+            Producto productoActual = productoRepository.findById (p.getCodigobarras()).orElse(null);
+
+            if(productoActual == null) throw  new RuntimeException ("Producto no encontrado");
+
+            Producto productoNuevo = new Producto (productoActual);
+            productoNuevo.setPrecio_venta(Math.round((p.getPrecio_venta() + p.getPrecio_venta() * porcentaje / 100) * 100.0) / 100.0);
+
+            commandInvoker.executeCommand (new UpdateProductCommand (this,historialService,productoActual,productoNuevo));
+            });
     }
 
 }

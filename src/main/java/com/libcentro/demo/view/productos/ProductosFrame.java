@@ -26,6 +26,8 @@ public class ProductosFrame extends JFrame {
     private JButton anteriorButton;
     private JLabel pageCount;
     private JScrollPane scrollPane;
+    private JCheckBox categoriaCheckbox;
+    private JButton productosSeleccionadosButton;
 
 
     public ProductosFrame(){
@@ -139,5 +141,13 @@ public class ProductosFrame extends JFrame {
 
     public JScrollPane getScrollPane (){
         return scrollPane;
+    }
+
+    public JCheckBox getCategoriaCheckbox (){
+        return categoriaCheckbox;
+    }
+
+    public JButton getProductosSeleccionadosButton (){
+        return productosSeleccionadosButton;
     }
 }

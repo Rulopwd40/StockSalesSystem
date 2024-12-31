@@ -20,8 +20,8 @@ public class ProductoDTO {
         this.codigobarras = producto.getCodigobarras();
         this.nombre = producto.getNombre();
         CategoriaDTO categoriaDTO = new CategoriaDTO();
-        categoriaDTO.setNombre(producto.getCategoria().getNombre());
-        categoriaDTO.setId (producto.getCategoria().getId());
+        categoriaDTO.setNombre(producto.getCategoria() != null? producto.getCategoria().getNombre() : "NULL");
+        categoriaDTO.setId (producto.getCategoria() != null? producto.getCategoria().getId() : 0 );
         this.categoria = categoriaDTO;
         this.costo_compra = producto.getCosto_compra();
         this.precio_venta = producto.getPrecio_venta();

@@ -2,6 +2,7 @@ package com.libcentro.demo.controller;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -115,6 +116,11 @@ public class ProductosController {
                 productosFrameUpdateTable();
             }
         });
+        productosFrame.getCategoriaCheckbox ().addActionListener( new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                productosFrameUpdateTable();
+            }
+        });
         productosFrame.getBuscarField().getDocument().addDocumentListener(new DocumentListener() {
 
             @Override
@@ -159,6 +165,12 @@ public class ProductosController {
             @Override
             public void actionPerformed(ActionEvent e) {
                 actualizarProductoPorCategoria();
+            }
+        });
+        productosFrame.getProductosSeleccionadosButton ().addActionListener (new ActionListener () {
+            @Override
+            public void actionPerformed ( ActionEvent e ){
+                actualizarSeleccionados();
             }
         });
 
@@ -206,10 +218,8 @@ public class ProductosController {
         productosFrame.getEliminarProductoButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
                         eliminarProducto ();
                         productosFrameUpdateTable ();
-
             }
         });
 
@@ -226,6 +236,8 @@ public class ProductosController {
             }
         });
     }
+
+
     private void pagina ( int i ){
         this.page += i;
 
@@ -297,6 +309,7 @@ public class ProductosController {
                     productoService.importarCSV(importarCSV.getLocationField().getText());
                 }catch (RuntimeException ex){
                     JOptionPane.showMessageDialog(null,ex.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace ();
                     throw new RuntimeException(ex.getMessage());
                 }
                 productosFrameUpdateTable();
@@ -324,6 +337,9 @@ public class ProductosController {
 
     //Actualizacion
     private void actualizarUnProducto(){
+
+
+
         categorias= getAllCategoria();
         actualizarUnProducto = new ActualizarUnProducto();
         final ProductoDTO[] producto = new ProductoDTO[1];
@@ -377,6 +393,7 @@ public class ProductosController {
                 }
                 JOptionPane.showMessageDialog(null,"Producto actualizado","Éxito",JOptionPane.INFORMATION_MESSAGE);
                 productosFrameUpdateTable();
+                actualizarUnProducto.onCancel();
             }
         });
 
@@ -409,6 +426,13 @@ public class ProductosController {
                 }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT
         );
 
+
+        int selectedRow = productosFrame.getTable().getSelectedRow();
+        if (selectedRow != -1) {
+            String value = productosFrame.getTable().getValueAt(selectedRow, 0).toString ();
+            actualizarUnProducto.getCodigoField ().setText(value);
+            actualizarUnProducto.getBuscarButton().doClick();
+        }
 
         actualizarUnProducto.setVisible(true);
     }
@@ -477,11 +501,117 @@ public class ProductosController {
 
         actualizarGeneral.setVisible(true);
     }
+    private void actualizarSeleccionados (){
+        int[] fila= productosFrame.getTable().getSelectedRows();
+        ProductosSeleccionados frame = new ProductosSeleccionados();
+        Filter.setDoubleFilter (frame.getPrecioField ());
+
+        if(fila.length==0){
+            JOptionPane.showMessageDialog(null,"Seleccione al menos un producto en la tabla","Error",JOptionPane.ERROR_MESSAGE);
+            throw new RuntimeException("Seleccione un producto en la tabla");
+        }
+        List<ProductoDTO> productosSeleccionados = new ArrayList<>();
+        for(Integer i : fila){
+            try{
+              ProductoDTO productoDTO =  productoService.getProducto (productosFrame.getTable().getValueAt(i, 0).toString());
+              productosSeleccionados.add(productoDTO);
+            }catch (RuntimeException e){
+                JOptionPane.showMessageDialog(null,"Error al obtener productos");
+                throw new RuntimeException("Error al obtener productos");
+            }
+        }
+
+
+
+        String[] names = {"Código","Nombre"};
+        DefaultTableModel tableModel = new DefaultTableModel(names,0);
+        productosSeleccionados.forEach (productoDTO -> {
+            tableModel.addRow (new Object[]{productoDTO.getCodigobarras (),productoDTO.getNombre()});
+        });
+        frame.getTable().setModel(tableModel);
+        List<CategoriaDTO> categoriaDTOS = categoriaService.getAll();
+
+        categoriaDTOS.forEach (categoriaDTO -> {frame.getCategoriaBox().addItem(categoriaDTO.getNombre());});
+
+
+
+        frame.getActualizarCategoria ().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    productoService.actualizarCategorias (productosSeleccionados, frame.getCategoriaBox ().getSelectedItem ().toString ());
+                    JOptionPane.showMessageDialog (null, "Categoria actualizada exitosamente", "Éxito", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+                    productosFrameUpdateTable();
+                    frame.dispose();
+                }catch (RuntimeException of) {
+                    JOptionPane.showMessageDialog(null, of.getMessage());
+                    throw new RuntimeException(of.getMessage());
+                }
+            }
+        });
+        frame.getActualizarPrecio ().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                FieldAnalyzer.campoLleno(frame.getPrecioField ());
+                try{
+                    productoService.updatePrecio (productosSeleccionados,Double.parseDouble (frame.getPrecioField ().getText ()));
+                    productosFrameUpdateTable();
+                    JOptionPane.showMessageDialog (null,"Precios actualizados correctamente","Éxito",JOptionPane.INFORMATION_MESSAGE);
+                    frame.dispose();
+                }catch (RuntimeException of) {
+                    JOptionPane.showMessageDialog(null, of.getMessage());
+                    throw new RuntimeException(of.getMessage());
+                }
+            }
+        });
+        frame.getPrecioField ().getDocument().addDocumentListener(new DocumentListener() {
+
+            @Override
+            public void insertUpdate ( DocumentEvent e ){
+                subtotal();
+            }
+
+            @Override
+            public void removeUpdate ( DocumentEvent e ){
+                subtotal();
+            }
+
+            @Override
+            public void changedUpdate ( DocumentEvent e ){
+                subtotal();
+            }
+
+            private void subtotal (){
+               String precioF =  frame.getPrecioField ().getText ();
+
+              if( precioF.isEmpty () || precioF.equals ("-")) return;
+              double porcentaje = (Double.parseDouble(precioF)) / 100;
+              if(tableModel.getColumnCount()<3){
+                  tableModel.addColumn ("Nuevo precio");
+              }
+
+                for (int i = 0; i < tableModel.getRowCount(); i++) {
+                    ProductoDTO producto = productosSeleccionados.get (i);
+                    double nuevoPrecio = Math.round((producto.getPrecio_venta () + producto.getPrecio_venta () * porcentaje) * 100d) / 100d ;
+
+                    tableModel.setValueAt(nuevoPrecio, i, 2);
+                }
+            }
+
+        });
+
+        frame.getOkButton ().addActionListener (new ActionListener () {
+            @Override
+            public void actionPerformed ( ActionEvent e ){
+                frame.dispose();
+            }
+        });
+
+        frame.setVisible(true);
+    }
+
 
     //Eliminación
     private void eliminarProducto(){
        int[] fila= productosFrame.getTable().getSelectedRows();
-       System.out.println(fila.length);
 
        if(fila.length==0){
            JOptionPane.showMessageDialog(null,"Seleccione un producto en la tabla","Error",JOptionPane.ERROR_MESSAGE);
@@ -588,7 +718,10 @@ public class ProductosController {
     private void productosFrameUpdateTable() {
         productsModel.setRowCount(0);
 
-        ProductoPageDTO productoPageDTO = productoService.productosByPage(this.page,productosFrame.getBuscarField ().getText (),productosFrame.getSinStockCheckBox().isSelected(),this.page_size);
+        ProductoPageDTO productoPageDTO = productoService.productosByPage(this.page,
+                productosFrame.getBuscarField ().getText (),
+                productosFrame.getSinStockCheckBox().isSelected(),
+                this.page_size,productosFrame.getCategoriaCheckbox ().isSelected ());
 
         this.productos = productoPageDTO.getProductos();
         this.pagsDisponibles = productoPageDTO.getPaginas ();

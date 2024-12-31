@@ -3,7 +3,9 @@ package com.libcentro.demo.services;
 import com.libcentro.demo.model.Categoria;
 import com.libcentro.demo.model.dto.CategoriaDTO;
 import com.libcentro.demo.repository.IcategoriaRepository;
+import com.libcentro.demo.repository.IproductoRepository;
 import com.libcentro.demo.services.interfaces.IcategoriaService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,8 @@ public class CategoriaService implements IcategoriaService {
 
     @Autowired
     IcategoriaRepository categoriaRepository;
+    @Autowired
+    IproductoRepository productoRepository;
 
     @Override
     public CategoriaDTO getCategoria(String nombre) {
@@ -54,10 +58,11 @@ public class CategoriaService implements IcategoriaService {
         return x;
     }
 
+    @Transactional
     @Override
     public void deleteCategoria( CategoriaDTO x) {
-
         Categoria categoria = categoriaRepository.findByNombre (x.getNombre());
+        productoRepository.setCategoriaNull (categoria.getId());
         categoriaRepository.delete(categoria);
     }
 

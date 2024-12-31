@@ -21,7 +21,7 @@ public interface IproductoService {
 
     void deleteProductoByCodigo(String codigo_barras);
 
-    ProductoPageDTO productosByPage( int page, String filter, boolean checkbox,int pagesize);
+    ProductoPageDTO productosByPage( int page, String filter, boolean checkbox,int pagesize,boolean categoria);
     @Transactional
     public void updateProducto(ProductoDTO x);
 
@@ -41,4 +41,8 @@ public interface IproductoService {
     List<ProductoDTO> getProductosByCantidad(int cantidad);
 
     void venderProducto ( ProductoDTO productoDTO, int cantidad );
+
+    void actualizarCategorias ( List<ProductoDTO> productosSeleccionados, String string );
+
+    void updatePrecio ( List<ProductoDTO> productosDTO, double porcentaje );
 }

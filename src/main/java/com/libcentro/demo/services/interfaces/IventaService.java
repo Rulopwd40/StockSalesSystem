@@ -10,7 +10,7 @@ public interface IventaService {
 
     public Venta saveVenta(VentaDTO x);
 
-    public void deleteVenta(Venta x);
+    public void deleteVenta(Long id);
 
     public void updateVenta(Venta x);
 

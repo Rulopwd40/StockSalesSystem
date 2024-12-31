@@ -19,7 +19,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-@Component
+
 public class ProductosCSV {
     List<ProductoDTO> productos;
     Map<String,List<ProductoDTO>> productosATratar = new HashMap<>();
@@ -99,8 +99,6 @@ public class ProductosCSV {
                         elegirOtraCategoria(row);
                     }
                 });
-
-
                 tc.getButtonOK().addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         if(!productosATratar.isEmpty()) {
@@ -144,8 +142,8 @@ public class ProductosCSV {
             producto.setNombre(datos[1]);
             producto.setCategoria(categoria);
             producto.setStock(Integer.parseInt(datos[3]));
-            producto.setCosto_compra(Float.parseFloat(datos[4]));
-            producto.setPrecio_venta(Float.parseFloat(datos[5]));
+            producto.setCosto_compra(Math.round(Double.parseDouble (datos[4].replace(',', '.')) * 100d) / 100d);
+            producto.setPrecio_venta(Math.round(Double.parseDouble (datos[5].replace(',', '.')) * 100d) / 100d) ;
         }else{
             throw new RuntimeException("Formato incorrecto de archivo, revise su contenido");
         }

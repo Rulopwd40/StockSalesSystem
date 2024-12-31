@@ -418,7 +418,7 @@ public class VentaController {
         try{
             ventaService.vender(venta);
         }catch(Exception e){
-            JOptionPane.showMessageDialog(null, "No se puede vender el producto: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Error en la venta: " + e.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
             throw new RuntimeException(e.getMessage());
         }
 

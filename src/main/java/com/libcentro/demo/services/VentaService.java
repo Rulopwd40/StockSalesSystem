@@ -1,7 +1,6 @@
 package com.libcentro.demo.services;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -12,7 +11,6 @@ import com.libcentro.demo.model.Venta_Producto;
 import com.libcentro.demo.model.dto.CategoriaDTO;
 import com.libcentro.demo.model.dto.ProductoDTO;
 import com.libcentro.demo.model.dto.VentaDTO;
-import com.libcentro.demo.model.dto.Venta_ProductoDTO;
 import com.libcentro.demo.repository.IproductoRepository;
 import com.libcentro.demo.utils.GeneradorTicket;
 import jakarta.transaction.Transactional;
@@ -25,7 +23,7 @@ import com.libcentro.demo.services.interfaces.IventaService;
 @Service
 public class VentaService implements IventaService {
     @Autowired
-    private IventaRepository ventaRepo;
+    private IventaRepository ventaRepository;
     @Autowired
     private ProductoService productoService;
     @Autowired
@@ -33,7 +31,7 @@ public class VentaService implements IventaService {
 
     @Override
     public List<Venta> getAll() {
-            return ventaRepo.findAll();
+            return ventaRepository.findAll();
     }
 
     @Override
@@ -45,7 +43,7 @@ public class VentaService implements IventaService {
         venta.setTotal(ventaDTO.getTotal());
 
 
-        Venta savedVenta = ventaRepo.save(venta);
+        Venta savedVenta = ventaRepository.save(venta);
 
 
         savedVenta.setProductoFStocks(ventaDTO.getProducto_fstock().stream()
@@ -62,13 +60,13 @@ public class VentaService implements IventaService {
             savedVenta.getVenta_productos().add(ventaproducto);
         });
 
-        return ventaRepo.save(savedVenta);
+        return ventaRepository.save(savedVenta);
     }
 
     @Override
-    public void deleteVenta(Venta x) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteVenta'");
+    public void deleteVenta(Long id) {
+         ventaRepository.eliminacionLogica (id);
+
     }
 
     @Override
@@ -79,11 +77,14 @@ public class VentaService implements IventaService {
 
     @Override
     public void vender( VentaDTO ventaDTO) throws RuntimeException {
+        if(ventaDTO.getVenta_producto ().isEmpty () && ventaDTO.getProducto_fstock ().isEmpty ()) throw new RuntimeException("Seleccione productos para vender");
+
         GeneradorTicket generadorTicket=new GeneradorTicket();
 
 
         LocalDateTime dateTime = LocalDateTime.now();
         ventaDTO.setFecha(dateTime);
+
 
 
         Venta venta = saveVenta(ventaDTO);

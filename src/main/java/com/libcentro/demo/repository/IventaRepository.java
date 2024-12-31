@@ -13,5 +13,7 @@ import java.util.List;
 @Repository
 public interface IventaRepository extends JpaRepository<Venta, Integer> {
 
+    @Query ("UPDATE Venta v SET v.estado = false WHERE v.id= :id")
+    public void eliminacionLogica(long id);
 
 }

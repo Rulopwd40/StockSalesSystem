@@ -17,7 +17,7 @@ public class Producto {
 
     private String nombre;
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "categoria", referencedColumnName = "id")
+    @JoinColumn(name = "categoria", referencedColumnName = "id", nullable = true)
     private Categoria categoria;
     private double costo_compra;
     private double precio_venta;
@@ -48,8 +48,8 @@ public class Producto {
         this.codigobarras = producto.getCodigobarras();
         this.nombre = producto.getNombre();
         this.categoria = new Categoria (producto.getCategoria());
-        this.precio_venta = producto.getPrecio_venta();
-        this.costo_compra = producto.getCosto_compra();
+        this.precio_venta = Math.round(producto.getPrecio_venta() * 100d) / 100d;
+        this.costo_compra = Math.round(producto.getCosto_compra() * 100d) / 100d;
         this.stock = producto.getStock();
         this.historial_precios = new ArrayList<>();
         this.historial_costos = new ArrayList<>();
