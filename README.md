@@ -22,7 +22,7 @@
 
 ## Technologies:
 
-- **Backend**: Java SpringBoot to allow a Web version.
+- **Backend**: Java SpringBoot to allow a Web version, Python with matplotlib for graphic generation and pandas for csv reading.
 - **Frontend**: Java Swing for GUI.
 - **ORM**: Hibernate.
 - **DataBase**: SQLite.
