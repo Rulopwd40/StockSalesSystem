@@ -16,7 +16,7 @@ public class AddProductCommand implements Command {
 
     @Override
     public void execute() {
-       this.producto= productoService.crearProducto(producto);
+       this.producto= productoService.saveProducto (producto);
     }
 
     @Override

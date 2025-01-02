@@ -28,11 +28,13 @@ public class CommandInvoker {
         }
     }
 
-    public void save(){
+    public boolean save(){
+        if(this.count==0) return false;
         while (!commands.isEmpty()) {
             Command command = commands.pop();
             this.count = 0;
         }
+        return true;
     }
 
     public Stack<Command> getCommands() {

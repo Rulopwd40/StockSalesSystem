@@ -48,7 +48,7 @@ public class UpdateProductCommand implements Command {
             HistorialPrecio nuevoHistorialPrecio = historialService.crearHistorialPrecio(nuevoProducto,nuevoProducto.getPrecio_venta());
             historialService.save(nuevoHistorialPrecio);
         }
-        productoService.crearProducto (nuevoProducto);
+        productoService.saveProducto (nuevoProducto);
 
     }
 
@@ -80,6 +80,6 @@ public class UpdateProductCommand implements Command {
         nuevoProducto.setCosto_compra(viejoProducto.getCosto_compra());
         nuevoProducto.setPrecio_venta(viejoProducto.getPrecio_venta());
         nuevoProducto.setStock(viejoProducto.getStock());
-        productoService.crearProducto (viejoProducto);
+        productoService.saveProducto (viejoProducto);
     }
 }

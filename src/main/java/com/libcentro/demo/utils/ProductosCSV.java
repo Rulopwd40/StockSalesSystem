@@ -5,6 +5,7 @@ import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.model.dto.CategoriaDTO;
 import com.libcentro.demo.model.dto.ProductoDTO;
 import com.libcentro.demo.services.CategoriaService;
+import com.libcentro.demo.services.interfaces.IcategoriaService;
 import com.libcentro.demo.view.productos.TratarCategorias;
 import org.springframework.stereotype.Component;
 
@@ -23,14 +24,14 @@ import java.util.*;
 public class ProductosCSV {
     List<ProductoDTO> productos;
     Map<String,List<ProductoDTO>> productosATratar = new HashMap<>();
-    CategoriaService categoriaService;
+    IcategoriaService categoriaService;
     TratarCategorias tc;
     JTable table;
     DefaultTableModel tableModel;
     List<CategoriaDTO> categoriasCreadas=new ArrayList<>();
 
 
-    public List<ProductoDTO> obtenerProductos( String file, CategoriaService categoriaService) throws IOException {
+    public List<ProductoDTO> obtenerProductos( String file, IcategoriaService categoriaService) throws IOException {
         this.categoriaService = categoriaService;
         productos = new ArrayList<>();
         File csv = new File(file);

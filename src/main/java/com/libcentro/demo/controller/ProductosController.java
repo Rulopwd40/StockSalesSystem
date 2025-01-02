@@ -750,15 +750,30 @@ public class ProductosController {
     }
 
     private void deshacer(){
-        productoService.undo();
-        productosFrameUpdateTable();
+        try {
+            productoService.undo ();
+            JOptionPane.showMessageDialog (null, "Cambios deshechos correctamente","Éxito",JOptionPane.INFORMATION_MESSAGE);
+            productosFrameUpdateTable ();
+        }catch (Exception ex){
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
     private void deshacerTodo(){
-        productoService.undoAll();
-        productosFrameUpdateTable();
+        try {
+            productoService.undoAll ();
+            JOptionPane.showMessageDialog (null, "Cambios deshechos correctamente","Éxito",JOptionPane.INFORMATION_MESSAGE);
+            productosFrameUpdateTable ();
+        }catch (Exception ex){
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
     private void save(){
-        productoService.save();
+        boolean result = productoService.save();
+        if(result){
+            JOptionPane.showMessageDialog (null,"Guardado exitoso","Éxito",JOptionPane.INFORMATION_MESSAGE);
+        }else{
+            JOptionPane.showMessageDialog (null,"No hay operaciones para guardar","Fallo",JOptionPane.ERROR_MESSAGE);
+        }
     }
 
 }

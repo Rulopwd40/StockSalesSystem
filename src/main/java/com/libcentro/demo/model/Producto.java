@@ -14,7 +14,6 @@ public class Producto {
 
     @Id
     private String codigobarras;
-
     private String nombre;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "categoria", referencedColumnName = "id", nullable = true)
@@ -23,12 +22,10 @@ public class Producto {
     private double precio_venta;
     private int stock;
 
-
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<HistorialPrecio> historial_precios = new ArrayList<>();
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<HistorialCosto> historial_costos = new ArrayList<>();
-
 
     public Producto() {
     }
@@ -54,7 +51,6 @@ public class Producto {
         this.historial_precios = new ArrayList<>();
         this.historial_costos = new ArrayList<>();
     }
-
 
     public Producto ( String codigobarras, String nombre, Categoria categoria, double costoCompra, double precioVenta, int stock ){
         this.codigobarras = codigobarras;

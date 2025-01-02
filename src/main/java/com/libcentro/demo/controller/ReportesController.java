@@ -96,14 +96,18 @@ public class ReportesController {
     }
 
     private void contabilizar (){
-        String string = estadisticaService.contabilizar (frame.getCodigoField ().getText (),
-                estado.toString ().toLowerCase (),
-                (String) frame.getPeriodoBox().getSelectedItem());
-
+        String string;
+        try {
+            string = estadisticaService.contabilizar (frame.getCodigoField ().getText (),
+                    estado.toString ().toLowerCase (),
+                    (String) frame.getPeriodoBox ().getSelectedItem ());
+        }catch (Exception e){
+            JOptionPane.showMessageDialog(frame,e.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
+            throw new RuntimeException (e.getMessage(),e);
+        }
         DefaultTableModel tableModel = new DefaultTableModel(0,2);
 
         String[] splited = string.split ("\n");
-
 
         for(String s : splited){
             tableModel.addRow (new String[]{s.split("\\|")[0],s.split("\\|")[1]});
@@ -117,13 +121,17 @@ public class ReportesController {
     private void generarGrafica() {
             frame.getGraphPane ().removeAll ();
             frame.getGraphPane ().revalidate();
+            Image image;
+            try {
+                image = estadisticaService.generarGrafica (frame.getCodigoField ().getText (),
+                        estado.toString ().toLowerCase (),
+                        (String) frame.getPeriodoBox ().getSelectedItem ());
 
-            Image image = estadisticaService.generarGrafica(frame.getCodigoField().getText(),
-                    estado.toString().toLowerCase(),
-                    (String) frame.getPeriodoBox().getSelectedItem());
-
-            if(image==null) throw new RuntimeException ("No se genero imagen");
-
+                if ( image == null ) throw new RuntimeException ("No se genero imagen");
+            } catch (RuntimeException e) {
+                JOptionPane.showMessageDialog (frame, "Error al generar la imagen: " + e.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
+                throw new RuntimeException (e);
+            }
             int nuevoAncho = 900;
             int nuevoAlto = 540;
             Image imagenRedimensionada = image.getScaledInstance(nuevoAncho, nuevoAlto, Image.SCALE_SMOOTH);

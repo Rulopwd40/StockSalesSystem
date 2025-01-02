@@ -29,6 +29,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Arrays;
 
 import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 
@@ -79,28 +80,7 @@ public class VentaController {
         }
         ventaTableModel = (DefaultTableModel) tableVenta.getModel();
 
-        // KeyBinding para eliminar fila seleccionada al presionar "Suprimir"
-        tableVenta.getInputMap(JTable.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "deleteRow");
-        tableVenta.getActionMap().put("deleteRow", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Object producto;
-                int selectedRow = tableVenta.getSelectedRow();
-                String productoNombre = (String) tableVenta.getValueAt(selectedRow, 0);
-                if (selectedRow != -1) {
-                    producto = getProductoFromVenta(productoNombre,selectedRow);
-                    if(producto.getClass() == Venta_ProductoDTO.class) {
-                        venta.getVenta_producto().remove(producto);
-                    }
-                    else if(producto.getClass() == ProductoFStockDTO.class) {
 
-                        venta.getProducto_fstock().remove(producto);
-                    }
-
-                    updateTableVenta();
-                }
-            }
-        });
 
         //Listener de actualizacion
         ventaTableModel.addTableModelListener(new TableModelListener(){
@@ -120,8 +100,6 @@ public class VentaController {
             }
         });
 
-
-
         ventaFrame.setState(Frame.NORMAL); // Restaurar si está minimizado
         ventaFrame.toFront();
         ventaFrame.requestFocus();
@@ -137,7 +115,6 @@ public class VentaController {
         ventaFrame.getRootPane().getActionMap().put("focusCodBar", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
                 ventaFrame.getCodBar().requestFocusInWindow();
             }
         });
@@ -163,6 +140,17 @@ public class VentaController {
                 openApfsDialog();
             }
         });
+
+
+        // KeyBinding para eliminar fila seleccionada al presionar "Suprimir"
+        tableVenta.getInputMap(JTable.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "deleteRow");
+        tableVenta.getActionMap().put("deleteRow", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                eliminarProducto ();
+            }
+        });
+
 
         //CodBar Focus
         ventaFrame.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
@@ -192,7 +180,6 @@ public class VentaController {
             }
         });
     }
-
     private void setVentaListeners(){
         // Action Listener para el botón
         ventaFrame.getAgregarEnterButton().addActionListener(e -> {
@@ -239,8 +226,6 @@ public class VentaController {
         });
     }
 
-
-
     private void openApfsDialog() {
         apfsDialog = new ApfsDialog();
 
@@ -255,7 +240,6 @@ public class VentaController {
                     ProductoFStockDTO producto;
                     producto = new ProductoFStockDTO(nombre,cantidad,precio,"0");
                     venta.addProducto(producto);
-
 
                     apfsDialog.onOK();
 
@@ -299,8 +283,6 @@ public class VentaController {
         else{
             throw new RuntimeException("La clase del producto no adhiere a la las clases predeterminadas");
         }
-
-
     }
     private void updateProducto(Venta_ProductoDTO ventaProducto,String valor,int columna) {
             switch (columna){
@@ -344,44 +326,61 @@ public class VentaController {
 
     }
     private void agregarProducto(String codigo_barras, int cantidad) {
-        if (cantidad <= 0) {
-            JOptionPane.showMessageDialog(null, "La cantidad debe ser mayor que cero");
-            throw new IllegalArgumentException("La cantidad debe ser mayor que cero");
-        }
-        ProductoDTO producto=null;
+        ProductoDTO producto;
         try {
             producto = productoService.getProducto(codigo_barras, cantidad);
-        } catch (ObjectNotFoundException | InsufficientStockException e) {
+        } catch (IllegalArgumentException | ObjectNotFoundException | InsufficientStockException e) {
             JOptionPane.showMessageDialog(null, "No se puede agregar el producto: " + e.getMessage());
+            throw new RuntimeException (e.getMessage ());
         }
-        ProductoDTO finalProducto = producto;
-        if(finalProducto != null) {
-            Venta_ProductoDTO ventaProducto = venta.getVenta_producto().stream()
-                    .filter(ventap -> ventap.getProducto().equals(finalProducto))
+
+        Venta_ProductoDTO ventaProducto = venta.getVenta_producto().stream()
+                    .filter(ventap -> ventap.getProducto().equals(producto))
                     .findFirst()
                     .orElse(null);
 
-            if (ventaProducto != null) {
-                if (finalProducto.getStock() < ventaProducto.getCantidad() + cantidad) {
-                    JOptionPane.showMessageDialog(null, "El producto " + finalProducto.getNombre() + " con código: " + finalProducto.getCodigobarras () + " no tiene stock suficiente.");
-                    throw new InsufficientStockException("El producto " + finalProducto.getNombre() + " con código: " + finalProducto.getCodigobarras () + " no tiene stock suficiente.");
-                }
-                ventaProducto.setProducto(producto, ventaProducto.getCantidad() + cantidad);
-            } else {
-                venta.addProducto(producto, cantidad);
+        if (ventaProducto != null) {
+            if (producto.getStock() < ventaProducto.getCantidad() + cantidad) {
+                JOptionPane.showMessageDialog(null, "El producto " + producto.getNombre() + " con código: " + producto.getCodigobarras () + " no tiene stock suficiente.");
+                throw new InsufficientStockException("El producto " + producto.getNombre() + " con código: " + producto.getCodigobarras () + " no tiene stock suficiente.");
             }
+            ventaProducto.setProducto(producto, ventaProducto.getCantidad() + cantidad);
+        } else {
+            venta.addProducto(producto, cantidad);
         }
+
         updateTableVenta();
+    }
+
+    //Eliminar
+    private void eliminarProducto() {
+        int selectedRow = tableVenta.getSelectedRow();
+        if (selectedRow != -1) {
+            String productoNombre = (String) tableVenta.getValueAt(selectedRow, 0);
+            Object producto = getProductoFromVenta(productoNombre, selectedRow);
+
+            if (producto instanceof Venta_ProductoDTO) {
+                venta.getVenta_producto().remove(producto);
+            } else if (producto instanceof ProductoFStockDTO) {
+                venta.getProducto_fstock().remove(producto);
+            }
+
+            updateTableVenta();
+        } else {
+            JOptionPane.showMessageDialog(null, "Por favor, selecciona un producto para eliminar.");
+        }
     }
 
     private void updateTableVenta(){
         ventaTableModel.setRowCount(0);
 
         for(Venta_ProductoDTO ventaProducto: venta.getVenta_producto()){
+            if(ventaProducto.getCantidad () == 0) venta.getVenta_producto ().remove (ventaProducto);
             ProductoDTO producto= ventaProducto.getProducto();
             ventaTableModel.addRow(new Object[] {producto.getNombre(),ventaProducto.getCantidad(),ventaProducto.getDescuento(),ventaProducto.getPrecio_venta()});
         }
         for(ProductoFStockDTO productoFStock: venta.getProducto_fstock ()){
+            if(productoFStock.getCantidad () == 0) venta.getProducto_fstock ().remove (productoFStock);
             ventaTableModel.addRow(new Object[] {productoFStock.getNombre(),productoFStock.getCantidad(), productoFStock.getDescuento(), productoFStock.getPrecio_venta() });
         }
 
@@ -403,6 +402,7 @@ public class VentaController {
                     .filter(ventaProducto -> ventaProducto.getProducto().getNombre().equals(nombre))
                     .findFirst()
                     .orElse(null);
+
         }
         else {
             producto= venta.getProducto_fstock ().stream()

@@ -8,12 +8,14 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=false, onlyExplicitlyIncluded=true)
 @AllArgsConstructor
 @NoArgsConstructor
 public class Venta_ProductoDTO {
 
+    @EqualsAndHashCode.Include
     private long id_venta;
+    @EqualsAndHashCode.Include
     private String codigobarras;
     private ProductoDTO producto;
     private int cantidad;
@@ -21,8 +23,6 @@ public class Venta_ProductoDTO {
     private double precio_venta;
     private double costo_compra;
     private double total;
-
-
 
     public void setDescuento(float descuento) {
         this.descuento = descuento;

@@ -27,13 +27,12 @@ public class UpdateProductsBy implements Command {
         nuevosProductos.forEach(producto -> {
             HistorialPrecio historialPrecio = new HistorialPrecio(producto, producto.getPrecio_venta());
             historialService.save(historialPrecio);
-            productoService.crearProducto (producto);
+            productoService.saveProducto (producto);
         });
     }
 
     @Override
     public void undo() {
-        // Revertir los productos a sus versiones originales
         for (int i = 0; i < nuevosProductos.size(); i++) {
             Producto nuevoProducto = nuevosProductos.get(i);
             Producto viejoProducto = viejosProductos.get(i);
@@ -50,7 +49,7 @@ public class UpdateProductsBy implements Command {
 
             // Revertir los cambios del producto al viejo producto
             nuevoProducto.setPrecio_venta(viejoProducto.getPrecio_venta());
-            productoService.crearProducto (nuevoProducto);
+            productoService.saveProducto (nuevoProducto);
         }
     }
 
