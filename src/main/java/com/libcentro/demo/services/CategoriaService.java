@@ -9,9 +9,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class CategoriaService implements IcategoriaService {
@@ -22,7 +20,7 @@ public class CategoriaService implements IcategoriaService {
     IproductoRepository productoRepository;
 
     @Override
-    public CategoriaDTO getCategoria(String nombre) {
+    public CategoriaDTO getCategoriaDTO ( String nombre) {
         Categoria categoria = categoriaRepository.findByNombre(nombre);
 
         if(categoria != null) {
@@ -33,11 +31,18 @@ public class CategoriaService implements IcategoriaService {
         }
         return null;
     }
+    @Override
+    public Categoria getCategoria ( String nombre ){
+        Categoria categoria = categoriaRepository.findByNombre (nombre);
+        if(categoria != null) {
+            return categoria;
+        }
+        return null;
+    }
 
     @Override
     public List<CategoriaDTO> getAll() {
         List <Categoria> categorias = categoriaRepository.findAll();
-
 
         return categorias.stream().map (c -> {
             CategoriaDTO dto = new CategoriaDTO();
@@ -68,11 +73,9 @@ public class CategoriaService implements IcategoriaService {
 
     @Override
     public void updateCategoria(CategoriaDTO x) {
-
         Categoria categoria = categoriaRepository.findByNombre (x.getNombre());
         categoria.setNombre(x.getNombre());
         categoriaRepository.save(categoria);
-
         ;
     }
 

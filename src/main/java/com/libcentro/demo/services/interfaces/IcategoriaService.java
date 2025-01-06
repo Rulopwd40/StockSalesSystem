@@ -8,7 +8,9 @@ import java.util.List;
 public interface IcategoriaService {
 
 
-    CategoriaDTO getCategoria( String nombre);
+    CategoriaDTO getCategoriaDTO ( String nombre);
+
+    Categoria getCategoria ( String nombre );
 
     public List<CategoriaDTO> getAll();
     public CategoriaDTO saveCategoria( CategoriaDTO x);

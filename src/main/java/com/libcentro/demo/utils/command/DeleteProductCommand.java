@@ -70,7 +70,7 @@ public class DeleteProductCommand implements Command {
 
     private HistorialPrecio cloneHistorialPrecio(HistorialPrecio original) {
         HistorialPrecio clone = new HistorialPrecio();
-        clone.setPrecio_venta(original.getPrecio_venta());
+        clone.setPrecioVenta(original.getPrecioVenta());
         clone.setFecha(original.getFecha());
 
         return clone;

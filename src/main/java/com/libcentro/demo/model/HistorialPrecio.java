@@ -26,13 +26,13 @@ public class HistorialPrecio  {
     
     @ManyToOne
     @JoinColumn(name = "codigobarras")
-    Producto producto;
-    private double precio_venta;
+    private Producto producto;
+    private double precioVenta;
     private LocalDateTime fecha;
 
 
     public HistorialPrecio ( Producto nuevoProducto, double precioVenta ){
         this.producto = nuevoProducto;
-        this.precio_venta = precioVenta;
+        this.precioVenta = precioVenta;
     }
 }

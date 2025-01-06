@@ -1,13 +1,9 @@
 package com.libcentro.demo.utils;
 
-import com.libcentro.demo.model.Categoria;
-import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.model.dto.CategoriaDTO;
 import com.libcentro.demo.model.dto.ProductoDTO;
-import com.libcentro.demo.services.CategoriaService;
 import com.libcentro.demo.services.interfaces.IcategoriaService;
 import com.libcentro.demo.view.productos.TratarCategorias;
-import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -47,7 +43,7 @@ public class ProductosCSV {
             while ((linea = br.readLine()) != null) {
                 String[] datos = linea.split(separador);
 
-                CategoriaDTO categoria= categoriaService.getCategoria(datos[2]);
+                CategoriaDTO categoria= categoriaService.getCategoriaDTO (datos[2]);
                 if(categoria==null) {
                     productosATratar.putIfAbsent(datos[2],new ArrayList<ProductoDTO>());
                 }
@@ -226,7 +222,7 @@ public class ProductosCSV {
     }
 
     private boolean cambiarCategoria(String string,List<ProductoDTO> productosTratar) {
-        CategoriaDTO categoria = categoriaService.getCategoria(string);
+        CategoriaDTO categoria = categoriaService.getCategoriaDTO (string);
         for (ProductoDTO p : productosTratar) {
             p.setCategoria(categoria);
         }

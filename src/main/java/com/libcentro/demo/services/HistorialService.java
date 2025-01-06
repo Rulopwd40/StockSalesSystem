@@ -37,7 +37,7 @@ public class HistorialService implements IhistorialService {
     @Override
     public HistorialPrecio crearHistorialPrecio ( Producto producto, double precioVenta ){
         HistorialPrecio historialPrecio = new HistorialPrecio();
-        historialPrecio.setPrecio_venta (precioVenta);
+        historialPrecio.setPrecioVenta (precioVenta);
         historialPrecio.setProducto(producto);
         LocalDateTime fecha = LocalDateTime.now();
         historialPrecio.setFecha(fecha);

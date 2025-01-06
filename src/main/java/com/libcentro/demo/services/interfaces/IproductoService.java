@@ -1,5 +1,6 @@
 package com.libcentro.demo.services.interfaces;
 import java.util.List;
+import java.util.Optional;
 
 import com.libcentro.demo.model.Producto;
 
@@ -28,9 +29,9 @@ public interface IproductoService {
     @Transactional
     void updateProductosBy( CategoriaDTO categoria, double porcentaje);
 
-    ProductoDTO getProducto(String codigo_barras) throws ObjectNotFoundException;
+    ProductoDTO getProductoDTO ( String codigo_barras) throws ObjectNotFoundException;
 
-    ProductoDTO getProducto(String codigo_barras, int cantidad);
+    ProductoDTO getProductoDTO ( String codigo_barras, int cantidad);
 
     void undo();
 
@@ -45,4 +46,6 @@ public interface IproductoService {
     void actualizarCategorias ( List<ProductoDTO> productosSeleccionados, String string );
 
     void updatePrecio ( List<ProductoDTO> productosDTO, double porcentaje );
+
+    Producto getProducto ( String codigobarras );
 }

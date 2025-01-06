@@ -26,7 +26,7 @@
             </constraints>
             <properties>
               <enabled value="true"/>
-              <font size="20" style="1"/>
+              <font size="14" style="1"/>
               <foreground color="-16777216"/>
               <text value="Productos"/>
             </properties>
@@ -75,7 +75,9 @@
               <background color="-1"/>
               <foreground color="-16777216"/>
             </properties>
-            <border type="line" title="Buscar"/>
+            <border type="empty" title="Buscar">
+              <color color="-1"/>
+            </border>
             <children>
               <component id="4ce8d" class="javax.swing.JTextField" binding="buscarField">
                 <constraints>

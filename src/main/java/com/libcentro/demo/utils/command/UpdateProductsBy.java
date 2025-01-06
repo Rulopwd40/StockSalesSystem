@@ -25,7 +25,7 @@ public class UpdateProductsBy implements Command {
     @Override
     public void execute() {
         nuevosProductos.forEach(producto -> {
-            HistorialPrecio historialPrecio = new HistorialPrecio(producto, producto.getPrecio_venta());
+            HistorialPrecio historialPrecio = historialService.crearHistorialPrecio (producto, producto.getPrecio_venta ());
             historialService.save(historialPrecio);
             productoService.saveProducto (producto);
         });
@@ -33,24 +33,24 @@ public class UpdateProductsBy implements Command {
 
     @Override
     public void undo() {
-        for (int i = 0; i < nuevosProductos.size(); i++) {
-            Producto nuevoProducto = nuevosProductos.get(i);
-            Producto viejoProducto = viejosProductos.get(i);
+        for (Producto nuevoProducto : nuevosProductos) {
+            Producto viejoProducto = viejosProductos.stream()
+                    .filter(p -> p.getCodigobarras ().equals(nuevoProducto.getCodigobarras ()))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("Producto no encontrado en los productos viejos"));
 
-            // Buscar el historial creado más recientemente para este producto y eliminarlo
             HistorialPrecio historialReciente = historialService.findLastHistorialPrecio(nuevoProducto);
             if (historialReciente != null) {
-                historialService.delete(historialReciente); // Eliminar el historial reciente
+                historialService.delete(historialReciente);
             }
 
-            // Crear un nuevo historial de precios para revertir al precio original
             HistorialPrecio historialPrecio = new HistorialPrecio(viejoProducto, viejoProducto.getPrecio_venta());
             historialService.save(historialPrecio);
 
-            // Revertir los cambios del producto al viejo producto
             nuevoProducto.setPrecio_venta(viejoProducto.getPrecio_venta());
-            productoService.saveProducto (nuevoProducto);
+            productoService.saveProducto(nuevoProducto);
         }
     }
+ }
 
-}
+

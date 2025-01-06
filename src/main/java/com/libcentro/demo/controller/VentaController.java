@@ -2,10 +2,6 @@ package com.libcentro.demo.controller;
 
 import com.libcentro.demo.exceptions.EmptyFieldException;
 import com.libcentro.demo.exceptions.InsufficientStockException;
-import com.libcentro.demo.model.Producto;
-import com.libcentro.demo.model.ProductoFStock;
-import com.libcentro.demo.model.Venta;
-import com.libcentro.demo.model.Venta_Producto;
 import com.libcentro.demo.model.dto.ProductoDTO;
 import com.libcentro.demo.model.dto.ProductoFStockDTO;
 import com.libcentro.demo.model.dto.VentaDTO;
@@ -29,7 +25,6 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Arrays;
 
 import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 
@@ -328,7 +323,7 @@ public class VentaController {
     private void agregarProducto(String codigo_barras, int cantidad) {
         ProductoDTO producto;
         try {
-            producto = productoService.getProducto(codigo_barras, cantidad);
+            producto = productoService.getProductoDTO (codigo_barras, cantidad);
         } catch (IllegalArgumentException | ObjectNotFoundException | InsufficientStockException e) {
             JOptionPane.showMessageDialog(null, "No se puede agregar el producto: " + e.getMessage());
             throw new RuntimeException (e.getMessage ());

@@ -4,7 +4,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import com.libcentro.demo.exceptions.EmptyFieldException;
 import com.libcentro.demo.exceptions.OutOfBounds;
@@ -18,8 +17,6 @@ import com.libcentro.demo.view.ConfirmarDialog;
 import com.libcentro.demo.view.productos.*;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Controller;
 
 import com.libcentro.demo.services.interfaces.IproductoService;
@@ -362,7 +359,7 @@ public class ProductosController {
                     throw new IllegalArgumentException("Ingrese el codigo de barra del producto");
                 }
                 try{
-                       producto[0] = productoService.getProducto(codigo_barras);
+                       producto[0] = productoService.getProductoDTO (codigo_barras);
                 }catch (ObjectNotFoundException ex){
                         JOptionPane.showMessageDialog(null, "El producto con codigo: " + codigo_barras + " no existe");
                     }
@@ -377,7 +374,7 @@ public class ProductosController {
         actualizarUnProducto.getActualizarButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try{
-                    CategoriaDTO categoria = categoriaService.getCategoria(actualizarUnProducto.getCategoriaBox().getSelectedItem().toString());
+                    CategoriaDTO categoria = categoriaService.getCategoriaDTO (actualizarUnProducto.getCategoriaBox().getSelectedItem().toString());
                     ProductoDTO productoNuevo = new ProductoDTO (
                             actualizarUnProducto.getCodigoField().getText(),
                             actualizarUnProducto.getNombreField().getText(),
@@ -513,7 +510,7 @@ public class ProductosController {
         List<ProductoDTO> productosSeleccionados = new ArrayList<>();
         for(Integer i : fila){
             try{
-              ProductoDTO productoDTO =  productoService.getProducto (productosFrame.getTable().getValueAt(i, 0).toString());
+              ProductoDTO productoDTO =  productoService.getProductoDTO (productosFrame.getTable().getValueAt(i, 0).toString());
               productosSeleccionados.add(productoDTO);
             }catch (RuntimeException e){
                 JOptionPane.showMessageDialog(null,"Error al obtener productos");

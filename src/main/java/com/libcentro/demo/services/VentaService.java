@@ -22,12 +22,15 @@ import com.libcentro.demo.repository.IventaRepository;
 import com.libcentro.demo.services.interfaces.IventaService;
 @Service
 public class VentaService implements IventaService {
+
+    private final IventaRepository ventaRepository;
+    private final ProductoService productoService;
+
     @Autowired
-    private IventaRepository ventaRepository;
-    @Autowired
-    private ProductoService productoService;
-    @Autowired
-    private IproductoRepository productoRepository;
+    public VentaService( IventaRepository ventaRepository, ProductoService productoService ){
+        this.ventaRepository = ventaRepository;
+        this.productoService = productoService;
+    }
 
     @Override
     public List<Venta> getAll() {
@@ -53,10 +56,8 @@ public class VentaService implements IventaService {
         ventaDTO.getVenta_producto().forEach(vpd -> {
             Venta_Producto ventaproducto = new Venta_Producto(vpd);
             ventaproducto.setVenta(savedVenta);
-            Optional<Producto> producto = productoRepository.findById(vpd.getProducto().getCodigobarras());
-            producto.ifPresent(p -> {
-                ventaproducto.setProducto(p, vpd.getCantidad());
-            });
+            Producto producto = productoService.getProducto (vpd.getProducto().getCodigobarras());
+                ventaproducto.setProducto(producto, vpd.getCantidad());
             savedVenta.getVenta_productos().add(ventaproducto);
         });
 
@@ -91,7 +92,7 @@ public class VentaService implements IventaService {
 
         for(Venta_Producto ventaProducto : venta.getVenta_productos()){
             Producto productoVenta= ventaProducto.getProducto();
-            ProductoDTO productoO = productoService.getProducto(productoVenta.getCodigobarras ());
+            ProductoDTO productoO = productoService.getProductoDTO (productoVenta.getCodigobarras ());
 
             CategoriaDTO categoriaDTO =productoO.getCategoria ();
 
