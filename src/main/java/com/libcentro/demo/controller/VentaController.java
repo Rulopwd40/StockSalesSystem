@@ -414,6 +414,7 @@ public class VentaController {
             ventaService.vender(venta);
         }catch(Exception e){
             JOptionPane.showMessageDialog(null, "Error en la venta: " + e.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace ();
             throw new RuntimeException(e.getMessage());
         }
 

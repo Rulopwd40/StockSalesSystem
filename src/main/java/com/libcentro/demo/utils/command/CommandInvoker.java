@@ -51,8 +51,7 @@ public class CommandInvoker {
 
     public boolean save() {
         if (count == 0) {
-            JOptionPane.showMessageDialog(null, "No hay cambios que guardar", "Información", JOptionPane.INFORMATION_MESSAGE);
-            return false;
+            throw new RuntimeException ("No hay cambios que guardar");
         }
         progressService = new ProgressService<Command>(null,count);
         progressService.ejecutarProceso(

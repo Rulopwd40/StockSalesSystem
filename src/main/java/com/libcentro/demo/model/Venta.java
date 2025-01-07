@@ -18,8 +18,7 @@ import java.util.stream.Collectors;
 public class Venta {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private String id;
     private LocalDateTime fecha;
     private double total;
     private boolean estado;

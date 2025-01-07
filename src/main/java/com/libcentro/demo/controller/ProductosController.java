@@ -100,12 +100,12 @@ public class ProductosController {
         productosFrame.addComponentListener (new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                    int height = productosFrame.getScrollPane().getHeight();
-                    int newPageSize = (int) Math.ceil(height * (5d / 79d));
-                    if (newPageSize > page_size * 1.5 || newPageSize < page_size / 1.5) {
-                        page_size = newPageSize;
-                        productosFrameUpdateTable();
-                    }
+                int height = productosFrame.getScrollPane().getHeight();
+                int newPageSize = (int) Math.ceil(height * (5d / 79d));
+                if (newPageSize > page_size * 1.5 || newPageSize < page_size / 1.5) {
+                    page_size = newPageSize;
+                    productosFrameUpdateTable();
+                }
             }
         });
         productosFrame.getSinStockCheckBox().addActionListener( new ActionListener() {
@@ -137,9 +137,9 @@ public class ProductosController {
         });
 
         productosFrame.getUnProductoButton().addActionListener(new ActionListener() {
-           public void actionPerformed(ActionEvent e) {
-               agregarProducto();
-           }
+            public void actionPerformed(ActionEvent e) {
+                agregarProducto();
+            }
         });
         productosFrame.getImportarCsvButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -204,7 +204,16 @@ public class ProductosController {
         productosFrame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                save();
+                if( productoService.cambios () ){
+                    ConfirmarDialog confirmarDialog = new ConfirmarDialog ("Desea guardar los cambios antes de salir?");
+                    confirmarDialog.setVisible(true);
+                    if ( confirmarDialog.isAceptar() ) {
+                        save ();
+                    }else{
+                        deshacerTodo ();
+                    }
+
+                }
             }
         });
         productosFrame.getGuardarButton().addActionListener(new ActionListener(){
@@ -215,8 +224,8 @@ public class ProductosController {
         productosFrame.getEliminarProductoButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                        eliminarProducto ();
-                        productosFrameUpdateTable ();
+                eliminarProducto ();
+                productosFrameUpdateTable ();
             }
         });
 
@@ -233,7 +242,6 @@ public class ProductosController {
             }
         });
     }
-
 
     private void pagina ( int i ){
         this.page += i;
@@ -758,18 +766,21 @@ public class ProductosController {
     private void deshacerTodo(){
         try {
             productoService.undoAll ();
-            JOptionPane.showMessageDialog (null, "Cambios deshechos correctamente","Éxito",JOptionPane.INFORMATION_MESSAGE);
             productosFrameUpdateTable ();
+            JOptionPane.showMessageDialog (null, "Cambios deshechos correctamente","Éxito",JOptionPane.INFORMATION_MESSAGE);
         }catch (Exception ex){
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
     private void save(){
-        boolean result = productoService.save();
-        if(result){
-            JOptionPane.showMessageDialog (null,"Guardado exitoso","Éxito",JOptionPane.INFORMATION_MESSAGE);
-        }else{
-            JOptionPane.showMessageDialog (null,"No hay operaciones para guardar","Fallo",JOptionPane.ERROR_MESSAGE);
+
+        try {
+            boolean result = productoService.save();
+            if ( result ) {
+                JOptionPane.showMessageDialog (null, "Guardado exitoso", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            }
+        }catch (Exception ex){
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 

@@ -16,4 +16,6 @@ public interface IventaRepository extends JpaRepository<Venta, Integer> {
     @Query ("UPDATE Venta v SET v.estado = false WHERE v.id= :id")
     public void eliminacionLogica(long id);
 
+    @Query("SELECT COUNT(v) FROM Venta v WHERE v.fecha BETWEEN :inicioDelDia AND :finDelDia")
+    public int countByFecha(LocalDateTime inicioDelDia, LocalDateTime finDelDia);
 }

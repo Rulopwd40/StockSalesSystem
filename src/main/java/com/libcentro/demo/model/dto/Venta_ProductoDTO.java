@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class Venta_ProductoDTO {
 
     @EqualsAndHashCode.Include
-    private long id_venta;
+    private String id_venta;
     @EqualsAndHashCode.Include
     private String codigobarras;
     private ProductoDTO producto;

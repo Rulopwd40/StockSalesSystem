@@ -17,7 +17,7 @@ public class GeneradorTicket implements Printable {
 
     private static final String TEXTO_TICKET = "Libreria Centro\n" +
             "Fecha: %s\n" +
-            "Venta N°: %d\n" +
+            "Cod.: %s\n" +
             "-----------------------------\n" +
             "%s\n" +
             "-----------------------------\n" +

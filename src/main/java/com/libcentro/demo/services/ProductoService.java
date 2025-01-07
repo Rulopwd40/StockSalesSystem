@@ -248,8 +248,8 @@ public class ProductoService implements IproductoService {
         producto.ifPresent(p -> {
                 p.setStock (productoDTO.getStock () - cantidad);
                 HistorialCosto historialCosto = historialService.findHistorialInicial (p);
-                if(historialCosto.getCantidad () > historialCosto.getCantidad () + cantidad){
-                    historialCosto.setCantidad_vendida (cantidad);
+                if(historialCosto.getCantidad () > historialCosto.getCantidad_vendida () + cantidad){
+                    historialCosto.setCantidad_vendida (cantidad+historialCosto.getCantidad_vendida ());
                 }else{
                     int falta = historialCosto.getCantidad () - historialCosto.getCantidad_vendida ();
                     int resto = cantidad-falta;
@@ -258,13 +258,15 @@ public class ProductoService implements IproductoService {
                             newHistorial.setCantidad_vendida (resto);
                             newHistorial.setEstado (HistorialCosto.Estado.INICIAL);
                             historialService.save(newHistorial);
+                    } else{
+                        throw new InsufficientStockException("Verifique stock del producto: " + productoDTO.getCodigobarras());
                     }
 
                     historialCosto.setCantidad_vendida (historialCosto.getCantidad ());
                     historialCosto.setEstado (HistorialCosto.Estado.INHABILITADO);
-                    historialService.save(historialCosto);
-                }
 
+                }
+                historialService.save(historialCosto);
                 productoRepository.save(p);});
     }
 
@@ -303,6 +305,11 @@ public class ProductoService implements IproductoService {
 
             commandInvoker.executeCommand (new UpdateProductCommand (this,historialService,productoActual,productoNuevo));
             });
+    }
+
+    @Override
+    public boolean cambios (){
+        return this.commandInvoker.getCount () != 0;
     }
 
 }

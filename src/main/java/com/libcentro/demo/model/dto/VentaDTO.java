@@ -19,7 +19,7 @@ import java.util.Set;
 public class VentaDTO {
 
 
-    private long id;
+    private String id;
     private LocalDateTime fecha;
     private double total = 0;
     private boolean estado = true;

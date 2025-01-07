@@ -7,7 +7,7 @@ import java.io.Serializable;
 @Data
 public class VentaProductoId implements Serializable {
 
-    private long id_venta;
+    private String id_venta;
     private String codigobarras;
 
 }

@@ -52,7 +52,7 @@
                 <properties>
                   <background color="-1"/>
                   <foreground color="-12406529"/>
-                  <text value="Cancel"/>
+                  <text value="Cancelar"/>
                 </properties>
               </component>
             </children>

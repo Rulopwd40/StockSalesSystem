@@ -48,4 +48,6 @@ public interface IproductoService {
     void updatePrecio ( List<ProductoDTO> productosDTO, double porcentaje );
 
     Producto getProducto ( String codigobarras );
+
+    boolean cambios ();
 }

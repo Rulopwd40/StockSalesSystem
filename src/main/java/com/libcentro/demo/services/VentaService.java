@@ -1,6 +1,9 @@
 package com.libcentro.demo.services;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -44,10 +47,9 @@ public class VentaService implements IventaService {
         venta.setFecha(ventaDTO.getFecha());
         venta.setEstado(ventaDTO.isEstado());
         venta.setTotal(ventaDTO.getTotal());
-
+        venta.setId (generarVentaID());
 
         Venta savedVenta = ventaRepository.save(venta);
-
 
         savedVenta.setProductoFStocks(ventaDTO.getProducto_fstock().stream()
                 .map(ProductoFStock::new)
@@ -62,6 +64,17 @@ public class VentaService implements IventaService {
         });
 
         return ventaRepository.save(savedVenta);
+    }
+
+    private String generarVentaID (){
+        String fechaActual = new SimpleDateFormat ("yyyyMMdd").format(new Date ());
+
+        LocalDateTime inicioDelDia = LocalDateTime.now().with(LocalTime.MIN);
+        LocalDateTime finDelDia = LocalDateTime.now().with(LocalTime.MAX);
+
+        String cuenta = ventaRepository.countByFecha (inicioDelDia,finDelDia) + "";
+
+        return fechaActual + "-" + cuenta;
     }
 
     @Override
@@ -85,8 +98,6 @@ public class VentaService implements IventaService {
 
         LocalDateTime dateTime = LocalDateTime.now();
         ventaDTO.setFecha(dateTime);
-
-
 
         Venta venta = saveVenta(ventaDTO);
 

@@ -15,7 +15,7 @@ import lombok.Getter;
 public class Venta_Producto {
 
         @Id
-        private long id_venta;
+        private String id_venta;
 
         @Id
         private String codigobarras;
