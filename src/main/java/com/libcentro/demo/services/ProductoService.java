@@ -148,6 +148,7 @@ public class ProductoService implements IproductoService {
                 productoActualizado.getPrecio_venta (),
                 productoActualizado.getStock ()
                 );
+
         commandInvoker.executeCommand(new UpdateProductCommand(this, historialService,productoActual,producto));
     }
 
@@ -166,20 +167,15 @@ public class ProductoService implements IproductoService {
             productosViejos = productoRepository.findAllByCategoria(categoria);
         }
 
-        // Crear una instancia de ProgressService
         IprogressService<Producto> progressService = new ProgressService<>(null, productosViejos.size());
 
-        // Ejecutar el proceso de actualización de productos con progreso
         progressService.ejecutarProceso(productosViejos, productoViejo -> {
-            // Actualizar el precio de cada producto
             Producto nuevoProducto = new Producto(productoViejo);
             double nuevoPrecio = nuevoProducto.getPrecio_venta() + Math.round(nuevoProducto.getPrecio_venta() * porcentaje * 100d) / 100d;
             nuevoProducto.setPrecio_venta(nuevoPrecio);
 
-            // Aquí puedes ejecutar el comando para actualizar el producto en la base de datos
             List<Producto> productosNuevos = Collections.singletonList(nuevoProducto);
 
-            // Ejecutar el comando que actualiza los productos
             commandInvoker.executeCommand(new UpdateProductsBy(this, productosNuevos, productosViejos, historialService));
 
         });

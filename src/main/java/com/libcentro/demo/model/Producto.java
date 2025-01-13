@@ -18,7 +18,9 @@ public class Producto {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "categoria", referencedColumnName = "id", nullable = true)
     private Categoria categoria;
+    @Column(columnDefinition = "NUMERIC")
     private double costo_compra;
+    @Column(columnDefinition = "NUMERIC")
     private double precio_venta;
     private int stock;
 

@@ -17,9 +17,10 @@ public class ProductoFStock {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private String id;
     private String nombre;
-    private float precio_venta;
+    @Column(columnDefinition = "NUMERIC")
+    private double precio_venta;
     private int cantidad;
-    private float descuento = 0;
+    private double descuento = 0;
     @ManyToOne
     @JoinColumn(name = "id_venta")
     private Venta venta;

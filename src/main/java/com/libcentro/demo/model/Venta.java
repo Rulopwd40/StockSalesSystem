@@ -20,6 +20,7 @@ public class Venta {
     @Id
     private String id;
     private LocalDateTime fecha;
+    @Column(columnDefinition = "NUMERIC")
     private double total;
     private boolean estado;
 

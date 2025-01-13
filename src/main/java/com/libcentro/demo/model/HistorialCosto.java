@@ -27,6 +27,7 @@ public class HistorialCosto {
     private Producto producto;
 
 
+    @Column(columnDefinition = "NUMERIC")
     private double costo_compra;
     private int cantidad;
     Estado estado;

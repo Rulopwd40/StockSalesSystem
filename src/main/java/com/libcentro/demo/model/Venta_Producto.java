@@ -28,8 +28,11 @@ public class Venta_Producto {
         private Producto producto;
         private int cantidad;
         private double descuento;
+        @Column(columnDefinition = "NUMERIC")
         private double precio_venta;
+        @Column(columnDefinition = "NUMERIC")
         private double costo_compra;
+        @Column(columnDefinition = "NUMERIC")
         private double total;
 
 
