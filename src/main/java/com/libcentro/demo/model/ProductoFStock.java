@@ -6,16 +6,19 @@ import jakarta.persistence.Table;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 
 @Data
 @Entity
 @Table(name="producto_fuera_de_stock")
+@EqualsAndHashCode(callSuper=false)
 public class ProductoFStock {
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private String id;
+    private int id;
     private String nombre;
     @Column(columnDefinition = "NUMERIC")
     private double precio_venta;
@@ -23,6 +26,8 @@ public class ProductoFStock {
     private double descuento = 0;
     @ManyToOne
     @JoinColumn(name = "id_venta")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Venta venta;
 
     public ProductoFStock() {

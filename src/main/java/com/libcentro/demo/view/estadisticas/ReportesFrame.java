@@ -8,7 +8,7 @@ public class ReportesFrame extends JFrame{
     private JButton ventasButton;
     private JButton productosButton;
     private JButton gananciasButton;
-    private JButton generarReembolsoButton;
+    private JButton informacionButton;
     private JButton okButton;
     private JPanel contenidoPane;
     private JLabel pestanaLabel;
@@ -41,8 +41,8 @@ public class ReportesFrame extends JFrame{
         return gananciasButton;
     }
 
-    public JButton getGenerarReembolsoButton() {
-        return generarReembolsoButton;
+    public JButton getInformacionButton() {
+        return informacionButton;
     }
 
     public JButton getVentasButton() {
@@ -79,4 +79,6 @@ public class ReportesFrame extends JFrame{
     public JTable getTablaCount (){
         return tablaCount;
     }
+
+
 }

@@ -28,7 +28,7 @@ public class EstadisticaService implements IestadisticaService {
     private final IventaproductoRepository ventaproductoRepository;
     private final IventaRepository ventaRepository;
     private final IproductoRepository productoRepository;
-    private JpaRepository repository;
+    private JpaRepository<?,?> repository;
 
     private final GraphContext graphContext;
     private final DateFilterContext dateFilterContext;
@@ -57,6 +57,7 @@ public class EstadisticaService implements IestadisticaService {
 
         List<?> datosFiltrados = obtenerYFiltrar (codigo,fechas);
 
+        if( datosFiltrados.isEmpty () ) throw new RuntimeException ("No hay informacion");
         try{
             return countContext.ejecutar (datosFiltrados, duracionEnDias);
         }catch (RuntimeException e){
@@ -147,7 +148,7 @@ public class EstadisticaService implements IestadisticaService {
         }
     }
 
-    public LocalDateTime[] generarFecha(String tiempo) {
+    private LocalDateTime[] generarFecha(String tiempo) {
         LocalDateTime fechaFin = LocalDate.now().atTime(LocalTime.MAX);
         LocalDateTime fechaInicio;
 

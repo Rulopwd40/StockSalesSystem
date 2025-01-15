@@ -324,7 +324,7 @@ public class VentaController {
         ProductoDTO producto;
         try {
             producto = productoService.getProductoDTO (codigo_barras, cantidad);
-        } catch (IllegalArgumentException | ObjectNotFoundException | InsufficientStockException e) {
+        } catch (RuntimeException e) {
             JOptionPane.showMessageDialog(null, "No se puede agregar el producto: " + e.getMessage());
             throw new RuntimeException (e.getMessage ());
         }

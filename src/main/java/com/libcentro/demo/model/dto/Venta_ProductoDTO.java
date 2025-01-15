@@ -2,6 +2,7 @@ package com.libcentro.demo.model.dto;
 
 import com.libcentro.demo.model.Producto;
 
+import com.libcentro.demo.model.Venta_Producto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,6 +24,18 @@ public class Venta_ProductoDTO {
     private double precio_venta;
     private double costo_compra;
     private double total;
+
+    public Venta_ProductoDTO ( Venta_Producto vp ){
+        this.id_venta = vp.getId_venta();
+        this.codigobarras = vp.getCodigobarras();
+        this.producto = new ProductoDTO(vp.getProducto());
+        this.cantidad = vp.getCantidad();
+        this.descuento = vp.getDescuento();
+        this.precio_venta = vp.getPrecio_venta();
+        this.costo_compra = vp.getCosto_compra();
+        this.total = vp.getTotal();
+
+    }
 
     public void setDescuento(float descuento) {
         this.descuento = descuento;

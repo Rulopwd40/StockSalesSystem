@@ -1,23 +1,32 @@
 package com.libcentro.demo.controller;
 
+import com.libcentro.demo.model.Producto;
+import com.libcentro.demo.model.ProductoFStock;
+import com.libcentro.demo.model.dto.*;
+import com.libcentro.demo.services.VentaService;
 import com.libcentro.demo.services.interfaces.IestadisticaService;
-import com.libcentro.demo.services.interfaces.IventaService;
+import com.libcentro.demo.view.estadisticas.InformacionFrame;
 import com.libcentro.demo.view.estadisticas.ReportesFrame;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Arrays;
+import java.awt.event.*;
+import java.util.List;
+import java.util.Objects;
 
 @Controller
 public class ReportesController {
 
 
+    private final VentaService ventaService;
     private IestadisticaService estadisticaService;
+    private int page;
 
     private enum Estado{
         VENTA,
@@ -28,61 +37,66 @@ public class ReportesController {
 
     private Estado estado= Estado.VENTA;
 
-    ReportesFrame frame;
+    ReportesFrame reportesFrame;
+    InformacionFrame informacionFrame;
+
+    PageDTO<VentaDTO> ventas;
+    VentaDTO ventaSeleccionada;
 
     @Autowired
-    public ReportesController(IestadisticaService estadisticaService){
+    public ReportesController( IestadisticaService estadisticaService, VentaService ventaService ){
         this.estadisticaService = estadisticaService;
+        this.ventaService = ventaService;
     }
 
     public void openReportesFrame() {
-        if (frame == null) {
-        frame = new ReportesFrame();
+        if ( reportesFrame == null) {
+        reportesFrame = new ReportesFrame();
         addFrameListeners();
         }
 
-        frame.setVisible(true);
+        reportesFrame.setVisible(true);
     }
 
     private void addFrameListeners() {
 
-        frame.getVentasButton().addActionListener(new ActionListener() {
+        reportesFrame.getVentasButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setVentas();
             }
         });
-        frame.getProductosButton().addActionListener(new ActionListener() {
+        reportesFrame.getProductosButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setProducto();
             }
         });
-        frame.getGananciasButton().addActionListener(new ActionListener() {
+        reportesFrame.getGananciasButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setGanancias();
             }
         });
-        frame.getGenerarReembolsoButton().addActionListener(new ActionListener() {
+        reportesFrame.getInformacionButton ().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                generarReembolso();
+                openInformacionFrame();
             }
         });
-        frame.getGenerarGraficaButton().addActionListener(new ActionListener() {
+        reportesFrame.getGenerarGraficaButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 generarGrafica();
             }
         });
-        frame.getContabilizarButton ().addActionListener(new ActionListener() {
+        reportesFrame.getContabilizarButton ().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed ( ActionEvent e ){
                 contabilizar();
             }
         });
-        frame.getOkButton ().addActionListener(new ActionListener() {
+        reportesFrame.getOkButton ().addActionListener(new ActionListener() {
            @Override
            public void actionPerformed ( ActionEvent e ){
                cerrar();
@@ -92,17 +106,17 @@ public class ReportesController {
     }
 
     private void cerrar (){
-        frame.setVisible(false);
+        reportesFrame.setVisible(false);
     }
 
     private void contabilizar (){
         String string;
         try {
-            string = estadisticaService.contabilizar (frame.getCodigoField ().getText (),
+            string = estadisticaService.contabilizar (reportesFrame.getCodigoField ().getText (),
                     estado.toString ().toLowerCase (),
-                    (String) frame.getPeriodoBox ().getSelectedItem ());
+                    (String) reportesFrame.getPeriodoBox ().getSelectedItem ());
         }catch (Exception e){
-            JOptionPane.showMessageDialog(frame,e.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(reportesFrame,e.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
             throw new RuntimeException (e.getMessage(),e);
         }
         DefaultTableModel tableModel = new DefaultTableModel(0,2);
@@ -113,23 +127,23 @@ public class ReportesController {
             tableModel.addRow (new String[]{s.split("\\|")[0],s.split("\\|")[1]});
         }
 
-        frame.getTablaCount ().setModel (tableModel);
+        reportesFrame.getTablaCount ().setModel (tableModel);
 
 
     }
 
     private void generarGrafica() {
-            frame.getGraphPane ().removeAll ();
-            frame.getGraphPane ().revalidate();
+            reportesFrame.getGraphPane ().removeAll ();
+            reportesFrame.getGraphPane ().revalidate();
             Image image;
             try {
-                image = estadisticaService.generarGrafica (frame.getCodigoField ().getText (),
+                image = estadisticaService.generarGrafica (reportesFrame.getCodigoField ().getText (),
                         estado.toString ().toLowerCase (),
-                        (String) frame.getPeriodoBox ().getSelectedItem ());
+                        (String) reportesFrame.getPeriodoBox ().getSelectedItem ());
 
                 if ( image == null ) throw new RuntimeException ("No se genero imagen");
             } catch (RuntimeException e) {
-                JOptionPane.showMessageDialog (frame, "Error al generar la imagen: " + e.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog (reportesFrame, "Error al generar la imagen: " + e.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
                 throw new RuntimeException (e);
             }
             int nuevoAncho = 900;
@@ -146,40 +160,256 @@ public class ReportesController {
             };
             picPane.setPreferredSize(new Dimension(nuevoAncho, nuevoAlto));
 
-            frame.getGraphPane().add(picPane);
+            reportesFrame.getGraphPane().add(picPane);
 
             picPane.revalidate();
             picPane.repaint();
             picPane.setVisible(true);
     }
 
-    private void generarReembolso() {
-
-    }
-
     private void setGanancias() {
-        frame.getCodigoField().setText("");
-        frame.getCodigoField().setEnabled(false);
-        frame.getPestanaLabel().setText("Ganancias");
+        reportesFrame.getCodigoField().setText("");
+        reportesFrame.getCodigoField().setEnabled(false);
+        reportesFrame.getPestanaLabel().setText("Ganancias");
         estado = Estado.GANANCIA;
     }
 
     private void setProducto() {
-        frame.getCodigoField().setText("");
-        frame.getCodigoField().setEnabled(true);
-        frame.getPestanaLabel().setText("Producto");
+        reportesFrame.getCodigoField().setText("");
+        reportesFrame.getCodigoField().setEnabled(true);
+        reportesFrame.getPestanaLabel().setText("Producto");
         estado = Estado.PRODUCTO;
     }
 
     private void setVentas(){
-        frame.getCodigoField().setText("");
-        frame.getCodigoField().setEnabled(false);
-        frame.getPestanaLabel().setText("Ventas");
+        reportesFrame.getCodigoField().setText("");
+        reportesFrame.getCodigoField().setEnabled(false);
+        reportesFrame.getPestanaLabel().setText("Ventas");
         estado = Estado.VENTA;
     }
 
+    //informacion
+
+    private void openInformacionFrame() {
+        this.page = 0;
+
+        if (informacionFrame == null) {
+            informacionFrame = new InformacionFrame();
+            addInformacionFrameListeners();
+        }
+
+        pagina (0);
+
+        informacionFrame.setVisible(true);
+    }
+
+    private void addInformacionFrameListeners (){
+        informacionFrame.getBuscarField ().getDocument().addDocumentListener(new DocumentListener () {
+
+            @Override
+            public void insertUpdate ( DocumentEvent e ){
+                updateTableVentas();
+            }
+
+            @Override
+            public void removeUpdate ( DocumentEvent e ){
+                updateTableVentas();
+            }
+
+            @Override
+            public void changedUpdate ( DocumentEvent e ){
+                updateTableVentas();
+            }
+        });
+        informacionFrame.getAnteriorButton ().addActionListener (new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                pagina(-1);
+            }
 
 
+        });
+        informacionFrame.getSiguienteButton ().addActionListener (new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                pagina(1);
+            }
+        });
+        informacionFrame.getMostrarButton ().addActionListener (new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                mostrarVenta();
+            }
+        });
+        informacionFrame.getVentaTable().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int row = informacionFrame.getVentaTable().getSelectedRow();
+                if (row != -1) {
+                    cambiarBoton(row);
+                }
+            }
+        });
 
-    
+        informacionFrame.getEliminarButton ().addActionListener (new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int row = informacionFrame.getVentaTable().getSelectedRow();
+                if (row != -1) {
+                    cambiarBoton(row);
+                }
+                cambiarEstadoVenta (row);
+            }
+        });
+
+        informacionFrame.getReembolsarButton ().addActionListener (new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                reembolsarSeleccion();
+            }
+        });
+        informacionFrame.getReembolsarTodoButton ().addActionListener (new ActionListener () {
+            @Override
+            public void actionPerformed ( ActionEvent e ){
+                reembolsarVenta();
+            }
+        });
+    }
+
+    private void reembolsarVenta (){
+        ventaService.reembolsarVenta(ventaSeleccionada);
+    }
+    private void reembolsarSeleccion (){
+        JTable table;
+        int row;
+        int modo;
+        if(informacionFrame.getProductosTable ().getSelectedRow () != -1){
+            table= informacionFrame.getProductosTable ();
+            row = informacionFrame.getProductosTable ().getSelectedRow ();
+            modo=0;
+        }else if(informacionFrame.getPfsTable ().getSelectedRow () != -1){
+            table= informacionFrame.getPfsTable ();
+            row = informacionFrame.getPfsTable ().getSelectedRow ();
+            modo=1;
+        }else{
+            JOptionPane.showMessageDialog (informacionFrame, "Seleccione un producto", "Error",JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        String input = JOptionPane.showInputDialog (null,"Cantidad a Reembolsar:","Reembolsar",JOptionPane.PLAIN_MESSAGE);
+
+        if (input != null) {
+            try {
+                int cantidadReembolsar = Integer.parseInt(input);
+
+                String id = table.getModel ().getValueAt (row,0).toString ();
+
+                if(modo == 0){
+                    Venta_ProductoDTO vpd = ventaSeleccionada.getVenta_producto ().stream ().filter (vp -> { return Objects.equals (vp.getProducto ().getCodigobarras (), id);
+                    }).findFirst ().orElse(null);
+
+                    if(vpd == null) throw new EntityNotFoundException ("Producto no encontrado");
+
+                    ventaService.reembolsarProducto(ventaSeleccionada,vpd,cantidadReembolsar);
+                    JOptionPane.showMessageDialog (informacionFrame,"Producto con codigo de barras: " + vpd.getProducto ().getCodigobarras () + " reembolsado","Reembolsado",JOptionPane.PLAIN_MESSAGE);
+                    return;
+                }
+                ProductoFStockDTO pfsd = ventaSeleccionada.getProducto_fstock ().stream ().filter (pfs -> pfs.getId () == Integer.parseInt(id)).findFirst ().orElse (null);
+                if(pfsd == null) throw new EntityNotFoundException ("Producto no encontrado");
+
+
+                ventaService.reembolsarProducto (ventaSeleccionada,pfsd,cantidadReembolsar);
+                JOptionPane.showMessageDialog (informacionFrame,"Producto reembolsado");
+
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(informacionFrame, "Por favor, ingrese un número válido.", "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (EntityNotFoundException e) {
+                JOptionPane.showMessageDialog (informacionFrame,"Producto no encontrado","Error",JOptionPane.ERROR_MESSAGE);
+            } catch (RuntimeException e){
+                JOptionPane.showMessageDialog (informacionFrame,e.getMessage (),"Error",JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void cambiarBoton (int row){
+        String estado = informacionFrame.getVentaTable().getModel().getValueAt(row, 2).toString();
+
+        if (estado.equals("Habilitada")) {
+            informacionFrame.getEliminarButton().setBackground(new Color(205, 40, 30));
+            informacionFrame.getEliminarButton ().setText("Deshabilitar");
+        } else {
+            informacionFrame.getEliminarButton().setBackground(new Color(66, 176, 255));
+            informacionFrame.getEliminarButton ().setText("Habilitar");
+        }
+
+
+    }
+
+
+    private void pagina ( int i ){
+        page = page + i;
+        updateTableVentas();
+
+        informacionFrame.getSiguienteButton ().setEnabled(page + 1 != ventas.getPages ());
+
+        informacionFrame.getAnteriorButton ().setEnabled(page != 0);
+
+        informacionFrame.getPageCount ().setText(page + 1 + " de " + ventas.getPages () );
+
+    }
+    private void updateTableVentas (){
+        ventas = ventaService.getByPage(informacionFrame.getBuscarField ().getText (), this.page, 25);
+
+        String[] ventaNames = {"Cod.", "Total", "Estado"};
+        DefaultTableModel tableModel = new DefaultTableModel(ventaNames, 0);
+
+        if (ventas != null && ventas.getObjects() != null) {
+            for (VentaDTO venta : ventas.getObjects()) {
+                tableModel.addRow(new Object[]{venta.getId(), venta.getTotal(), venta.isEstado ()? "Habilitada" : "Deshabilitada" });
+            }
+        }
+        informacionFrame.getVentaTable().setModel(tableModel);
+    }
+
+    private void mostrarVenta (){
+        int row = informacionFrame.getVentaTable().getSelectedRow();
+        ;
+        if (row != -1) {
+            String value = informacionFrame.getVentaTable().getModel().getValueAt(row, 0).toString ();
+            ventaSeleccionada = ventaService.getVentaById(value);
+        } else {
+            JOptionPane.showMessageDialog (null,"Seleccione una venta para mostrar.");
+            return;
+        }
+
+        String[] productoNames = {"Cod.", "Nombre", "Precio", "Cantidad","Descuento","Costo de Compra"};
+        String[] pfsNames = {"Id","Nombre", "Precio", "Cantidad","Descuento"};
+        DefaultTableModel productosModel = new DefaultTableModel(productoNames, 0);
+        DefaultTableModel pfsModel = new DefaultTableModel(pfsNames, 0);
+
+        ventaSeleccionada.getVenta_producto ().forEach (vp -> {
+            productosModel.addRow (new Object[]{vp.getProducto ().getCodigobarras (),
+                    vp.getProducto ().getNombre (),
+                    vp.getPrecio_venta (),
+                    vp.getCantidad (),
+                    vp.getDescuento (),
+                    vp.getCosto_compra ()
+            });
+        });
+        ventaSeleccionada.getProducto_fstock ().forEach (pfs -> {
+            pfsModel.addRow (new Object[]{
+                    pfs.getId (),
+                    pfs.getNombre (),
+                    pfs.getPrecio_venta (),
+                    pfs.getCantidad (),
+                    pfs.getDescuento ()
+            });
+        });
+
+        informacionFrame.getProductosTable ().setModel(productosModel);
+        informacionFrame.getPfsTable ().setModel(pfsModel);
+        informacionFrame.getHora ().setText (ventaSeleccionada.getFecha ().getHour () + ":" + ventaSeleccionada.getFecha ().getMinute () + ":" + ventaSeleccionada.getFecha ().getSecond () );
+
+    }
+    private void cambiarEstadoVenta(int row){
+        String codbar= informacionFrame.getVentaTable ().getModel ().getValueAt (row,0).toString ();
+
+        ventaService.cambiarEstadoVenta (codbar);
+        updateTableVentas();
+    }
+
 }

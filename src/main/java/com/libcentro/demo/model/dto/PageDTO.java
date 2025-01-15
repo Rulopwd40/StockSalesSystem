@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class ProductoPageDTO {
-    private List<ProductoDTO> productos;
-    private int paginas;
+@NoArgsConstructor
+public class PageDTO<T> {
+    private List<T> objects;
+    private int pages;
 }

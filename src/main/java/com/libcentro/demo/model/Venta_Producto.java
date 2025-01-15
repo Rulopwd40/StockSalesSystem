@@ -6,9 +6,11 @@ import com.libcentro.demo.model.id.VentaProductoId;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
+import lombok.Setter;
 
 
 @Getter
+@Setter
 @Entity
 @Table(name="venta_producto")
 @IdClass(VentaProductoId.class)
@@ -74,10 +76,8 @@ public class Venta_Producto {
             }
 
         private void updateTotal() {
-
                 total = precio_venta * cantidad - precio_venta * cantidad * descuento / 100;
 
-                // Redondear a 2 decimales
                 total = Math.round(total * 100.00d) / 100.00d;
             }
 

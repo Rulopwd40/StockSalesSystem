@@ -6,6 +6,8 @@ import com.libcentro.demo.services.interfaces.IhistorialService;
 import com.libcentro.demo.services.interfaces.IproductoService;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class UpdateProductsBy implements Command {
 
@@ -33,11 +35,14 @@ public class UpdateProductsBy implements Command {
 
     @Override
     public void undo() {
+        Map<String, Producto> productosViejosMap = viejosProductos.stream()
+                .collect(Collectors.toMap(Producto::getCodigobarras, producto -> producto));
+
         for (Producto nuevoProducto : nuevosProductos) {
-            Producto viejoProducto = viejosProductos.stream()
-                    .filter(p -> p.getCodigobarras ().equals(nuevoProducto.getCodigobarras ()))
-                    .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Producto no encontrado en los productos viejos"));
+            Producto viejoProducto = productosViejosMap.get(nuevoProducto.getCodigobarras());
+            if (viejoProducto == null) {
+                throw new RuntimeException("Producto no encontrado en los productos viejos");
+            }
 
             HistorialPrecio historialReciente = historialService.findLastHistorialPrecio(nuevoProducto);
             if (historialReciente != null) {

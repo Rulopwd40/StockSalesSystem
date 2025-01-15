@@ -22,10 +22,11 @@ public interface IproductoRepository extends JpaRepository<Producto, String> {
 
     @Query("SELECT p FROM Producto p " +
             "LEFT JOIN p.categoria c " +
-            "WHERE (:filter = '' OR p.codigobarras LIKE :filter OR p.nombre LIKE :filter OR c.nombre LIKE :filter) " +
+            "WHERE (:filter = '' OR LOWER(p.codigobarras) LIKE LOWER(:filter) " +
+            "OR LOWER(p.nombre) LIKE LOWER(:filter) OR LOWER(c.nombre) LIKE LOWER(:filter)) " +
             "AND (:sin_stock = false OR p.stock = 0) " +
             "AND (:conCategoriaNula = false OR c IS NULL) " +
-            "ORDER BY p.codigobarras ASC")
+            "ORDER BY CAST(p.codigobarras AS BIGINTEGER) ASC")
     Page<Producto> getProductosPage(Pageable pageable, @Param("filter") String filter,
                                     @Param("sin_stock") boolean sin_stock, @Param("conCategoriaNula") boolean conCategoriaNula);
 

@@ -5,6 +5,8 @@ import com.libcentro.demo.model.dto.VentaDTO;
 import com.libcentro.demo.model.dto.Venta_ProductoDTO;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 
 import java.time.LocalDate;
@@ -25,10 +27,15 @@ public class Venta {
     private boolean estado;
 
 
-    @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true)
+
+    @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Set<Venta_Producto> venta_productos = new HashSet<>();
 
-    @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Set<ProductoFStock> productoFStocks = new HashSet<>();
 
     public Venta() {

@@ -8,11 +8,12 @@ import java.util.List;
 import com.libcentro.demo.exceptions.EmptyFieldException;
 import com.libcentro.demo.exceptions.OutOfBounds;
 import com.libcentro.demo.model.dto.CategoriaDTO;
+import com.libcentro.demo.model.dto.PageDTO;
 import com.libcentro.demo.model.dto.ProductoDTO;
-import com.libcentro.demo.model.dto.ProductoPageDTO;
 import com.libcentro.demo.services.interfaces.IcategoriaService;
 import com.libcentro.demo.utils.FieldAnalyzer;
 import com.libcentro.demo.utils.filters.Filter;
+import com.libcentro.demo.utils.format.DoubleFormat;
 import com.libcentro.demo.view.ConfirmarDialog;
 import com.libcentro.demo.view.productos.*;
 import org.hibernate.ObjectNotFoundException;
@@ -60,6 +61,9 @@ public class ProductosController {
 
     private int pagsDisponibles;
     public int page_size= 25;
+
+    //utils
+    private final DoubleFormat doubleFormat = new DoubleFormat();
 
     @Autowired
     public ProductosController(IproductoService productoService, IcategoriaService categoriaService) {
@@ -271,8 +275,8 @@ public class ProductosController {
                             agregarProducto.getCodigoField().getText(),
                             agregarProducto.getNombreField().getText(),
                             categoriaDTO,
-                            Float.parseFloat(agregarProducto.getCostoField().getText()),
-                            Float.parseFloat(agregarProducto.getPrecioField().getText()),
+                            Double.parseDouble (agregarProducto.getCostoField().getText()),
+                            Double.parseDouble(agregarProducto.getPrecioField().getText()),
                             Integer.parseInt(agregarProducto.getCantidadField().getText())
                     );
 
@@ -387,8 +391,8 @@ public class ProductosController {
                             actualizarUnProducto.getCodigoField().getText(),
                             actualizarUnProducto.getNombreField().getText(),
                             categoria,
-                            Float.parseFloat(actualizarUnProducto.getCostoCompraField().getText()),
-                            Float.parseFloat(actualizarUnProducto.getPrecioVentaField().getText()),
+                            Double.parseDouble (actualizarUnProducto.getCostoCompraField().getText()),
+                            Double.parseDouble (actualizarUnProducto.getPrecioVentaField().getText()),
                             Integer.parseInt(actualizarUnProducto.getStockField().getText()));
                     FieldAnalyzer.todosLosCamposLlenos(actualizarUnProducto);
                     productoService.updateProducto(productoNuevo);
@@ -597,12 +601,11 @@ public class ProductosController {
                     ProductoDTO producto = productosSeleccionados.get (i);
                     double nuevoPrecio = Math.round((producto.getPrecio_venta () + producto.getPrecio_venta () * porcentaje) * 100d) / 100d ;
 
-                    tableModel.setValueAt(nuevoPrecio, i, 2);
+                    tableModel.setValueAt(doubleFormat.format(nuevoPrecio), i, 2);
                 }
             }
 
         });
-
         frame.getOkButton ().addActionListener (new ActionListener () {
             @Override
             public void actionPerformed ( ActionEvent e ){
@@ -723,13 +726,13 @@ public class ProductosController {
     private void productosFrameUpdateTable() {
         productsModel.setRowCount(0);
 
-        ProductoPageDTO productoPageDTO = productoService.productosByPage(this.page,
+        PageDTO<ProductoDTO> productoPageDTO = productoService.productosByPage(this.page,
                 productosFrame.getBuscarField ().getText (),
                 productosFrame.getSinStockCheckBox().isSelected(),
                 this.page_size,productosFrame.getCategoriaCheckbox ().isSelected ());
 
-        this.productos = productoPageDTO.getProductos();
-        this.pagsDisponibles = productoPageDTO.getPaginas ();
+        this.productos = productoPageDTO.getObjects ();
+        this.pagsDisponibles = productoPageDTO.getPages ();
 
         for (ProductoDTO producto : productos) {
             addProductoToTable(producto);
@@ -743,14 +746,13 @@ public class ProductosController {
         return categoriaService.getAll();
     }
     private void addProductoToTable(ProductoDTO producto){
-
         productsModel.addRow(new Object[]{
                 producto.getCodigobarras(),
                 producto.getNombre(),
                 producto.getCategoria().getNombre (),
                 producto.getStock(),
-                producto.getCosto_compra(),
-                producto.getPrecio_venta()
+                doubleFormat.format(producto.getCosto_compra()),
+                doubleFormat.format(producto.getPrecio_venta())
         });
     }
 

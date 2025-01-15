@@ -33,7 +33,7 @@ public class ViewController {
 
     void openStockControlView(){
         try {
-            this.stockController.stockControl(true);
+            this.stockController.stockControl(false);
         }catch(Exception ignore){
             System.out.println("Stock Control: No");
         };

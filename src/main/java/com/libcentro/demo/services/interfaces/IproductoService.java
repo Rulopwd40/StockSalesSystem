@@ -5,8 +5,8 @@ import java.util.Optional;
 import com.libcentro.demo.model.Producto;
 
 import com.libcentro.demo.model.dto.CategoriaDTO;
+import com.libcentro.demo.model.dto.PageDTO;
 import com.libcentro.demo.model.dto.ProductoDTO;
-import com.libcentro.demo.model.dto.ProductoPageDTO;
 import jakarta.transaction.Transactional;
 import org.hibernate.ObjectNotFoundException;
 
@@ -22,7 +22,7 @@ public interface IproductoService {
 
     void deleteProductoByCodigo(String codigo_barras);
 
-    ProductoPageDTO productosByPage( int page, String filter, boolean checkbox,int pagesize,boolean categoria);
+    PageDTO<ProductoDTO> productosByPage( int page, String filter, boolean checkbox, int pagesize, boolean categoria);
     @Transactional
     public void updateProducto(ProductoDTO x);
 
@@ -50,4 +50,6 @@ public interface IproductoService {
     Producto getProducto ( String codigobarras );
 
     boolean cambios ();
+
+    void reembolsarProducto ( Producto producto, int cantidadReembolsar );
 }

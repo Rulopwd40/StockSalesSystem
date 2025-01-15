@@ -10,8 +10,8 @@ import com.libcentro.demo.model.Categoria;
 import com.libcentro.demo.model.HistorialCosto;
 import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.model.dto.CategoriaDTO;
+import com.libcentro.demo.model.dto.PageDTO;
 import com.libcentro.demo.model.dto.ProductoDTO;
-import com.libcentro.demo.model.dto.ProductoPageDTO;
 import com.libcentro.demo.services.interfaces.IcategoriaService;
 import com.libcentro.demo.services.interfaces.IhistorialService;
 import com.libcentro.demo.services.interfaces.IprogressService;
@@ -127,12 +127,12 @@ public class ProductoService implements IproductoService {
     }
 
     @Override
-    public ProductoPageDTO productosByPage ( int page, String filter, boolean sin_stock,int page_size,boolean categoria ){
+    public PageDTO<ProductoDTO> productosByPage ( int page, String filter, boolean sin_stock, int page_size, boolean categoria ){
         String filterT = "%" +  filter.toLowerCase() + "%";
 
         Page<Producto> productosPage = productoRepository.getProductosPage (PageRequest.of (page, page_size),filterT,sin_stock,categoria);
 
-        return new ProductoPageDTO(productosPage.stream().map(ProductoDTO::new).toList(),productosPage.getTotalPages ());
+        return new PageDTO<> (productosPage.stream ().map (ProductoDTO::new).toList (), productosPage.getTotalPages ());
     }
 
     @Override
@@ -196,7 +196,7 @@ public class ProductoService implements IproductoService {
         }
         Producto producto= productoRepository.findById(codigo_barras).orElse(null);
         if(producto==null) {
-            throw new RuntimeException("El producto con codigo: " + codigo_barras + " no existe.");
+            throw new RuntimeException ("El producto con codigo: " + codigo_barras + " no existe.");
         }
         else if(cantidad > producto.getStock()){
             throw new InsufficientStockException("Cantidad insuficiente del producto: " + codigo_barras);
@@ -244,7 +244,16 @@ public class ProductoService implements IproductoService {
         producto.ifPresent(p -> {
                 p.setStock (productoDTO.getStock () - cantidad);
                 HistorialCosto historialCosto = historialService.findHistorialInicial (p);
-                if(historialCosto.getCantidad () > historialCosto.getCantidad_vendida () + cantidad){
+                if(historialCosto.getCantidad () >= historialCosto.getCantidad_vendida () + cantidad){
+                    if(historialCosto.getCantidad () == historialCosto.getCantidad_vendida () + cantidad){
+                        HistorialCosto newHistorial = historialService.findNext (p);
+                        if(newHistorial != null){
+                            newHistorial.setEstado (HistorialCosto.Estado.INICIAL);
+                            historialService.save(newHistorial);
+                        }
+                        historialCosto.setEstado (HistorialCosto.Estado.INHABILITADO);
+                        System.out.println (historialCosto.getEstado ());
+                    }
                     historialCosto.setCantidad_vendida (cantidad+historialCosto.getCantidad_vendida ());
                 }else{
                     int falta = historialCosto.getCantidad () - historialCosto.getCantidad_vendida ();
@@ -306,6 +315,18 @@ public class ProductoService implements IproductoService {
     @Override
     public boolean cambios (){
         return this.commandInvoker.getCount () != 0;
+    }
+
+    @Override
+    public void reembolsarProducto ( Producto producto, int cantidadReembolsar ){
+        HistorialCosto historialCosto= historialService.findLastHistorialCosto (producto);
+
+        producto.setStock (producto.getStock () + cantidadReembolsar);
+        historialCosto.setCantidad(historialCosto.getCantidad () + cantidadReembolsar);
+        if(historialCosto.getEstado ()== HistorialCosto.Estado.INHABILITADO){historialCosto.setEstado (HistorialCosto.Estado.INICIAL);}
+
+        productoRepository.save(producto);
+        historialService.save(historialCosto);
     }
 
 }

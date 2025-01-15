@@ -1,6 +1,7 @@
 package com.libcentro.demo.model.dto;
 
 
+import com.libcentro.demo.model.ProductoFStock;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,9 +16,9 @@ public class ProductoFStockDTO {
     private long id;
     @EqualsAndHashCode.Include
     private String nombre;
-    private float precio_venta;
+    private double precio_venta;
     private int cantidad;
-    private float descuento;
+    private double descuento;
     private VentaDTO venta;
 
     public ProductoFStockDTO(String nombre, String cantidad, String precio, String descuento) {
@@ -25,5 +26,14 @@ public class ProductoFStockDTO {
         this.cantidad = Integer.parseInt(cantidad);
         this.precio_venta = Float.parseFloat(precio);
         this.descuento = Float.parseFloat(descuento);
+    }
+
+    public ProductoFStockDTO ( ProductoFStock productoFStock ){
+        this .id = productoFStock.getId();
+        this.nombre = productoFStock.getNombre();
+        this.cantidad = productoFStock.getCantidad();
+        this.precio_venta = productoFStock.getPrecio_venta();
+        this.descuento = productoFStock.getDescuento();
+
     }
 }
