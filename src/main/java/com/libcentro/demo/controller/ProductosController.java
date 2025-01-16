@@ -770,7 +770,7 @@ public class ProductosController {
             productoService.undoAll ();
             productosFrameUpdateTable ();
             JOptionPane.showMessageDialog (null, "Cambios deshechos correctamente","Éxito",JOptionPane.INFORMATION_MESSAGE);
-        }catch (Exception ex){
+        }catch (RuntimeException ex){
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }

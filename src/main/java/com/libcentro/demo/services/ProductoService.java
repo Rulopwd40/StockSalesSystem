@@ -177,7 +177,6 @@ public class ProductoService implements IproductoService {
             List<Producto> productosNuevos = Collections.singletonList(nuevoProducto);
 
             commandInvoker.executeCommand(new UpdateProductsBy(this, productosNuevos, productosViejos, historialService));
-
         });
     }
 

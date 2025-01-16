@@ -34,8 +34,7 @@ public class CommandInvoker {
 
     public void undoAll() {
         if (commands.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "No hay comandos para deshacer", "Información", JOptionPane.INFORMATION_MESSAGE);
-            return;
+            throw new RuntimeException ("No hay cambios para deshacer");
         }
 
         progressService = new ProgressService<Command>(null,count);

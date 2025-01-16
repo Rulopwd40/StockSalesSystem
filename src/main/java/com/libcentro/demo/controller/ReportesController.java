@@ -287,9 +287,11 @@ public class ReportesController {
 
     private void reembolsarVenta (){
         try {
+            if(ventaSeleccionada == null) throw new RuntimeException("Seleccione una venta");
             ventaService.reembolsarVenta (ventaSeleccionada);
         }catch (RuntimeException e){
-            JOptionPane.showMessageDialog (informacionFrame,"Error al reembolsar la venta");
+            JOptionPane.showMessageDialog (informacionFrame,"Error al reembolsar la venta: "+ e.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
+            return;
         }
         JOptionPane.showMessageDialog (informacionFrame,"Venta reembolsada correctamente");
         mostrarVenta ();

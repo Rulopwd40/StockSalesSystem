@@ -49,9 +49,6 @@ public class UpdateProductsBy implements Command {
                 historialService.delete(historialReciente);
             }
 
-            HistorialPrecio historialPrecio = new HistorialPrecio(viejoProducto, viejoProducto.getPrecio_venta());
-            historialService.save(historialPrecio);
-
             nuevoProducto.setPrecio_venta(viejoProducto.getPrecio_venta());
             productoService.saveProducto(nuevoProducto);
         }

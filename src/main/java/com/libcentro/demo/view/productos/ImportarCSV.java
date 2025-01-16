@@ -11,6 +11,7 @@ public class ImportarCSV extends JDialog {
     private JTextField locationField;
     private JButton buscarButton;
     private JButton subirButton;
+    private JLabel label;
 
     public ImportarCSV() {
         setContentPane(contentPane);
@@ -75,5 +76,9 @@ public class ImportarCSV extends JDialog {
 
     public JButton getButtonCancel() {
         return buttonCancel;
+    }
+
+    public JLabel getLabel (){
+        return label;
     }
 }

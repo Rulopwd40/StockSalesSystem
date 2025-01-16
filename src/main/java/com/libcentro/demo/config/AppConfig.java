@@ -11,6 +11,7 @@ public class AppConfig {
     public static String python_path;
     public static String csv_path;
     public static String graph_path;
+    public static String backup_path;
     public static int stock_alert;
 
     public static final String CONFIG_FILE = "app_config.cfg";
@@ -30,6 +31,7 @@ public class AppConfig {
                 python_path = properties.getProperty("python_path", "src/main/python/generar_grafica.py");
                 csv_path = properties.getProperty("csv_path", "csv/");
                 graph_path = properties.getProperty("graph_path", "graph/");
+                backup_path = properties.getProperty("backup_path", "backup/");
 
                 String stockAlertValue = properties.getProperty("stock_alert", "10");
                 try {
@@ -48,12 +50,14 @@ public class AppConfig {
             python_path = "src/main/python/generar_grafica.py";
             csv_path = "csv/";
             graph_path = "graph/";
+            backup_path = "backup/";
             stock_alert = 10;
 
             properties.setProperty("python_path", python_path);
             properties.setProperty("csv_path", csv_path);
             properties.setProperty("graph_path", graph_path);
             properties.setProperty("stock_alert", String.valueOf(stock_alert));
+            properties.setProperty("backup_path", backup_path);
 
             try (FileOutputStream outputStream = new FileOutputStream(configFile)) {
                 properties.store(outputStream, "Configuración de la aplicación");
