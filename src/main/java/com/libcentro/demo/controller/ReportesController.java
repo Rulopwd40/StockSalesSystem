@@ -1,5 +1,6 @@
 package com.libcentro.demo.controller;
 
+import com.libcentro.demo.model.HistorialCosto;
 import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.model.ProductoFStock;
 import com.libcentro.demo.model.dto.*;
@@ -484,7 +485,7 @@ public class ReportesController {
                     dformatter.format(hc.getCosto_compra()),
                     hc.getCantidad(),
                     hc.getCantidad_vendida(),
-                    hc.getEstado()
+                    hc.getEstado().equals(HistorialCosto.Estado.INICIAL)? "ACTUAL" : hc.getEstado ()
             });
         });
 

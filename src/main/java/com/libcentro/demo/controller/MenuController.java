@@ -22,15 +22,14 @@ public class MenuController {
     }
 
 
-    //Abre menu restricciónes y listeners
     public void openMenuView(){
         menuFrame = new MenuFrame();
         menuFrame.setVisible(true);
 
-        // Menu Listeners
         menuFrame.getProductosButton().addActionListener(e -> viewController.openProductosView());
         menuFrame.getVentaButton().addActionListener(e -> viewController.newVenta());
         menuFrame.getReportesButton().addActionListener(e -> viewController.openReportesView());
+        menuFrame.getConfiguracionButton ().addActionListener(e -> viewController.openConfiguracionView());
 
         menuFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {

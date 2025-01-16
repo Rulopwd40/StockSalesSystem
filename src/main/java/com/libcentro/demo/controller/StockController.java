@@ -1,6 +1,7 @@
 package com.libcentro.demo.controller;
 
 
+import com.libcentro.demo.config.AppConfig;
 import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.model.dto.ProductoDTO;
 import com.libcentro.demo.services.interfaces.IproductoService;
@@ -27,7 +28,7 @@ public class StockController {
     }
 
     public void stockControl(boolean modal) {
-        productos= productoService.getProductosByCantidad(10);
+        productos= productoService.getProductosByCantidad(AppConfig.stock_alert);
 
         if(!productos.isEmpty()) {
             StockControl stockControl = new StockControl();

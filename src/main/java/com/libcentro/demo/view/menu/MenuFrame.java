@@ -14,6 +14,7 @@ public class MenuFrame extends JFrame {
     private JPanel ButtonContainer2;
     private JLabel Menu;
     private JButton backUpButton;
+    private JButton configuracionButton;
 
     public MenuFrame() {
         setContentPane(panelMenu);
@@ -22,7 +23,6 @@ public class MenuFrame extends JFrame {
         setSize(600,400);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
-        createUIComponents();
     }
 
     public JButton getProductosButton() {
@@ -37,6 +37,11 @@ public class MenuFrame extends JFrame {
         return reportesButton;
     }
 
-    private void createUIComponents() {
+    public JButton getBackUpButton (){
+        return backUpButton;
+    }
+
+    public JButton getConfiguracionButton (){
+        return configuracionButton;
     }
 }

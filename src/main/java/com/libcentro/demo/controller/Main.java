@@ -1,6 +1,7 @@
 package com.libcentro.demo.controller;
 
 
+import com.libcentro.demo.config.AppConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -25,6 +26,7 @@ public class Main {
         }
 
         ApplicationContext contexto = SpringApplication.run(Main.class, args);
+
 
         ViewController viewController = contexto.getBean(ViewController.class);
 

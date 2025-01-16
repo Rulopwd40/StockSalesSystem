@@ -12,19 +12,21 @@ public class ViewController {
     final ProductosController productosController;
     final ReportesController reportesController;
     final StockController stockController;
+    final ConfiguracionController configuracionController;
 
 
     @Autowired
-    public ViewController(MenuController menuController,
-                          VentaController ventaController,
-                          ProductosController productosController,
-                          ReportesController reportesController,
-                          StockController stockController) {
+    public ViewController( MenuController menuController,
+                           VentaController ventaController,
+                           ProductosController productosController,
+                           ReportesController reportesController,
+                           StockController stockController, ConfiguracionController configuracionController ) {
         this.menuController = menuController;
         this.ventaController = ventaController;
         this.productosController = productosController;
         this.reportesController = reportesController;
         this.stockController = stockController;
+        this.configuracionController = configuracionController;
     }
 
     void openMenuView() {
@@ -45,11 +47,13 @@ public class ViewController {
     }
 
 
-    //Crear Venta
     void newVenta(){
         ventaController.openVentaFrame();
     }
 
     void openReportesView(){ reportesController.openReportesFrame();};
 
+    void openConfiguracionView(){
+        configuracionController.openConfiguracionView ();
+    }
 }

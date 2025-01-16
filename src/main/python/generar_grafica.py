@@ -7,7 +7,6 @@ def generar_grafica(csv_file, tipo):
     plt.figure(figsize=(10, 6))
 
     if tipo == "producto":
-        # Graficamos las tres líneas
         plt.plot(data['Fecha'], data['GananciaBruta'], color='#42B0FF', marker='o', linestyle='-', label='Ganancia Bruta')
         plt.plot(data['Fecha'], data['GananciaNeta'], color='#32CD32', marker='o', linestyle='-', label='Ganancia Neta')
         plt.plot(data['Fecha'], data['Costo'], color='#FF6347', marker='o', linestyle='-', label='Costo')
@@ -23,13 +22,13 @@ def generar_grafica(csv_file, tipo):
         plt.title('Ganancia por Venta')
 
     plt.legend()
-    plt.xticks(rotation=20, ha="right")  # Rotar las etiquetas de las fechas para mejor legibilidad
-    plt.tight_layout()  # Ajustar el diseño
-    plt.savefig('graph/grafica.png')  # Guardar el archivo PNG
+    plt.xticks(rotation=20, ha="right")
+    plt.tight_layout()
+    plt.savefig('graph/grafica.png')
 
     plt.close()
 
 if __name__ == "__main__":
-    csv_file = sys.argv[1]  # Primer argumento: archivo CSV
-    tipo = sys.argv[2]      # Segundo argumento: tipo de gráfica
+    csv_file = sys.argv[1]
+    tipo = sys.argv[2]
     generar_grafica(csv_file, tipo)
