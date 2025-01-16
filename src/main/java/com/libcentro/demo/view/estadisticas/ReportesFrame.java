@@ -7,7 +7,7 @@ public class ReportesFrame extends JFrame{
     private JPanel reportesPanel;
     private JButton ventasButton;
     private JButton productosButton;
-    private JButton gananciasButton;
+    private JButton historialButton;
     private JButton informacionButton;
     private JButton okButton;
     private JPanel contenidoPane;
@@ -38,7 +38,7 @@ public class ReportesFrame extends JFrame{
     }
 
     public JButton getGananciasButton() {
-        return gananciasButton;
+        return historialButton;
     }
 
     public JButton getInformacionButton() {

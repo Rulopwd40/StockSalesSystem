@@ -31,8 +31,6 @@ public class ReportesController {
     private enum Estado{
         VENTA,
         PRODUCTO,
-        GANANCIA
-
     }
 
     private Estado estado= Estado.VENTA;
@@ -167,13 +165,6 @@ public class ReportesController {
             picPane.setVisible(true);
     }
 
-    private void setGanancias() {
-        reportesFrame.getCodigoField().setText("");
-        reportesFrame.getCodigoField().setEnabled(false);
-        reportesFrame.getPestanaLabel().setText("Ganancias");
-        estado = Estado.GANANCIA;
-    }
-
     private void setProducto() {
         reportesFrame.getCodigoField().setText("");
         reportesFrame.getCodigoField().setEnabled(true);
@@ -188,8 +179,7 @@ public class ReportesController {
         estado = Estado.VENTA;
     }
 
-    //informacion
-
+    //Informacion
     private void openInformacionFrame() {
         this.page = 0;
 
@@ -269,10 +259,28 @@ public class ReportesController {
                 reembolsarVenta();
             }
         });
+        informacionFrame.getPfsTable ().addMouseListener (new MouseAdapter() {
+            @Override
+            public void mouseClicked ( MouseEvent e ){
+                informacionFrame.getProductosTable ().clearSelection ();
+            }
+        });
+        informacionFrame.getProductosTable ().addMouseListener (new MouseAdapter() {
+            @Override
+            public void mouseClicked ( MouseEvent e ){
+                informacionFrame.getPfsTable ().clearSelection ();
+            }
+        });
     }
 
     private void reembolsarVenta (){
-        ventaService.reembolsarVenta(ventaSeleccionada);
+        try {
+            ventaService.reembolsarVenta (ventaSeleccionada);
+        }catch (RuntimeException e){
+            JOptionPane.showMessageDialog (informacionFrame,"Error al reembolsar la venta");
+        }
+        JOptionPane.showMessageDialog (informacionFrame,"Venta reembolsada correctamente");
+        mostrarVenta ();
     }
     private void reembolsarSeleccion (){
         JTable table;
@@ -315,6 +323,7 @@ public class ReportesController {
                 ventaService.reembolsarProducto (ventaSeleccionada,pfsd,cantidadReembolsar);
                 JOptionPane.showMessageDialog (informacionFrame,"Producto reembolsado");
 
+                mostrarVenta ();
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(informacionFrame, "Por favor, ingrese un número válido.", "Error", JOptionPane.ERROR_MESSAGE);
             } catch (EntityNotFoundException e) {
@@ -338,7 +347,6 @@ public class ReportesController {
 
 
     }
-
 
     private void pagina ( int i ){
         page = page + i;

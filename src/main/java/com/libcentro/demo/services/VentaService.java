@@ -148,8 +148,19 @@ public class VentaService implements IventaService {
     }
 
     @Override
+    @Transactional
     public void reembolsarVenta (VentaDTO ventaDTO){
+        Venta venta = ventaRepository.findById (ventaDTO.getId ()).orElseThrow (() -> new RuntimeException ("Venta no encontrada"));
 
+        venta.getVenta_productos ().forEach (vp -> {
+            vp.setCantidad (0);
+        });
+        venta.getProductoFStocks ().forEach (pfs -> {
+            pfs.setCantidad (0);
+        });
+
+        venta.setEstado (false);
+        recalcularVenta (venta);
     }
 
     @Override

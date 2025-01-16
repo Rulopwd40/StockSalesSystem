@@ -6,10 +6,13 @@ import com.libcentro.demo.repository.IventaRepository;
 import com.libcentro.demo.repository.IventaproductoRepository;
 import com.libcentro.demo.services.interfaces.IestadisticaService;
 import com.libcentro.demo.utils.strategy.count.CountContext;
+import com.libcentro.demo.utils.strategy.count.ProductCount;
 import com.libcentro.demo.utils.strategy.count.VentaCount;
 import com.libcentro.demo.utils.strategy.datefilter.DateFilterContext;
+import com.libcentro.demo.utils.strategy.datefilter.ProductoDateFilter;
 import com.libcentro.demo.utils.strategy.datefilter.VentaDateFilter;
 import com.libcentro.demo.utils.strategy.graph.GraphContext;
+import com.libcentro.demo.utils.strategy.graph.ProductGraph;
 import com.libcentro.demo.utils.strategy.graph.VentaGraph;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -67,6 +70,7 @@ public class EstadisticaService implements IestadisticaService {
 
     @Override
     public Image generarGrafica(String codigo, String tipo, String tiempo) {
+
         setearEstrategia(tipo);
 
         LocalDateTime[] fechas = generarFecha(tiempo);
@@ -89,19 +93,20 @@ public class EstadisticaService implements IestadisticaService {
                 dateFilterContext.setStrategy (new VentaDateFilter ());
                 countContext.setStrategy (new VentaCount ());
                 break;
+            case "producto":
+                graphContext.setStrategy (new ProductGraph ());
+                repository = ventaproductoRepository;
+                dateFilterContext.setStrategy (new ProductoDateFilter ());
+                countContext.setStrategy (new ProductCount ());
+                break;
             default:
                 throw new IllegalArgumentException ("Error: Estrategia Errónea");
-
         }
     }
 
     private List<?> obtenerYFiltrar(String codigo, LocalDateTime[] fechas){
-        List<?> datos = repository.findAll();
-        if(datos.isEmpty()) throw new RuntimeException ("No hay informacion");
-        return dateFilterContext.ejecutar (datos,codigo,fechas);
+        return dateFilterContext.ejecutar (repository,codigo,fechas);
     }
-
-
 
     private Image generarGraficaProducto( List<Venta_Producto> ventaproductos, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
         try {

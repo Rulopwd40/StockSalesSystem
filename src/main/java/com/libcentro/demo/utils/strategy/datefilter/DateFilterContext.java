@@ -1,5 +1,6 @@
 package com.libcentro.demo.utils.strategy.datefilter;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -14,9 +15,9 @@ public class DateFilterContext {
         this.strategy = strategy;
     }
 
-    public List<?> ejecutar( List<?> datos ,String codigo, Object[] fechas ){
-        if(!datos.isEmpty ()) return this.strategy.filtrar(datos, codigo, fechas);
-        else throw new RuntimeException("Datos no encontrados");
+    public List<?> ejecutar( JpaRepository<?,?> repository, String codigo, Object[] fechas ){
+        return this.strategy.filtrar(repository, codigo, fechas);
+
     }
 
 }
