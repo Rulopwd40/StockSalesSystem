@@ -3,6 +3,10 @@ package com.libcentro.demo.services.interfaces;
 import com.libcentro.demo.model.HistorialCosto;
 import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.model.Producto;
+import com.libcentro.demo.model.dto.HistorialCostoDTO;
+import com.libcentro.demo.model.dto.HistorialPrecioDTO;
+
+import java.util.List;
 
 public interface IhistorialService {
     HistorialCosto crearHistorialCosto ( Producto nuevoProducto, double costoCompra, int cantidad, HistorialCosto.Estado estado );
@@ -24,4 +28,8 @@ public interface IhistorialService {
     HistorialPrecio crearHistorialPrecio ( Producto producto, double precioVenta );
 
     HistorialCosto findHistorialInicial ( Producto producto );
+
+    List<HistorialPrecioDTO> findAllPrecioByProducto ( String codbar );
+
+    List<HistorialCostoDTO> findAllCostoByProducto ( String codbar );
 }

@@ -3,8 +3,12 @@ package com.libcentro.demo.controller;
 import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.model.ProductoFStock;
 import com.libcentro.demo.model.dto.*;
+import com.libcentro.demo.services.HistorialService;
+import com.libcentro.demo.services.ProductoService;
 import com.libcentro.demo.services.VentaService;
 import com.libcentro.demo.services.interfaces.IestadisticaService;
+import com.libcentro.demo.utils.format.DoubleFormat;
+import com.libcentro.demo.view.estadisticas.HistorialFrame;
 import com.libcentro.demo.view.estadisticas.InformacionFrame;
 import com.libcentro.demo.view.estadisticas.ReportesFrame;
 import jakarta.persistence.EntityNotFoundException;
@@ -17,6 +21,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,6 +30,8 @@ public class ReportesController {
 
 
     private final VentaService ventaService;
+    private final ProductoService productoService;
+    private final HistorialService historialService;
     private IestadisticaService estadisticaService;
     private int page;
 
@@ -37,14 +44,17 @@ public class ReportesController {
 
     ReportesFrame reportesFrame;
     InformacionFrame informacionFrame;
+    HistorialFrame historialFrame;
 
     PageDTO<VentaDTO> ventas;
     VentaDTO ventaSeleccionada;
 
     @Autowired
-    public ReportesController( IestadisticaService estadisticaService, VentaService ventaService ){
+    public ReportesController( IestadisticaService estadisticaService, VentaService ventaService, ProductoService productoService, HistorialService historialService ){
         this.estadisticaService = estadisticaService;
         this.ventaService = ventaService;
+        this.productoService = productoService;
+        this.historialService = historialService;
     }
 
     public void openReportesFrame() {
@@ -73,7 +83,7 @@ public class ReportesController {
         reportesFrame.getGananciasButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                setGanancias();
+                openHistorialFrame();
             }
         });
         reportesFrame.getInformacionButton ().addActionListener(new ActionListener() {
@@ -102,6 +112,7 @@ public class ReportesController {
         });
 
     }
+
 
     private void cerrar (){
         reportesFrame.setVisible(false);
@@ -410,7 +421,11 @@ public class ReportesController {
 
         informacionFrame.getProductosTable ().setModel(productosModel);
         informacionFrame.getPfsTable ().setModel(pfsModel);
-        informacionFrame.getHora ().setText (ventaSeleccionada.getFecha ().getHour () + ":" + ventaSeleccionada.getFecha ().getMinute () + ":" + ventaSeleccionada.getFecha ().getSecond () );
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        String horaFormateada = ventaSeleccionada.getFecha().format(formatter);
+
+        informacionFrame.getHora().setText(horaFormateada);
 
     }
     private void cambiarEstadoVenta(int row){
@@ -418,6 +433,71 @@ public class ReportesController {
 
         ventaService.cambiarEstadoVenta (codbar);
         updateTableVentas();
+    }
+
+
+    //Historial
+    private void openHistorialFrame (){
+        if(historialFrame == null){
+            historialFrame = new HistorialFrame ();
+            addHistorialFrameListeners();
+        }
+
+        historialFrame.setVisible(true);
+    }
+
+    private void addHistorialFrameListeners (){
+        historialFrame.getBuscarButton ().addActionListener (new ActionListener () {
+            @Override
+            public void actionPerformed ( ActionEvent e ){
+                buscarProducto();
+            }
+        });
+        historialFrame.getOkButton ().addActionListener (new ActionListener () {
+            @Override
+            public void actionPerformed ( ActionEvent e ){
+                historialFrame.setVisible(false);
+            }
+        });
+    }
+
+    private void buscarProducto (){
+        DoubleFormat dformatter = new DoubleFormat();
+        String codbar = historialFrame.getBuscarField ().getText ();
+        if( codbar.isEmpty () ) {
+            JOptionPane.showMessageDialog (historialFrame,"Complete el campo","Error",JOptionPane.ERROR_MESSAGE);
+            throw new IllegalArgumentException ( "Complete el campo" );
+        }
+        List<HistorialCostoDTO> historialCostoDTOS = historialService.findAllCostoByProducto (codbar);
+        List<HistorialPrecioDTO> historialPrecioDTOS = historialService.findAllPrecioByProducto (codbar);
+
+        String[] costoNames={"Fecha", "Costo", "Cantidad","Cantidad vendida", "Estado"};
+        DefaultTableModel costoModel = new DefaultTableModel (costoNames,0);
+        String[] precioNames={"Fecha","Precio"};
+        DefaultTableModel precioModel = new DefaultTableModel (precioNames,0);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        historialCostoDTOS.forEach(hc -> {
+            costoModel.addRow(new Object[]{
+                    hc.getFecha().format(formatter),
+                    dformatter.format(hc.getCosto_compra()),
+                    hc.getCantidad(),
+                    hc.getCantidad_vendida(),
+                    hc.getEstado()
+            });
+        });
+
+        historialPrecioDTOS.forEach(hp -> {
+            precioModel.addRow(new Object[]{
+                    hp.getFecha().format(formatter),
+                    dformatter.format(hp.getPrecioVenta())
+            });
+        });
+
+        historialFrame.getCostosTable ().setModel(costoModel);
+        historialFrame.getPreciosTable ().setModel(precioModel);
+
     }
 
 }

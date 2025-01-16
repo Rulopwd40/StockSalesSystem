@@ -114,7 +114,7 @@ public class EstadisticaService implements IestadisticaService {
             writer.write("Fecha,GananciaNeta\n");
 
             for (Venta_Producto vp : ventaproductos) {
-                String fechaVenta = vp.getVenta().getFecha().toString(); // Asegúrate de obtener la fecha correctamente
+                String fechaVenta = vp.getVenta().getFecha().toString();
 
                 double gananciaNeta = (vp.getPrecio_venta() - vp.getCosto_compra()) * vp.getCantidad();
 

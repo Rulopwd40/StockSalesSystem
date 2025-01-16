@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface IhistorialCostoRepository extends JpaRepository<HistorialCosto, Long> {
 
@@ -23,4 +25,10 @@ public interface IhistorialCostoRepository extends JpaRepository<HistorialCosto,
             "ORDER BY h.fecha ASC " +
             "LIMIT 1")
     HistorialCosto findNext(String codigobarras,HistorialCosto.Estado estado);
+
+    @Query("SELECT h from HistorialCosto h " +
+            "WHERE h.producto.codigobarras = :codigobarras " +
+            "order by h.fecha DESC "
+            )
+    List<HistorialCosto> findAllByProducto( String codigobarras);
 }

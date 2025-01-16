@@ -15,7 +15,6 @@ def generar_grafica(csv_file, tipo):
         plt.xlabel('Fecha')
         plt.ylabel('Valor')
         plt.title('Ganancia Bruta, Ganancia Neta y Costo por Producto')
-        plt.yticks(range(0, int(data[['GananciaBruta', 'GananciaNeta', 'Costo']].max().max()) + 10000, 10000))
 
     elif tipo == "venta":
         plt.plot(data['Fecha'], data['Ganancia'], color='#42B0FF', marker='o', linestyle='-', label='Ganancia')
@@ -23,12 +22,10 @@ def generar_grafica(csv_file, tipo):
         plt.ylabel('Ganancia')
         plt.title('Ganancia por Venta')
 
-
     plt.legend()
-    plt.xticks(rotation=0, ha="right")  # Rotar las etiquetas de las fechas para mejor legibilidad
+    plt.xticks(rotation=20, ha="right")  # Rotar las etiquetas de las fechas para mejor legibilidad
     plt.tight_layout()  # Ajustar el diseño
     plt.savefig('graph/grafica.png')  # Guardar el archivo PNG
-
 
     plt.close()
 

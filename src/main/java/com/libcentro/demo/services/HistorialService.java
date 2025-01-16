@@ -3,6 +3,8 @@ package com.libcentro.demo.services;
 import com.libcentro.demo.model.HistorialCosto;
 import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.model.Producto;
+import com.libcentro.demo.model.dto.HistorialCostoDTO;
+import com.libcentro.demo.model.dto.HistorialPrecioDTO;
 import com.libcentro.demo.repository.IhistorialCostoRepository;
 import com.libcentro.demo.repository.IhistorialPrecioRepository;
 import com.libcentro.demo.services.interfaces.IhistorialService;
@@ -10,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class HistorialService implements IhistorialService {
@@ -82,6 +86,15 @@ public class HistorialService implements IhistorialService {
     @Override
     public HistorialCosto findLastHistorialCosto ( Producto producto ){
         return historialCostoRepository.findFirstByProductoCodigobarrasOrderByIdDesc (producto.getCodigobarras ());
+    }
+
+    @Override
+    public List<HistorialPrecioDTO> findAllPrecioByProducto ( String codbar ){
+        return historialPrecioRepository.findAllByProducto (codbar).stream().map (HistorialPrecioDTO::new).collect(Collectors.toList ());
+    }
+    @Override
+    public List<HistorialCostoDTO> findAllCostoByProducto ( String codbar ){
+        return historialCostoRepository.findAllByProducto (codbar).stream ().map(HistorialCostoDTO::new).collect(Collectors.toList());
     }
 
 
