@@ -78,12 +78,6 @@ public class VentaService implements IventaService {
     }
 
     @Override
-    public void updateVenta(Venta x) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateVenta'");
-    }
-
-    @Override
     public void vender( VentaDTO ventaDTO) throws RuntimeException {
         if(ventaDTO.getVenta_producto ().isEmpty () && ventaDTO.getProducto_fstock ().isEmpty ()) throw new RuntimeException("Seleccione productos para vender");
 

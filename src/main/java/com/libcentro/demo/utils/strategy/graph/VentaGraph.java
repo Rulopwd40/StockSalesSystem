@@ -64,8 +64,10 @@ public class VentaGraph implements GraphStrategy<Venta> {
 
             return image;
 
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException ("Error al ejecutar el script Python", e);
+        }   catch (IOException e) {
+            throw new RuntimeException("Error al escribir/leer el archivo");
+        }  catch (InterruptedException e) {
+            throw new RuntimeException ("Procesamiento interrumpido");
         }
 
 

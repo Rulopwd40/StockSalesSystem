@@ -328,4 +328,9 @@ public class ProductoService implements IproductoService {
         historialService.save(historialCosto);
     }
 
+    @Override
+    public void setCategoriaNull ( long id ){
+        productoRepository.setCategoriaNull (id);
+    }
+
 }

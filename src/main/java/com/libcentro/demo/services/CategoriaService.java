@@ -5,6 +5,7 @@ import com.libcentro.demo.model.dto.CategoriaDTO;
 import com.libcentro.demo.repository.IcategoriaRepository;
 import com.libcentro.demo.repository.IproductoRepository;
 import com.libcentro.demo.services.interfaces.IcategoriaService;
+import com.libcentro.demo.services.interfaces.IproductoService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,10 +15,14 @@ import java.util.List;
 @Service
 public class CategoriaService implements IcategoriaService {
 
+    private final IcategoriaRepository categoriaRepository;
+    private final IproductoService productoService;
+
     @Autowired
-    IcategoriaRepository categoriaRepository;
-    @Autowired
-    IproductoRepository productoRepository;
+    public CategoriaService(IcategoriaRepository categoriaRepository, IproductoService productoService) {
+        this.categoriaRepository = categoriaRepository;
+        this.productoService = productoService;
+    }
 
     @Override
     public CategoriaDTO getCategoriaDTO ( String nombre) {
@@ -67,7 +72,7 @@ public class CategoriaService implements IcategoriaService {
     @Override
     public void deleteCategoria( CategoriaDTO x) {
         Categoria categoria = categoriaRepository.findByNombre (x.getNombre());
-        productoRepository.setCategoriaNull (categoria.getId());
+        productoService.setCategoriaNull (categoria.getId());
         categoriaRepository.delete(categoria);
     }
 

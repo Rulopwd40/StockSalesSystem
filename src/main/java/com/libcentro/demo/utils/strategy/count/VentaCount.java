@@ -31,22 +31,22 @@ public class VentaCount implements CountStrategy<Venta> {
                 .sum();
         total_diario_promedio = total/tiempoEnDias;
 
-        BigDecimal bdMontoMaximo = new BigDecimal(monto_maximo).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal bdMontoMaximo = BigDecimal.valueOf (monto_maximo).setScale(2, RoundingMode.HALF_UP);
         monto_maximo = bdMontoMaximo.doubleValue();
 
         total = datos.stream()
                 .mapToDouble(Venta::getTotal)
                 .sum();
 
-        BigDecimal bdTotal = new BigDecimal(total).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal bdTotal = BigDecimal.valueOf (total).setScale(2, RoundingMode.HALF_UP);
         total = bdTotal.doubleValue();
 
-        BigDecimal bdPromedioDiario = new BigDecimal(promedio_diario).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal bdPromedioDiario = BigDecimal.valueOf (promedio_diario).setScale(2, RoundingMode.HALF_UP);
         promedio_diario = bdPromedioDiario.doubleValue();
 
         total_diario_promedio = total / tiempoEnDias;
 
-        BigDecimal bdTotalDiarioPromedio = new BigDecimal(total_diario_promedio).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal bdTotalDiarioPromedio = BigDecimal.valueOf(total_diario_promedio).setScale(2, RoundingMode.HALF_UP);
         total_diario_promedio = bdTotalDiarioPromedio.doubleValue();
 
 

@@ -24,18 +24,8 @@ import java.util.stream.Stream;
 @Service
 public class SQLiteBackupService implements IbackupService {
 
-
-    private final HibernateService hibernateService;
-
-
     private final String databasePath = "database_sqlite/libreria_db.db";
     private final String backupDirectory = AppConfig.backup_path;
-
-    @Autowired
-    public SQLiteBackupService ( HibernateService hibernateService ){
-        this.hibernateService = hibernateService;
-    }
-
 
     @Override
     public List<String[]> getBackupList() {

@@ -52,4 +52,6 @@ public interface IproductoService {
     boolean cambios ();
 
     void reembolsarProducto ( Producto producto, int cantidadReembolsar );
+
+    void setCategoriaNull ( long id );
 }

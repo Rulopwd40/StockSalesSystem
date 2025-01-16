@@ -30,7 +30,6 @@ public class EstadisticaService implements IestadisticaService {
 
     private final IventaproductoRepository ventaproductoRepository;
     private final IventaRepository ventaRepository;
-    private final IproductoRepository productoRepository;
     private JpaRepository<?,?> repository;
 
     private final GraphContext graphContext;
@@ -38,10 +37,13 @@ public class EstadisticaService implements IestadisticaService {
     private final CountContext countContext;
 
     @Autowired
-    public EstadisticaService( IventaproductoRepository ventaproductoRepository, IventaRepository ventaRepository, IproductoRepository productoRepository, GraphContext graphContext, DateFilterContext dateFilterContext, CountContext countContext ) {
+    public EstadisticaService( IventaproductoRepository ventaproductoRepository,
+                               IventaRepository ventaRepository,
+                               GraphContext graphContext,
+                               DateFilterContext dateFilterContext,
+                               CountContext countContext ) {
         this.ventaproductoRepository = ventaproductoRepository;
         this.ventaRepository = ventaRepository;
-        this.productoRepository = productoRepository;
         this.graphContext = graphContext;
         this.dateFilterContext = dateFilterContext;
         this.countContext = countContext;
@@ -108,50 +110,6 @@ public class EstadisticaService implements IestadisticaService {
         return dateFilterContext.ejecutar (repository,codigo,fechas);
     }
 
-    private Image generarGraficaProducto( List<Venta_Producto> ventaproductos, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-        try {
-            FileWriter writer = new FileWriter("producto_data.csv");
-            writer.write("Fecha,GananciaNeta\n");
-
-            for (Venta_Producto vp : ventaproductos) {
-                String fechaVenta = vp.getVenta().getFecha().toString();
-
-                double gananciaNeta = (vp.getPrecio_venta() - vp.getCosto_compra()) * vp.getCantidad();
-
-                writer.write(fechaVenta + "," + gananciaNeta + "\n");
-            }
-            writer.close();
-        } catch (IOException e) {
-            throw new RuntimeException("Error al escribir el archivo CSV", e);
-        }
-
-        try {
-            ProcessBuilder processBuilder = new ProcessBuilder("python", "generar_grafica.py", "producto_data.csv", "producto");
-
-            processBuilder.redirectErrorStream(true);
-            Process process = processBuilder.start();
-
-            StringBuilder output = new StringBuilder();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line).append("\n");
-            }
-
-            int exitCode = process.waitFor();
-            if (exitCode != 0) {
-                throw new RuntimeException("Error en el script Python. Código de salida: " + exitCode + "\n" + output.toString());
-            }
-
-            File file = new File("grafica.png");
-            Image image = ImageIO.read(file);
-
-            return image;
-
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("Error al ejecutar el script Python", e);
-        }
-    }
 
     private LocalDateTime[] generarFecha(String tiempo) {
         LocalDateTime fechaFin = LocalDate.now().atTime(LocalTime.MAX);

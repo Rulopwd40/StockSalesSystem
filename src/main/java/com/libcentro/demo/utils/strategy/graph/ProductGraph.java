@@ -78,8 +78,10 @@ public class ProductGraph implements GraphStrategy<Venta_Producto> {
             File file = new File(AppConfig.graph_path + "grafica.png");
             return ImageIO.read(file);
 
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("Error al ejecutar el script Python", e);
+        } catch (IOException e) {
+            throw new RuntimeException("Error al escribir/leer el archivo");
+        }  catch (InterruptedException e) {
+            throw new RuntimeException ("Procesamiento interrumpido");
         }
     }
 }

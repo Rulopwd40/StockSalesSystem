@@ -18,11 +18,13 @@ import java.util.stream.Collectors;
 @Service
 public class HistorialService implements IhistorialService {
 
-    @Autowired
-    IhistorialCostoRepository historialCostoRepository;
-    @Autowired
-    IhistorialPrecioRepository historialPrecioRepository;
+    private final IhistorialCostoRepository historialCostoRepository;
+    private final IhistorialPrecioRepository historialPrecioRepository;
 
+    public HistorialService ( IhistorialCostoRepository historialCostoRepository, IhistorialPrecioRepository historialPrecioRepository ){
+        this.historialCostoRepository = historialCostoRepository;
+        this.historialPrecioRepository = historialPrecioRepository;
+    }
 
     @Override
     public HistorialCosto crearHistorialCosto ( Producto nuevoProducto, double costoCompra, int cantidad, HistorialCosto.Estado estado ){

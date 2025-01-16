@@ -15,8 +15,6 @@ public interface IventaService {
 
     public void cambiarEstadoVenta ( String id);
 
-    public void updateVenta(Venta x);
-
     public void vender( VentaDTO venta);
 
     PageDTO<VentaDTO> getByPage ( String filter, int page, int page_size );

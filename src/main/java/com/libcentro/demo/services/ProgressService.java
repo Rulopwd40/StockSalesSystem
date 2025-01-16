@@ -37,7 +37,7 @@ public class ProgressService<T> implements IprogressService<T> {
                         task.accept(items.get(i));
 
                         publish(i + 1);
-                    } catch (Exception e) {
+                    } catch (RuntimeException e) {
                         JOptionPane.showMessageDialog(null, "Error al procesar el elemento: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
