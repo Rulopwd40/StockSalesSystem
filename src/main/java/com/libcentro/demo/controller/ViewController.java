@@ -4,6 +4,8 @@ package com.libcentro.demo.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import javax.swing.*;
+
 @Controller
 public class ViewController {
 
@@ -30,11 +32,11 @@ public class ViewController {
         this.backupController = backupController;
     }
 
-    void openMenuView() {
+    public void openMenuView() {
         menuController.openMenuView();
     }
 
-    void openStockControlView(){
+    public void openStockControlView(){
         try {
             this.stockController.stockControl(false);
 

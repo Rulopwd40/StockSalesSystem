@@ -168,19 +168,5 @@ public class GeneradorTicket implements Printable {
         return PAGE_EXISTS;
     }
 
-    private String ajustarLineas(String line, int maxLength) {
-        StringBuilder adjustedLine = new StringBuilder();
-        String[] words = line.split(" ");
-        int currentLineLength = 0;
 
-        for (String word : words) {
-            if (currentLineLength + word.length() > maxLength) {
-                adjustedLine.append("\n");
-                currentLineLength = 0;
-            }
-            adjustedLine.append(word).append(" ");
-            currentLineLength += word.length() + 1; // +1 por el espacio
-        }
-        return adjustedLine.toString().trim();
-    }
 }

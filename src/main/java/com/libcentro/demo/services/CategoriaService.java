@@ -8,6 +8,7 @@ import com.libcentro.demo.services.interfaces.IcategoriaService;
 import com.libcentro.demo.services.interfaces.IproductoService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public class CategoriaService implements IcategoriaService {
     private final IproductoService productoService;
 
     @Autowired
-    public CategoriaService(IcategoriaRepository categoriaRepository, IproductoService productoService) {
+    public CategoriaService(IcategoriaRepository categoriaRepository,@Lazy IproductoService productoService) {
         this.categoriaRepository = categoriaRepository;
         this.productoService = productoService;
     }

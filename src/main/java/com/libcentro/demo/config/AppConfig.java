@@ -28,7 +28,7 @@ public class AppConfig {
             try (FileInputStream inputStream = new FileInputStream(configFile)) {
                 properties.load(inputStream);
 
-                python_path = properties.getProperty("python_path", "src/main/python/generar_grafica.py");
+                python_path = properties.getProperty("python_path", "/python/generar_grafica.exe");
                 csv_path = properties.getProperty("csv_path", "csv/");
                 graph_path = properties.getProperty("graph_path", "graph/");
                 backup_path = properties.getProperty("backup_path", "backup/");
@@ -47,7 +47,7 @@ public class AppConfig {
                 System.err.println("Error al leer el archivo de configuración: " + e.getMessage());
             }
         } else {
-            python_path = "src/main/python/generar_grafica.py";
+            python_path = "/python/generar_grafica.py";
             csv_path = "csv/";
             graph_path = "graph/";
             backup_path = "backup/";

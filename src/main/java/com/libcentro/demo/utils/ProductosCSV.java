@@ -55,73 +55,18 @@ public class ProductosCSV {
                 }
             }
             if(!productosATratar.isEmpty()) {
-                tc = new TratarCategorias();
-                table = tc.getTablaCategorias();
-                tableModel = (DefaultTableModel) tc.getTablaCategorias().getModel();
-                for(String categoria : productosATratar.keySet()) {
-                    tableModel.addRow(new Object[]{categoria});
-                }
-
-                tc.getAnularButton().addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        int row = tc.getTablaCategorias().getSelectedRow();
-                        if(row==-1){
-                            JOptionPane.showMessageDialog(null,"Seleccione una columna","Error",JOptionPane.ERROR_MESSAGE);
-                            throw new RuntimeException("Seleccione una columna");
+                tc= tratarCategorias();
+                SwingUtilities.invokeLater (new Runnable () {
+                    public void run() {
+                        table = tc.getTablaCategorias();
+                        tableModel = (DefaultTableModel) tc.getTablaCategorias().getModel();
+                        for(String categoria : productosATratar.keySet()) {
+                            tableModel.addRow(new Object[]{categoria});
                         }
-                        anularProductos(row);
-
-
+                        tc.setVisible(true);
                     }
                 });
-                tc.getCrearButton().addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        int row = tc.getTablaCategorias().getSelectedRow();
-                        if(row==-1){
-                            JOptionPane.showMessageDialog(null,"Seleccione una columna","Error",JOptionPane.ERROR_MESSAGE);
-                            throw new RuntimeException("Seleccione una columna");
-                        }
-                        crearCategorias(row);
 
-                    }
-                });
-                tc.getElegirOtraCategoriaButton().addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        int row = tc.getTablaCategorias().getSelectedRow();
-
-                        if(row==-1){
-                            JOptionPane.showMessageDialog(null,"Seleccione una columna","Error",JOptionPane.ERROR_MESSAGE);
-                            throw new RuntimeException("Seleccione una columna");
-                        }
-                        elegirOtraCategoria(row);
-                    }
-                });
-                tc.getButtonOK().addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if(!productosATratar.isEmpty()) {
-                            JOptionPane.showMessageDialog(null,"Faltan categorías por tratar","Error",JOptionPane.ERROR_MESSAGE);
-                            throw new RuntimeException("Faltan tratar categorías");
-                        }
-                        tc.onOK();
-                    }
-                }
-                );
-                tc.addWindowListener(new WindowAdapter() {
-                    public void onClose(WindowEvent e) {
-                        if(!productosATratar.isEmpty()){
-                            JOptionPane.showMessageDialog(null,"Faltan categorías por tratar","Error",JOptionPane.ERROR_MESSAGE);
-                            throw new RuntimeException("Faltan tratar categorías");
-                        }
-                        tc.onOK();
-                    }
-
-                    @Override
-                    public void windowStateChanged(WindowEvent e) {
-                        tc.getTablaCategoriasExistentes().setEnabled(false);
-                        tc.getElegirButton().setEnabled(false);
-                    }
-                });
-                tc.setVisible(true);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -129,6 +74,74 @@ public class ProductosCSV {
 
 
         return productos;
+    }
+
+    private TratarCategorias tratarCategorias (){
+        tc = new TratarCategorias();
+
+
+        tc.getAnularButton().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int row = tc.getTablaCategorias().getSelectedRow();
+                if(row==-1){
+                    JOptionPane.showMessageDialog(null,"Seleccione una columna","Error",JOptionPane.ERROR_MESSAGE);
+                    throw new RuntimeException("Seleccione una columna");
+                }
+                anularProductos(row);
+
+
+            }
+        });
+        tc.getCrearButton().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int row = tc.getTablaCategorias().getSelectedRow();
+                if(row==-1){
+                    JOptionPane.showMessageDialog(null,"Seleccione una columna","Error",JOptionPane.ERROR_MESSAGE);
+                    throw new RuntimeException("Seleccione una columna");
+                }
+                crearCategorias(row);
+
+            }
+        });
+        tc.getElegirOtraCategoriaButton().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int row = tc.getTablaCategorias().getSelectedRow();
+
+                if(row==-1){
+                    JOptionPane.showMessageDialog(null,"Seleccione una columna","Error",JOptionPane.ERROR_MESSAGE);
+                    throw new RuntimeException("Seleccione una columna");
+                }
+                elegirOtraCategoria(row);
+            }
+        });
+        tc.getButtonOK().addActionListener(new ActionListener() {
+               public void actionPerformed(ActionEvent e) {
+                   if(!productosATratar.isEmpty()) {
+                       JOptionPane.showMessageDialog(null,"Faltan categorías por tratar","Error",JOptionPane.ERROR_MESSAGE);
+                       throw new RuntimeException("Faltan tratar categorías");
+                   }
+                   tc.dispose();
+                   tc = null;
+               }
+           }
+        );
+        tc.addWindowListener(new WindowAdapter() {
+            public void onClose(WindowEvent e) {
+                if(!productosATratar.isEmpty()){
+                    JOptionPane.showMessageDialog(null,"Faltan categorías por tratar","Error",JOptionPane.ERROR_MESSAGE);
+                    throw new RuntimeException("Faltan tratar categorías");
+                }
+                tc.dispose();
+                tc = null;
+            }
+
+            @Override
+            public void windowStateChanged(WindowEvent e) {
+                tc.getTablaCategoriasExistentes().setEnabled(false);
+                tc.getElegirButton().setEnabled(false);
+            }
+        });
+        return tc;
     }
 
     private static ProductoDTO getProductoDTO ( String[] datos, CategoriaDTO categoria ){
