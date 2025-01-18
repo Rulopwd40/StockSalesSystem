@@ -7,7 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import java.awt.*;
@@ -29,7 +31,8 @@ public class Main {
                 return;
             }
 
-            ApplicationContext contexto = SpringApplication.run (Main.class, args);
+            ConfigurableApplicationContext contexto = new SpringApplicationBuilder (Main.class).headless (false).run(args);
+            //ApplicationContext contexto = SpringApplication.run (Main.class, args);
 
 
             ViewController viewController = contexto.getBean (ViewController.class);

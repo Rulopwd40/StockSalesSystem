@@ -104,12 +104,17 @@
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.5.11</version>
+			<version>1.5.16</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-core</artifactId>
-			<version>1.5.11</version>
+			<version>1.5.16</version>
+		</dependency>
+		<dependency>
+			<groupId>com.intellij</groupId>
+			<artifactId>forms_rt</artifactId>
+			<version>7.0.3</version>
 		</dependency>
 
 	</dependencies>
@@ -155,7 +160,7 @@
 						<manifestEntries>
 							<Built-By>${user.name}</Built-By>
 							<Built-JDK>${java.version}</Built-JDK>
-							<Main-Class>com.demo.Main</Main-Class>
+							<Main-Class>com.libcentro.demo.Main</Main-Class>
 						</manifestEntries>
 					</archive>
 				</configuration>
