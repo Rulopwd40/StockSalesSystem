@@ -17,6 +17,9 @@ public class VentaFrame extends JFrame {
     private JButton descuentoButton;
 
     public VentaFrame(){
+    }
+
+    public void initialize(){
         setContentPane(panelVenta);
         setSize(945,630);
         setLocationRelativeTo(null);

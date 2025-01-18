@@ -16,6 +16,10 @@ public class ApfsDialog extends JDialog {
     private ArrayList<JTextField> textFields;
 
     public ApfsDialog() {
+
+    }
+
+    public void initialize(){
         setContentPane(apfsPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);

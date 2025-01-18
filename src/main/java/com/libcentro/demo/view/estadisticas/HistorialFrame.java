@@ -13,6 +13,10 @@ public class HistorialFrame extends JFrame {
     public HistorialFrame () {
         this.setTitle("Historial");
 
+
+    }
+
+    public void initialize(){
         setContentPane(panel);
         pack ();
         setSize (1360,600);

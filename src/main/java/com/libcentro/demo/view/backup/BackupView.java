@@ -12,12 +12,12 @@ public class BackupView extends JFrame {
 
     public BackupView() {
         super("Backup");
+    }
 
+    public void initialize(){
         setContentPane (panel);
         pack ();
         setLocationRelativeTo (null);
-
-
     }
 
      public JButton getCrearBackupButton (){

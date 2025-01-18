@@ -35,11 +35,46 @@ Name: "{app}\graph"
 [Files]
 Source: "D:\Coding\demo\target\demo-0.0.1-SNAPSHOT.jar"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\Coding\demo\src\main\python\dist\generar_grafica.exe"; DestDir: "{app}\python"; Flags: ignoreversion
-Source: "D:\Coding\demo\app_config.cfg"; DestDir: "{app}"; Flags: ignoreversion
-
+Source: "D:\Coding\demo\app_config.cfg"; DestDir: "{app}"; Flags: ignoreversion; AfterInstall:CreateConfigFile
+Source: "D:\Coding\demo\src\main\resources\*"; DestDir: "{app}\resources"; Flags:ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
+
+[Code]
+procedure CreateConfigFile();
+var
+  ConfigFile: string;
+  ConfigContent: string;
+begin
+  // Ruta del archivo de configuración
+  ConfigFile := ExpandConstant('{app}\app_config.cfg');
+
+  // Contenido del archivo de configuración
+  ConfigContent := '#Archivo de Configuración Actualizado' + #13#10 +
+                   '#Generated on: ' + GetDateTimeString('dd', 'mm', 'yyyy') + #13#10 +
+                   'python_path=/python/generar_grafica.exe' + #13#10 +
+                   'csv_path=csv/' + #13#10 +
+                   'stock_alert=10' + #13#10 +
+                   'backup_path=backup/' + #13#10 +
+                   'graph_path=graph/' + #13#10;
+
+  // Guardar el contenido en el archivo
+  SaveStringToFile(ConfigFile, ConfigContent, False);  // False indica que no se sobrescribe si ya existe
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  // Llamar a CreateConfigFile al final de la instalación
+  if CurStep = ssPostInstall then
+  begin
+    CreateConfigFile();
+  end;
+end;
+
 
 [Run]
 ; Ejecutar el archivo JAR principal después de la instalación
-Filename: "javaw.exe"; Parameters: "-jar {app}\demo-0.0.1-SNAPSHOT.jar"; StatusMsg: "Iniciando {#MyAppName}..."; Flags: nowait postinstall skipifsilent
+Filename: "javaw.exe"; Parameters: "-jar {app}\demo-0.0.1-SNAPSHOT.jar"; WorkingDir: "{app}"; StatusMsg: "Iniciando Libreria Centro App..."; Flags: nowait postinstall skipifsilent
+
+
+
 

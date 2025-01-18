@@ -13,14 +13,29 @@ public class ActualizarPorCategoria extends JDialog {
     private JPanel categoriaPane;
 
     public ActualizarPorCategoria() {
+
+    }
+
+    public void onOK() {
+        // add your code here
+        dispose();
+    }
+
+    private void onCancel() {
+        // add your code here if necessary
+        dispose();
+    }
+
+    public void initialize(){
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
         setSize(420,200);
         setLocationRelativeTo(null);
 
+    }
 
-
+    public void addListeners(){
         buttonCancel.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onCancel();
@@ -41,16 +56,6 @@ public class ActualizarPorCategoria extends JDialog {
                 onCancel();
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-    }
-
-    public void onOK() {
-        // add your code here
-        dispose();
-    }
-
-    private void onCancel() {
-        // add your code here if necessary
-        dispose();
     }
 
     public JTextField getPorcentajeField() {

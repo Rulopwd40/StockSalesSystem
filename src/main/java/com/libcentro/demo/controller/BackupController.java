@@ -39,6 +39,7 @@ public class BackupController {
     public void openBackupView(){
         if( view == null){
             view = new BackupView();
+            view.initialize ();
             addBackupViewListeners();
 
         }

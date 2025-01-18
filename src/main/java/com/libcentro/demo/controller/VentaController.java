@@ -58,6 +58,7 @@ public class VentaController {
         venta = new VentaDTO ();
         if(ventaFrame == null) {
             ventaFrame = new VentaFrame();
+            ventaFrame.initialize ();
             ventaFrame.setVisible(true);
             tableVenta=ventaFrame.getTable();
             // Venta Listeners
@@ -223,6 +224,7 @@ public class VentaController {
 
     private void openApfsDialog() {
         apfsDialog = new ApfsDialog();
+        apfsDialog.initialize ();
 
         //Cargar datos
         apfsDialog.getButtonOK().addActionListener(new ActionListener() {

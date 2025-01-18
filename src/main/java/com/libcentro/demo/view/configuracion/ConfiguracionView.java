@@ -11,6 +11,10 @@ public class ConfiguracionView extends JFrame {
     public ConfiguracionView() {
         super("Configuracion");
 
+
+    }
+
+    public void initialize(){
         setContentPane (panel);
         setLocationRelativeTo(null);
         pack ();

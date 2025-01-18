@@ -16,6 +16,9 @@ public class ActualizarUnProducto extends JDialog {
     private JTextField stockField;
 
     public ActualizarUnProducto() {
+    }
+
+    public void initialize(){
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buscarButton);
@@ -28,9 +31,6 @@ public class ActualizarUnProducto extends JDialog {
         });
         setSize(600,330);
         setLocationRelativeTo(null);
-
-
-
     }
 
 

@@ -31,6 +31,7 @@ public class ConfiguracionController {
     public void openConfiguracionView(){
         if(view==null) {
             view = new ConfiguracionView ();
+            view.initialize ();
 
             createTable ();
             configViewAddListeners ();

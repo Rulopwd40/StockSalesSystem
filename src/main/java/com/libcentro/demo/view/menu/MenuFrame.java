@@ -17,6 +17,14 @@ public class MenuFrame extends JFrame {
     private JButton configuracionButton;
 
     public MenuFrame() {
+
+    }
+
+    public void initialize(){
+        if (panelMenu == null) {
+            throw new IllegalStateException("El panelMenu no está inicializado");
+        }
+
         setContentPane(panelMenu);
         setFocusable(true);
         setTitle("Menu");

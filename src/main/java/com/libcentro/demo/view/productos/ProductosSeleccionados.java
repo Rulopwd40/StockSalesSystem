@@ -13,6 +13,10 @@ public class ProductosSeleccionados extends JDialog {
 
 
     public ProductosSeleccionados(){
+
+    }
+
+    public void initialize(){
         setContentPane(panelAct);
         setSize(600,400);
         setLocationRelativeTo(null);

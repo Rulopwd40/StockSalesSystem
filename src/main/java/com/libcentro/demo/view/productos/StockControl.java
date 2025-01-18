@@ -9,6 +9,10 @@ public class StockControl extends JDialog {
     private JTable table1;
 
     public StockControl() {
+
+    }
+
+    public void initialize(){
         setContentPane(contentPane);
         getRootPane().setDefaultButton(buttonOK);
         requestFocus(true);

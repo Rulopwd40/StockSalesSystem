@@ -12,12 +12,20 @@ public class AgregarCategoria extends JDialog {
     private JButton eliminarButton;
 
     public AgregarCategoria() {
+
+    }
+
+    public void initialize(){
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
         setSize(600,400);
         createTable();
+        setLocationRelativeTo(null);
+        addListeners();
+    }
 
+    private void addListeners(){
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onOK();
@@ -39,7 +47,6 @@ public class AgregarCategoria extends JDialog {
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
-        setLocationRelativeTo(null);
     }
 
     private void createTable() {

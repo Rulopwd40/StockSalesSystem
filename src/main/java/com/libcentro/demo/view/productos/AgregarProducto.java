@@ -18,6 +18,9 @@ public class AgregarProducto extends JDialog {
     private JPanel errorPanel;
 
     public AgregarProducto() {
+    }
+
+    public void initialize(){
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
@@ -25,10 +28,11 @@ public class AgregarProducto extends JDialog {
         setLocationRelativeTo(null);
 
         setFilters();
+        addListeners ();
 
+    }
 
-
-
+    private void addListeners(){
         buttonCancel.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onCancel();
@@ -49,6 +53,7 @@ public class AgregarProducto extends JDialog {
                 onCancel();
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+
     }
 
     private void setFilters() {

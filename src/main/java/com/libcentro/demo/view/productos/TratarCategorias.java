@@ -18,6 +18,10 @@ public class TratarCategorias extends JDialog {
     private JTable tablaCategoriasExistentes;
 
     public TratarCategorias() {
+
+    }
+
+    public void initialize(){
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);

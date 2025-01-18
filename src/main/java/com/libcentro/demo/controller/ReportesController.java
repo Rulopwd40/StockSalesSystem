@@ -443,6 +443,7 @@ public class ReportesController {
     private void openHistorialFrame (){
         if(historialFrame == null){
             historialFrame = new HistorialFrame ();
+            historialFrame.initialize ();
             addHistorialFrameListeners();
         }
 

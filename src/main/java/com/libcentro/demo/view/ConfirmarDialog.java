@@ -9,8 +9,13 @@ public class ConfirmarDialog extends JDialog {
     private JButton buttonCancel;
     private JLabel messageLabel;
     private boolean aceptar=false;
+    private final String message;
 
     public ConfirmarDialog(String message) {
+        this.message = message;
+    }
+
+    public void initialize(){
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
@@ -19,8 +24,10 @@ public class ConfirmarDialog extends JDialog {
         setUndecorated(true);
         pack();
         setLocationRelativeTo(null);
+        addListeners();
+    }
 
-
+    private void addListeners (){
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onOK();

@@ -32,6 +32,7 @@ public class StockController {
 
         if(!productos.isEmpty()) {
             StockControl stockControl = new StockControl();
+            stockControl.initialize ();
 
             DefaultTableModel tableModel = new DefaultTableModel();
 

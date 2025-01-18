@@ -23,7 +23,9 @@ public class MenuController {
 
 
     public void openMenuView(){
+
         menuFrame = new MenuFrame();
+        menuFrame.initialize ();
         menuFrame.setVisible(true);
 
         menuFrame.getProductosButton().addActionListener(e -> viewController.openProductosView());

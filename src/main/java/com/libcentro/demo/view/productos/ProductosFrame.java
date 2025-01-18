@@ -31,6 +31,13 @@ public class ProductosFrame extends JFrame {
 
 
     public ProductosFrame(){
+
+    }
+
+    public void initialize(){
+        if (panelProducto == null) {
+            throw new IllegalStateException("El panelMenu no está inicializado");
+        }
         setContentPane(panelProducto);
         setSize(945,630);
         setLocationRelativeTo(null);

@@ -56,16 +56,12 @@ public class ProductosCSV {
             }
             if(!productosATratar.isEmpty()) {
                 tc= tratarCategorias();
-                SwingUtilities.invokeLater (new Runnable () {
-                    public void run() {
-                        table = tc.getTablaCategorias();
-                        tableModel = (DefaultTableModel) tc.getTablaCategorias().getModel();
-                        for(String categoria : productosATratar.keySet()) {
-                            tableModel.addRow(new Object[]{categoria});
-                        }
-                        tc.setVisible(true);
-                    }
-                });
+                table = tc.getTablaCategorias();
+                tableModel = (DefaultTableModel) tc.getTablaCategorias().getModel();
+                for(String categoria : productosATratar.keySet()) {
+                    tableModel.addRow(new Object[]{categoria});
+                }
+                tc.setVisible(true);
 
             }
         } catch (IOException e) {
@@ -78,6 +74,7 @@ public class ProductosCSV {
 
     private TratarCategorias tratarCategorias (){
         tc = new TratarCategorias();
+        tc.initialize ();
 
 
         tc.getAnularButton().addActionListener(new ActionListener() {

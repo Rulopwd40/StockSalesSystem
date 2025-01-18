@@ -11,12 +11,30 @@ public class ActualizarGeneral extends JDialog {
     private JButton actualizarButton;
 
     public ActualizarGeneral() {
+
+    }
+
+    private void onOK() {
+        // add your code here
+        dispose();
+    }
+
+    private void onCancel() {
+        // add your code here if necessary
+        dispose();
+    }
+
+    public void initialize(){
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(actualizarButton);
         setSize(500,175);
         setLocationRelativeTo(null);
 
+        addListeners();
+    }
+
+    public void addListeners(){
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onOK();
@@ -43,16 +61,6 @@ public class ActualizarGeneral extends JDialog {
                 onCancel();
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-    }
-
-    private void onOK() {
-        // add your code here
-        dispose();
-    }
-
-    private void onCancel() {
-        // add your code here if necessary
-        dispose();
     }
 
     public JButton getActualizarButton() {

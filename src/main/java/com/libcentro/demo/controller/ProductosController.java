@@ -76,6 +76,7 @@ public class ProductosController {
 
         if (productosFrame == null) {
             productosFrame = new ProductosFrame();
+            productosFrame.initialize ();
             productosFrameAddListeners();
 
             productosFrame.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
@@ -184,6 +185,7 @@ public class ProductosController {
         productosFrame.getDeshacerTodoButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 ConfirmarDialog confirmarDialog = new ConfirmarDialog("Confirmar deshacer todo");
+                confirmarDialog.initialize ();
                 confirmarDialog.setVisible(true);
 
                 if(confirmarDialog.isAceptar()) {
@@ -210,6 +212,7 @@ public class ProductosController {
             public void windowClosing(WindowEvent e) {
                 if( productoService.cambios () ){
                     ConfirmarDialog confirmarDialog = new ConfirmarDialog ("Desea guardar los cambios antes de salir?");
+                    confirmarDialog.initialize ();
                     confirmarDialog.setVisible(true);
                     if ( confirmarDialog.isAceptar() ) {
                         save ();
@@ -258,6 +261,7 @@ public class ProductosController {
     private void agregarProducto() {
         categorias = getAllCategoria();
         agregarProducto = new AgregarProducto();
+        agregarProducto.initialize ();
 
         System.out.println(categorias);
         for(CategoriaDTO categoria : categorias) {
@@ -297,6 +301,7 @@ public class ProductosController {
     }
     private void importarCSV(){
         ImportarCSV importarCSV= new ImportarCSV();
+        importarCSV.initialize ();
 
         importarCSV.getBuscarButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -513,6 +518,7 @@ public class ProductosController {
     private void actualizarSeleccionados (){
         int[] fila= productosFrame.getTable().getSelectedRows();
         ProductosSeleccionados frame = new ProductosSeleccionados();
+        frame.initialize ();
         Filter.setDoubleFilter (frame.getPrecioField ());
 
         if(fila.length==0){
@@ -627,6 +633,7 @@ public class ProductosController {
        }
 
        ConfirmarDialog cd = new ConfirmarDialog ("Borrar? esta accion no se puede deshacer");
+       cd.initialize ();
        cd.setVisible(true);
 
        if(!cd.isAceptar ()) return;
@@ -644,6 +651,7 @@ public class ProductosController {
     private void agregarCategoria() {
         categorias = getAllCategoria();
         agregarCategoria = new AgregarCategoria();
+        agregarCategoria.initialize ();
 
         categoriasModel = (DefaultTableModel) agregarCategoria.getTablaCategorias().getModel();
         ListSelectionModel categoriasSelectionModel = agregarCategoria.getTablaCategorias().getSelectionModel();

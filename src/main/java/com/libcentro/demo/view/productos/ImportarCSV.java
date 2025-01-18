@@ -14,12 +14,20 @@ public class ImportarCSV extends JDialog {
     private JLabel label;
 
     public ImportarCSV() {
+
+    }
+
+    public void initialize(){
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
         setSize(new Dimension(450, 200));
         setLocationRelativeTo(null);
 
+        addListeners();
+    }
+
+    private void addListeners (){
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onOK();
