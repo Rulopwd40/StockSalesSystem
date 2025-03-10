@@ -1,6 +1,13 @@
 package com.libcentro.demo.view.productos;
 
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
+import com.intellij.uiDesigner.core.Spacer;
+
 import javax.swing.*;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -12,13 +19,20 @@ public class ImportarCSV extends JDialog {
     private JButton buscarButton;
     private JButton subirButton;
     private JLabel label;
+    private JTextPane alertPane;
 
     public ImportarCSV (){
         setContentPane (contentPane);
         setModal (true);
         getRootPane ().setDefaultButton (buttonOK);
-        setSize (new Dimension (450, 200));
+        setSize (new Dimension (500, 250));
         setLocationRelativeTo (null);
+        setResizable (false);
+
+        StyledDocument doc = alertPane.getStyledDocument ();
+        SimpleAttributeSet center = new SimpleAttributeSet ();
+        StyleConstants.setAlignment (center, StyleConstants.ALIGN_CENTER);
+        doc.setParagraphAttributes (0, doc.getLength (), center, false);
 
         buttonOK.addActionListener (new ActionListener () {
             public void actionPerformed ( ActionEvent e ){
@@ -98,54 +112,60 @@ public class ImportarCSV extends JDialog {
      */
     private void $$$setupUI$$$ (){
         contentPane = new JPanel ();
-        contentPane.setLayout (new com.intellij.uiDesigner.core.GridLayoutManager (3, 1, new Insets (10, 10, 10, 10), -1, -1));
+        contentPane.setLayout (new GridLayoutManager (4, 1, new Insets (10, 10, 10, 10), -1, -1));
         contentPane.setBackground (new Color (-1));
         final JPanel panel1 = new JPanel ();
-        panel1.setLayout (new com.intellij.uiDesigner.core.GridLayoutManager (1, 2, new Insets (0, 0, 0, 0), -1, -1));
+        panel1.setLayout (new GridLayoutManager (1, 2, new Insets (0, 0, 0, 0), -1, -1));
         panel1.setBackground (new Color (-1));
-        contentPane.add (panel1, new com.intellij.uiDesigner.core.GridConstraints (2, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, 1, null, null, null, 0, false));
-        final com.intellij.uiDesigner.core.Spacer spacer1 = new com.intellij.uiDesigner.core.Spacer ();
-        panel1.add (spacer1, new com.intellij.uiDesigner.core.GridConstraints (0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        contentPane.add (panel1, new GridConstraints (3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, 1, null, null, null, 0, false));
+        final Spacer spacer1 = new Spacer ();
+        panel1.add (spacer1, new GridConstraints (0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final JPanel panel2 = new JPanel ();
-        panel2.setLayout (new com.intellij.uiDesigner.core.GridLayoutManager (1, 2, new Insets (0, 0, 0, 0), -1, -1, true, false));
-        panel1.add (panel2, new com.intellij.uiDesigner.core.GridConstraints (0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel2.setLayout (new GridLayoutManager (1, 2, new Insets (0, 0, 0, 0), -1, -1, true, false));
+        panel1.add (panel2, new GridConstraints (0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         buttonOK = new JButton ();
         buttonOK.setBackground (new Color (-12406529));
         buttonOK.setForeground (new Color (-1));
         buttonOK.setText ("OK");
-        panel2.add (buttonOK, new com.intellij.uiDesigner.core.GridConstraints (0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel2.add (buttonOK, new GridConstraints (0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         buttonCancel = new JButton ();
         buttonCancel.setBackground (new Color (-1));
         buttonCancel.setForeground (new Color (-12406529));
         buttonCancel.setText ("Cancel");
-        panel2.add (buttonCancel, new com.intellij.uiDesigner.core.GridConstraints (0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel2.add (buttonCancel, new GridConstraints (0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel3 = new JPanel ();
-        panel3.setLayout (new com.intellij.uiDesigner.core.GridLayoutManager (3, 2, new Insets (0, 0, 0, 0), -1, -1));
+        panel3.setLayout (new GridLayoutManager (3, 2, new Insets (0, 0, 0, 0), -1, -1));
         panel3.setBackground (new Color (-1));
-        contentPane.add (panel3, new com.intellij.uiDesigner.core.GridConstraints (1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        contentPane.add (panel3, new GridConstraints (1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         locationField = new JTextField ();
         locationField.setBackground (new Color (-1));
         locationField.setText ("");
-        panel3.add (locationField, new com.intellij.uiDesigner.core.GridConstraints (0, 0, 3, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension (150, -1), null, 0, false));
+        panel3.add (locationField, new GridConstraints (0, 0, 3, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension (150, -1), null, 0, false));
         final JPanel panel4 = new JPanel ();
-        panel4.setLayout (new com.intellij.uiDesigner.core.GridLayoutManager (2, 1, new Insets (0, 0, 0, 0), -1, -1));
+        panel4.setLayout (new GridLayoutManager (2, 1, new Insets (0, 0, 0, 0), -1, -1));
         panel4.setBackground (new Color (-1));
-        panel3.add (panel4, new com.intellij.uiDesigner.core.GridConstraints (1, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel3.add (panel4, new GridConstraints (1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         subirButton = new JButton ();
         subirButton.setBackground (new Color (-12406529));
         subirButton.setForeground (new Color (-1));
         subirButton.setText ("Subir");
-        panel4.add (subirButton, new com.intellij.uiDesigner.core.GridConstraints (1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel4.add (subirButton, new GridConstraints (1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         buscarButton = new JButton ();
         buscarButton.setBackground (new Color (-12406529));
         buscarButton.setForeground (new Color (-1));
         buscarButton.setText ("Buscar");
-        panel4.add (buscarButton, new com.intellij.uiDesigner.core.GridConstraints (0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel4.add (buscarButton, new GridConstraints (0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         label = new JLabel ();
         label.setBackground (new Color (-1));
         label.setForeground (new Color (-16777216));
         label.setText ("Importar .csv");
-        contentPane.add (label, new com.intellij.uiDesigner.core.GridConstraints (0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        contentPane.add (label, new GridConstraints (0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JPanel panel5 = new JPanel ();
+        panel5.setLayout (new GridLayoutManager (1, 1, new Insets (0, 0, 0, 0), -1, -1));
+        contentPane.add (panel5, new GridConstraints (2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        alertPane = new JTextPane ();
+        alertPane.setText ("Para una correcta asignación de valores, la forma del .CSV debe ser estrictamente:  codigo de barras | nombre  | categoria | cantidad | costo compra | precio unitario. ");
+        panel5.add (alertPane, new GridConstraints (0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension (150, 50), null, 0, false));
     }
 
     /**
@@ -154,4 +174,5 @@ public class ImportarCSV extends JDialog {
     public JComponent $$$getRootComponent$$$ (){
         return contentPane;
     }
+
 }

@@ -2,6 +2,7 @@ package com.libcentro.demo.repository;
 
 import com.libcentro.demo.model.HistorialPrecio;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -18,4 +19,7 @@ public interface IhistorialPrecioRepository extends JpaRepository<HistorialPreci
     )
     List<HistorialPrecio> findAllByProducto( String codigobarras);
 
+    @Modifying
+    @Query("DELETE FROM HistorialPrecio h WHERE h.producto.codigobarras = :codigobarras")
+    void deleteAllByProducto ( @Param("codigobarras") String codigobarras );
 }

@@ -10,6 +10,7 @@ public class ProgressService<T> implements IprogressService<T> {
     private final JDialog progresoDialog;
     private final JProgressBar progressBar;
     private SwingWorker<Void, Integer> worker;
+    private int errorCount=0;
 
     public ProgressService(JFrame parentFrame, int total) {
         // Configurar el diálogo de progreso
@@ -27,6 +28,7 @@ public class ProgressService<T> implements IprogressService<T> {
 
     @Override
     public void ejecutarProceso ( List<T> items, Consumer<T> task ) {
+        errorCount=0;
         worker = new SwingWorker<Void, Integer>() {
             @Override
             protected Void doInBackground() throws Exception {
@@ -38,7 +40,7 @@ public class ProgressService<T> implements IprogressService<T> {
 
                         publish(i + 1);
                     } catch (RuntimeException e) {
-                        JOptionPane.showMessageDialog(null, "Error al procesar el elemento: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                        errorCount++;
                     }
                 }
                 return null;
@@ -54,6 +56,9 @@ public class ProgressService<T> implements IprogressService<T> {
             protected void done() {
                 finalizar();
                 try {
+                    if(errorCount >0){
+                        throw new RuntimeException("Hay productos que no fueron actualizados. Total: " + errorCount);
+                    }
                     get(); // Asegura que no hubo errores
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(null, "Error durante el procesamiento: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

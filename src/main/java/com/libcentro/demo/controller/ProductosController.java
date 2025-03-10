@@ -642,15 +642,13 @@ public class ProductosController {
     }
     //Si bien dice agregar categoria aquí tambien se maneja la eliminación
     private void agregarCategoria() {
-        categorias = getAllCategoria();
+
         agregarCategoria = new AgregarCategoria();
 
         categoriasModel = (DefaultTableModel) agregarCategoria.getTablaCategorias().getModel();
         ListSelectionModel categoriasSelectionModel = agregarCategoria.getTablaCategorias().getSelectionModel();
 
-        for(CategoriaDTO categoria : categorias) {
-            categoriasModel.addRow(new Object[]{categoria.getNombre()});
-        }
+        recargarTablaCategorias(categoriasModel);
 
         categoriasSelectionModel.addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -708,7 +706,7 @@ public class ProductosController {
                     JOptionPane.showMessageDialog(null, exception.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
                 JOptionPane.showMessageDialog(null,"Categoría agregada exitosamente","Éxito",JOptionPane.INFORMATION_MESSAGE);
-                categoriasModel.addRow(new Object[] {agregarCategoria.getCategoriaField().getText()});
+                recargarTablaCategorias(categoriasModel);
             }
         });
         agregarCategoria.getButtonOK().addActionListener(new ActionListener() {
@@ -721,6 +719,14 @@ public class ProductosController {
         agregarCategoria.setVisible(true);
 
 
+    }
+
+    private void recargarTablaCategorias ( DefaultTableModel categoriasModel ){
+        categorias = getAllCategoria();
+        categoriasModel.setRowCount (0);
+        for(CategoriaDTO categoria : categorias) {
+            categoriasModel.addRow(new Object[]{categoria.getNombre()});
+        }
     }
 
     private void productosFrameUpdateTable() {

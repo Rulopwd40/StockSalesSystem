@@ -145,8 +145,8 @@ public class VentaService implements IventaService {
     @Transactional
     public void reembolsarVenta (VentaDTO ventaDTO){
         Venta venta = ventaRepository.findById (ventaDTO.getId ()).orElseThrow (() -> new RuntimeException ("Venta no encontrada"));
-
         venta.getVenta_productos ().forEach (vp -> {
+            productoService.reembolsarProducto (vp.getProducto (),vp.getCantidad ());
             vp.setCantidad (0);
         });
         venta.getProductoFStocks ().forEach (pfs -> {
@@ -193,15 +193,22 @@ public class VentaService implements IventaService {
 
     private void recalcularVenta (Venta venta){
         double total= 0;
+        System.out.println (venta.getVenta_productos ().size ());
         for(Venta_Producto vp : venta.getVenta_productos ()){
-            vp.setTotal(Math.round((vp.getCantidad () * vp.getPrecio_venta () * (1-vp.getDescuento ())/100d)*100d) /100d);
+            double vpTotal= vp.getCantidad () * vp.getPrecio_venta ();
+            double vpDescuento = 0;
+            if(vp.getDescuento () > 0) vpDescuento = vpTotal * (1 -vp.getDescuento ());
+            vp.setTotal(Math.round((vpTotal - vpDescuento)*100d) /100d);
             total += vp.getTotal ();
         }
         for(ProductoFStock pfs : venta.getProductoFStocks ()){
-            total+= pfs.getCantidad ()*pfs.getPrecio_venta () * (1-pfs.getDescuento ()/100d);
+            double pfsTotal= pfs.getCantidad () * pfs.getPrecio_venta ();
+            double pfsDescuento = 0;
+            if(pfs.getDescuento () > 0) pfsDescuento = pfsTotal * (1 -pfs.getDescuento ());
+            total+= pfs.getCantidad () *pfs.getPrecio_venta () * (1-pfs.getDescuento ()/100d);
         }
-
-        venta.setTotal (total);
+        double totalRedondeado = Math.round (total*100d)/100d;
+        venta.setTotal (totalRedondeado);
 
         ventaRepository.save(venta);
     }

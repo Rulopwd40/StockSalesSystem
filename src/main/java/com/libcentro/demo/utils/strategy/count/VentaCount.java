@@ -19,6 +19,8 @@ public class VentaCount implements CountStrategy<Venta> {
         double total=0;
         double total_diario_promedio;
 
+        if(tiempoEnDias<1 && tiempoEnDias > 0) tiempoEnDias = 1;
+
         cantidad = datos.size ();
         promedio_diario = cantidad/tiempoEnDias;
         Venta ventamax = datos.stream()

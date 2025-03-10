@@ -1,9 +1,20 @@
 import sys
+import os
 import matplotlib.pyplot as plt
 import pandas as pd
 
 def generar_grafica(csv_file, tipo):
-    data = pd.read_csv(csv_file)
+    if getattr(sys, 'frozen', False):
+        script_dir = os.path.dirname(sys.executable)
+    else:
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    absolute_csv_path = os.path.join(script_dir, csv_file)
+
+    if not os.path.exists(absolute_csv_path):
+        raise FileNotFoundError(f"El archivo {absolute_csv_path} no existe.")
+
+    data = pd.read_csv(absolute_csv_path)
     plt.figure(figsize=(10, 6))
 
     if tipo == "producto":
@@ -24,8 +35,14 @@ def generar_grafica(csv_file, tipo):
     plt.legend()
     plt.xticks(rotation=20, ha="right")
     plt.tight_layout()
-    plt.savefig('graph/grafica.png')
 
+    # Asegurarse de que la carpeta 'graph' existe
+    graph_dir = os.path.join(script_dir, 'graph')
+    if not os.path.exists(graph_dir):
+        os.makedirs(graph_dir)
+
+    # Guardar la gráfica en la carpeta 'graph'
+    plt.savefig(os.path.join(graph_dir, 'grafica.png'))
     plt.close()
 
 if __name__ == "__main__":

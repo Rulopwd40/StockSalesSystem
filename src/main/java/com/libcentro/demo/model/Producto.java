@@ -23,6 +23,7 @@ public class Producto {
     @Column(columnDefinition = "NUMERIC")
     private double precio_venta;
     private int stock;
+    private boolean eliminado;
 
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<HistorialPrecio> historial_precios = new ArrayList<>();

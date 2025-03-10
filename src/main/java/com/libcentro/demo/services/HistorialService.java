@@ -8,7 +8,7 @@ import com.libcentro.demo.model.dto.HistorialPrecioDTO;
 import com.libcentro.demo.repository.IhistorialCostoRepository;
 import com.libcentro.demo.repository.IhistorialPrecioRepository;
 import com.libcentro.demo.services.interfaces.IhistorialService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -97,6 +97,28 @@ public class HistorialService implements IhistorialService {
     @Override
     public List<HistorialCostoDTO> findAllCostoByProducto ( String codbar ){
         return historialCostoRepository.findAllByProducto (codbar).stream ().map(HistorialCostoDTO::new).collect(Collectors.toList());
+    }
+
+    @Override
+    public HistorialCosto findAnterior ( HistorialCosto historialExistente ){
+        return historialCostoRepository.findAnteriorByFecha(historialExistente.getFecha (),historialExistente.getProducto ().getCodigobarras ());
+    }
+
+    @Override
+    public HistorialCosto findSiguiente ( HistorialCosto historialCosto ){
+        return historialCostoRepository.findSiguienteByFecha (historialCosto.getFecha (),historialCosto.getProducto ().getCodigobarras ());
+    }
+
+    @Override
+    @Transactional
+    public void deleteAllByCodigo ( String codigobarras ){
+        try {
+            historialCostoRepository.deleteAllByProducto (codigobarras);
+            historialPrecioRepository.deleteAllByProducto (codigobarras);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
 

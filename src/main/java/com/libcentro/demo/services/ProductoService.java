@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.libcentro.demo.exceptions.InsufficientStockException;
-import com.libcentro.demo.model.Categoria;
-import com.libcentro.demo.model.HistorialCosto;
-import com.libcentro.demo.model.HistorialPrecio;
+import com.libcentro.demo.model.*;
 import com.libcentro.demo.model.dto.CategoriaDTO;
 import com.libcentro.demo.model.dto.PageDTO;
 import com.libcentro.demo.model.dto.ProductoDTO;
@@ -24,7 +22,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.repository.IproductoRepository;
 import com.libcentro.demo.services.interfaces.IproductoService;
 
@@ -50,7 +47,10 @@ public class ProductoService implements IproductoService {
 
     @Override
     public List<ProductoDTO> getAll() {
-        return productoRepository.findAll().stream().map (ProductoDTO::new).toList ();
+        return productoRepository.findAll().stream()
+                .filter(producto -> !producto.isEliminado())
+                .map(ProductoDTO::new)
+                .toList();
     }
 
     @Override
@@ -61,10 +61,18 @@ public class ProductoService implements IproductoService {
 
     @Override
     public ProductoDTO crearProducto ( ProductoDTO productoDto ){
-        if (productoRepository.existsById (productoDto.getCodigobarras ())) {
-            throw new RuntimeException ("El producto con codigo: " + productoDto.getCodigobarras() + " ya existe.");
+        Optional<Producto> productoOptional = productoRepository.findById (productoDto.getCodigobarras ());
+        Producto producto;
+
+        if(productoOptional.isPresent ()) {
+            producto = productoOptional.get ();
+            if ( producto.isEliminado () ) {
+                updateProducto (productoDto);
+                return productoDto;
+            }
+            else throw new RuntimeException ("El producto con codigo: " + productoDto.getCodigobarras() + " ya existe.");
         }
-        Producto producto = new Producto (productoDto);
+        producto = new Producto (productoDto);
 
         HistorialCosto historialCosto = historialService.crearHistorialCosto (producto,
                 producto.getCosto_compra (),
@@ -109,6 +117,7 @@ public class ProductoService implements IproductoService {
                     producto.setCosto_compra(Math.round(productoDTO.getCosto_compra() * 100d) / 100d);
                     producto.setPrecio_venta(Math.round(productoDTO.getPrecio_venta() * 100d) / 100d);
                     producto.setStock(producto.getStock() + productoDTO.getStock());
+                    producto.setEliminado (false);
                     commandInvoker.executeCommand(new UpdateProductCommand(ProductoService.this, historialService, viejoProducto, producto));
                 } else {
                     crearProducto(productoDTO);
@@ -123,7 +132,11 @@ public class ProductoService implements IproductoService {
 
     @Override
     public void deleteProductoByCodigo(String codigo_barras){
-        productoRepository.deleteById(codigo_barras);
+
+       Producto producto =  productoRepository.findById (codigo_barras).orElseThrow (() -> new RuntimeException ("Producto no encontrado"));
+       producto.setEliminado (true);
+       historialService.deleteAllByCodigo (producto.getCodigobarras ());
+       productoRepository.save(producto);
     }
 
     @Override
@@ -132,12 +145,12 @@ public class ProductoService implements IproductoService {
 
         Page<Producto> productosPage = productoRepository.getProductosPage (PageRequest.of (page, page_size),filterT,sin_stock,categoria);
 
-        return new PageDTO<> (productosPage.stream ().map (ProductoDTO::new).toList (), productosPage.getTotalPages ());
+        return new PageDTO<> (productosPage.stream ().filter (producto -> !producto.isEliminado ()).map (ProductoDTO::new).toList (), productosPage.getTotalPages ());
     }
 
     @Override
     public void updateProducto( ProductoDTO productoActualizado) {
-        Producto productoActual= productoRepository.findById(productoActualizado.getCodigobarras()).orElseThrow();
+        Producto productoActual= productoRepository.findById(productoActualizado.getCodigobarras()).orElseThrow(() -> new RuntimeException ("Producto no encontrado"));
 
         Categoria categoria = categoriaService.getCategoria (productoActualizado.getCategoria ().getNombre ());
 
@@ -149,6 +162,7 @@ public class ProductoService implements IproductoService {
                 productoActualizado.getStock ()
                 );
 
+
         commandInvoker.executeCommand(new UpdateProductCommand(this, historialService,productoActual,producto));
     }
 
@@ -157,11 +171,14 @@ public class ProductoService implements IproductoService {
         List<Producto> productosViejos;
 
         if (porcentaje == 0) {
-            throw new RuntimeException("Porcentaje no puede ser cero.");
+            throw new RuntimeException ("Porcentaje no puede ser cero.");
+        }
+        if (porcentaje >= 15000){
+            throw new RuntimeException ("Actualización de porcentaje excesiva, proceso abortado");
         }
 
         if (categoriaDto == null) {
-            productosViejos = productoRepository.findAll();
+            productosViejos = productoRepository.findAll().stream ().filter (producto -> !producto.isEliminado ()).toList ();
         } else {
             Categoria categoria = categoriaService.getCategoria (categoriaDto.getNombre());
             productosViejos = productoRepository.findAllByCategoria(categoria);
@@ -170,13 +187,23 @@ public class ProductoService implements IproductoService {
         IprogressService<Producto> progressService = new ProgressService<>(null, productosViejos.size());
 
         progressService.ejecutarProceso(productosViejos, productoViejo -> {
-            Producto nuevoProducto = new Producto(productoViejo);
-            double nuevoPrecio = nuevoProducto.getPrecio_venta() + Math.round(nuevoProducto.getPrecio_venta() * porcentaje * 100d) / 100d;
-            nuevoProducto.setPrecio_venta(nuevoPrecio);
+            try {
+                Producto nuevoProducto = new Producto(productoViejo);
+                double nuevoPrecio = nuevoProducto.getPrecio_venta() + Math.round(nuevoProducto.getPrecio_venta() * porcentaje * 100d) / 100d;
 
-            List<Producto> productosNuevos = Collections.singletonList(nuevoProducto);
+                // Verificar el precio antes de actualizar
+                if (nuevoPrecio >= 999999999999d) {
+                    throw new RuntimeException ("Exceso en limite de memoria en el producto: " + nuevoProducto.getCodigobarras() );
+                }
 
-            commandInvoker.executeCommand(new UpdateProductsBy(this, productosNuevos, productosViejos, historialService));
+                nuevoProducto.setPrecio_venta(nuevoPrecio);
+
+                List<Producto> productosNuevos = Collections.singletonList(nuevoProducto);
+
+                commandInvoker.executeCommand(new UpdateProductsBy(this, productosNuevos, productosViejos, historialService));
+            } catch (RuntimeException e) {
+                throw e;  // Re-lanzar la excepción para que sea manejada en el 'done' del worker
+            }
         });
     }
 
@@ -194,7 +221,7 @@ public class ProductoService implements IproductoService {
             throw new IllegalArgumentException("La cantidad debe ser mayor que cero");
         }
         Producto producto= productoRepository.findById(codigo_barras).orElse(null);
-        if(producto==null) {
+        if(producto==null || producto.isEliminado ()) {
             throw new RuntimeException ("El producto con codigo: " + codigo_barras + " no existe.");
         }
         else if(cantidad > producto.getStock()){
@@ -205,8 +232,9 @@ public class ProductoService implements IproductoService {
 
     @Override
     public Producto getProducto ( String codigobarras ){
-        Optional<Producto> producto = productoRepository.findById(codigobarras);
-        return producto.orElseThrow(() -> new ObjectNotFoundException(Producto.class, "Producto no encontrado"));
+        Producto producto = productoRepository.findById(codigobarras).orElseThrow(() -> new ObjectNotFoundException(Producto.class, "Producto no encontrado"));
+        if (producto.isEliminado ()) throw new RuntimeException ("El producto fue eliminado anteriormente");
+        return producto;
     }
 
     @Override
@@ -238,40 +266,71 @@ public class ProductoService implements IproductoService {
     }
 
     @Override
-    public void venderProducto ( ProductoDTO productoDTO, int cantidad ){
+    public void venderProducto(ProductoDTO productoDTO, int cantidadAVender) {
         Optional<Producto> producto = productoRepository.findById(productoDTO.getCodigobarras());
         producto.ifPresent(p -> {
-                p.setStock (productoDTO.getStock () - cantidad);
-                HistorialCosto historialCosto = historialService.findHistorialInicial (p);
-                if(historialCosto.getCantidad () >= historialCosto.getCantidad_vendida () + cantidad){
-                    if(historialCosto.getCantidad () == historialCosto.getCantidad_vendida () + cantidad){
-                        HistorialCosto newHistorial = historialService.findNext (p);
-                        if(newHistorial != null){
-                            newHistorial.setEstado (HistorialCosto.Estado.INICIAL);
-                            historialService.save(newHistorial);
-                        }
-                        historialCosto.setEstado (HistorialCosto.Estado.INHABILITADO);
-                        System.out.println (historialCosto.getEstado ());
-                    }
-                    historialCosto.setCantidad_vendida (cantidad+historialCosto.getCantidad_vendida ());
-                }else{
-                    int falta = historialCosto.getCantidad () - historialCosto.getCantidad_vendida ();
-                    int resto = cantidad-falta;
-                    HistorialCosto newHistorial= historialService.findNext (p);
-                    if(newHistorial != null){
-                            newHistorial.setCantidad_vendida (resto);
-                            newHistorial.setEstado (HistorialCosto.Estado.INICIAL);
-                            historialService.save(newHistorial);
-                    } else{
-                        throw new InsufficientStockException("Verifique stock del producto: " + productoDTO.getCodigobarras());
-                    }
+            // Actualizar el stock del producto
+            p.setStock(productoDTO.getStock() - cantidadAVender);
 
-                    historialCosto.setCantidad_vendida (historialCosto.getCantidad ());
-                    historialCosto.setEstado (HistorialCosto.Estado.INHABILITADO);
+            // Llamar a la función recursiva para procesar la venta
+            venderRecursivo(p, cantidadAVender, null);
 
+            // Guardar el producto actualizado
+            productoRepository.save(p);
+        });
+    }
+
+    private void venderRecursivo(Producto producto, int cantidadAVender, HistorialCosto historialCostoAnterior) {
+        // Obtener el historial de costos inicial
+        HistorialCosto historialCosto = (historialCostoAnterior == null) ? historialService.findHistorialInicial(producto) : historialCostoAnterior;
+        // Si hay suficiente cantidad en el historial de costos
+        while (cantidadAVender > 0 && historialCosto != null) {
+            int cantidadDisponible = historialCosto.getCantidad() - historialCosto.getCantidad_vendida();
+
+            if (cantidadDisponible > 0) {
+                if (cantidadAVender <= cantidadDisponible) {
+                    System.out.println ("1");
+                    // Si la cantidad que se desea vender es menor o igual a lo disponible en el historial actual
+                    historialCosto.setCantidad_vendida(historialCosto.getCantidad_vendida() + cantidadAVender);
+                    cantidadAVender = 0;
+                } else {
+                    System.out.println ("2");
+                    // Si la cantidad a vender es mayor que lo disponible, vender todo lo disponible en el historial
+                    historialCosto.setCantidad_vendida(historialCosto.getCantidad_vendida() + cantidadDisponible);
+                    cantidadAVender -= cantidadDisponible;
                 }
-                historialService.save(historialCosto);
-                productoRepository.save(p);});
+
+                // Si se ha vendido todo del historial actual, marcarlo como INHABILITADO
+                if (historialCosto.getCantidad() == historialCosto.getCantidad_vendida()) {
+                    System.out.println ("inhabilitacion");
+                    historialCosto.setEstado(HistorialCosto.Estado.INHABILITADO);
+                }
+            }
+
+            // Si la cantidad a vender no ha sido completamente procesada, buscar el siguiente historial usando findSiguienteByFecha
+            if (cantidadAVender > 0) {
+                HistorialCosto siguienteHistorial = historialService.findSiguiente(historialCosto);
+                // Marcar el historial actual como inhabilitado si se pasa al siguiente historial
+                if (historialCosto.getCantidad() == historialCosto.getCantidad_vendida()) {
+                    historialCosto.setEstado(HistorialCosto.Estado.INHABILITADO);
+                }
+
+                historialService.save (historialCosto);// Continuar con el siguiente historial
+                venderRecursivo(producto, cantidadAVender, siguienteHistorial);
+
+                return; // Si se pasó al siguiente historial, terminar la función para evitar procesar más historiales en la misma llamada
+            }else{
+                historialCosto.setEstado (HistorialCosto.Estado.INICIAL);
+            }
+        }
+
+        if (cantidadAVender > 0) {
+            // Si al final aún quedan productos por vender, lanzar excepción de stock insuficiente
+            throw new InsufficientStockException("Verifique stock del producto: " + producto.getCodigobarras());
+        }
+
+        // Guardar los cambios en el historial de costos
+        historialService.save(historialCosto);
     }
 
     @Override
@@ -304,8 +363,16 @@ public class ProductoService implements IproductoService {
 
             if(productoActual == null) throw  new RuntimeException ("Producto no encontrado");
 
+            if(porcentaje >= 15000) {
+                throw new RuntimeException ("Porcentaje excesivo, para continuar, elija otro porcentaje");
+            }
+
             Producto productoNuevo = new Producto (productoActual);
-            productoNuevo.setPrecio_venta(Math.round((p.getPrecio_venta() + p.getPrecio_venta() * porcentaje / 100) * 100.0) / 100.0);
+            double precioNuevo= Math.round((p.getPrecio_venta() + p.getPrecio_venta() * porcentaje / 100d) * 100.0d) / 100.0d;
+            if(precioNuevo > 999999999999d){
+                throw new RuntimeException ("Precio excesivo en item: " + productoActual.getCodigobarras() + ", para continuar con el proceso elija otros productos o cambie manualmente el precio del item.");
+            }
+            productoNuevo.setPrecio_venta(precioNuevo);
 
             commandInvoker.executeCommand (new UpdateProductCommand (this,historialService,productoActual,productoNuevo));
             });
@@ -317,17 +384,39 @@ public class ProductoService implements IproductoService {
     }
 
     @Override
-    public void reembolsarProducto ( Producto producto, int cantidadReembolsar ){
-        HistorialCosto historialCosto= historialService.findLastHistorialCosto (producto);
+    public void reembolsarProducto(Producto producto, int cantidadReembolsar) {
+        reembolsarRecursivo(producto, cantidadReembolsar, historialService.findHistorialInicial(producto));
+    }
 
-        producto.setStock (producto.getStock () + cantidadReembolsar);
-        historialCosto.setCantidad(historialCosto.getCantidad () + cantidadReembolsar);
-        if(historialCosto.getEstado ()== HistorialCosto.Estado.INHABILITADO){historialCosto.setEstado (HistorialCosto.Estado.INICIAL);}
+    private void reembolsarRecursivo(Producto producto, int cantidadReembolsar, HistorialCosto historialCosto) {
+        producto.setStock(producto.getStock() + cantidadReembolsar);
+
+        historialCosto.setCantidad_vendida(historialCosto.getCantidad_vendida() - cantidadReembolsar);
+
+        if (historialCosto.getCantidad_vendida() < 0) {
+            HistorialCosto historialCostoAnterior = historialService.findAnterior(historialCosto);
+
+            if (historialCostoAnterior == null) {
+                throw new RuntimeException("Error al reembolsar el producto");
+            }
+
+            historialCostoAnterior.setCantidad_vendida(historialCostoAnterior.getCantidad_vendida() + historialCosto.getCantidad_vendida());
+            historialCostoAnterior.setEstado(HistorialCosto.Estado.INICIAL);
+            historialService.save(historialCostoAnterior);
+
+            historialCosto.setCantidad_vendida(0);
+            historialCosto.setEstado(HistorialCosto.Estado.SIGUIENTE);
+
+            reembolsarRecursivo(producto, Math.abs(historialCosto.getCantidad_vendida()), historialCostoAnterior);
+        }
+
+        if (historialCosto.getEstado() == HistorialCosto.Estado.INHABILITADO) {
+            historialCosto.setEstado(HistorialCosto.Estado.INICIAL);
+        }
 
         productoRepository.save(producto);
         historialService.save(historialCosto);
     }
-
     @Override
     public void setCategoriaNull ( long id ){
         productoRepository.setCategoriaNull (id);

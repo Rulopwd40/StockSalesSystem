@@ -30,16 +30,23 @@ Name: "{app}\csv"
 Name: "{app}\backup"
 Name: "{app}\database_sqlite"
 Name: "{app}\python"
-Name: "{app}\graph"
 
 [Files]
 Source: "D:\Coding\demo\target\demo-0.0.1-SNAPSHOT.jar"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\Coding\demo\src\main\python\dist\generar_grafica.exe"; DestDir: "{app}\python"; Flags: ignoreversion
-Source: "D:\Coding\demo\app_config.cfg"; DestDir: "{app}"; Flags: ignoreversion
 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
+
+
+
+[Icons]
+; Crear un acceso directo en el escritorio
+Name: "{userdesktop}\Libreria Centro App"; Filename: "{app}\demo-0.0.1-SNAPSHOT.jar"; WorkingDir: "{app}"; IconFilename: "{app}\demo-0.0.1-SNAPSHOT.jar"; IconIndex: 0; Comment: "Acceso directo a Libreria Centro App"; Tasks: desktopicon
+
+[Tasks]
+; Opción para permitir al usuario seleccionar la creación del acceso directo en el escritorio
+Name: desktopicon; Description: "Crear acceso directo en el escritorio"; GroupDescription: "Accesos directos";
 
 [Run]
 ; Ejecutar el archivo JAR principal después de la instalación
 Filename: "javaw.exe"; Parameters: "-jar {app}\demo-0.0.1-SNAPSHOT.jar"; StatusMsg: "Iniciando {#MyAppName}..."; Flags: nowait postinstall skipifsilent
-

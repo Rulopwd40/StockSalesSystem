@@ -1,5 +1,6 @@
 package com.libcentro.demo.utils.strategy.graph;
 
+import com.libcentro.demo.Main;
 import com.libcentro.demo.config.AppConfig;
 import com.libcentro.demo.model.Venta_Producto;
 
@@ -16,6 +17,7 @@ public class ProductGraph implements GraphStrategy<Venta_Producto> {
 
     @Override
     public Image generarGrafica(List<Venta_Producto> datos) {
+        if(datos.isEmpty()) return null;
         try {
             // Crear archivo CSV
             FileWriter writer = new FileWriter (AppConfig.csv_path + "venta_producto_data.csv");
@@ -51,12 +53,9 @@ public class ProductGraph implements GraphStrategy<Venta_Producto> {
         }
 
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder(
-                    "python",
-                    AppConfig.python_path,
-                    AppConfig.csv_path + "venta_producto_data.csv",
-                    "producto"
-            );
+            ProcessBuilder processBuilder;
+            if( AppConfig.PRODUCTION) processBuilder = new ProcessBuilder (AppConfig.python_interpreter, AppConfig.python_path, AppConfig.csv_path + "/venta_producto_data.csv", "producto");
+            else processBuilder = new ProcessBuilder (AppConfig.python_interpreter, AppConfig.csv_path + "/venta_producto_data.csv", "producto");
 
             processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();
@@ -75,7 +74,7 @@ public class ProductGraph implements GraphStrategy<Venta_Producto> {
                 );
             }
 
-            File file = new File(AppConfig.graph_path + "grafica.png");
+            File file = new File(AppConfig.graph_path + "/grafica.png");
             return ImageIO.read(file);
 
         } catch (IOException e) {

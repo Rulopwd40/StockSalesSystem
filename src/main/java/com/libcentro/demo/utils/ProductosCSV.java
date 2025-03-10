@@ -155,7 +155,8 @@ public class ProductosCSV {
             producto.setCosto_compra(Math.round(Double.parseDouble (datos[4].replace(',', '.')) * 100d) / 100d);
             producto.setPrecio_venta(Math.round(Double.parseDouble (datos[5].replace(',', '.')) * 100d) / 100d) ;
         }else{
-            throw new RuntimeException("Formato incorrecto de archivo, revise su contenido");
+            throw new RuntimeException("Formato incorrecto de archivo, revise su contenido. Forma esperada: \n" +
+                    "codigo_barras | nombre | categoria | cantidad | costo_compra | precio_unitario");
         }
         return producto;
     }

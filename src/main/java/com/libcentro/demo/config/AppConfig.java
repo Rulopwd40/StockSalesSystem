@@ -3,11 +3,15 @@ package com.libcentro.demo.config;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 @Configuration
 public class AppConfig {
 
+    public static final boolean PRODUCTION = true;
+    public static String python_interpreter;
     public static String python_path;
     public static String csv_path;
     public static String graph_path;
@@ -28,7 +32,8 @@ public class AppConfig {
             try (FileInputStream inputStream = new FileInputStream(configFile)) {
                 properties.load(inputStream);
 
-                python_path = properties.getProperty("python_path", "/python/generar_grafica.exe");
+                python_interpreter = properties.getProperty("python", PRODUCTION? "python" : "/python/generar_grafica.exe");
+                python_path = properties.getProperty("python_path", PRODUCTION? "/python/generar_grafica.py" : "");
                 csv_path = properties.getProperty("csv_path", "csv/");
                 graph_path = properties.getProperty("graph_path", "graph/");
                 backup_path = properties.getProperty("backup_path", "backup/");
@@ -47,12 +52,14 @@ public class AppConfig {
                 System.err.println("Error al leer el archivo de configuración: " + e.getMessage());
             }
         } else {
-            python_path = "/python/generar_grafica.py";
-            csv_path = "csv/";
-            graph_path = "graph/";
+            python_interpreter = PRODUCTION? "python" : Paths.get ("").toAbsolutePath().toString() + File.separator + "python" + File.separator + "generar_grafica.exe";
+            python_path = PRODUCTION? "/python/generar_grafica.py" : "";
+            csv_path = PRODUCTION? "csv" : Paths.get ("").toAbsolutePath().toString() + File.separator + "csv" + File.separator;
+            graph_path = PRODUCTION? "graph" : Paths.get ("").toAbsolutePath ().toString () + File.separator +"python/graph";
             backup_path = "backup/";
             stock_alert = 10;
 
+            properties.setProperty("python", python_interpreter);
             properties.setProperty("python_path", python_path);
             properties.setProperty("csv_path", csv_path);
             properties.setProperty("graph_path", graph_path);

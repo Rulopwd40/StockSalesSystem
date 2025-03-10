@@ -32,4 +32,10 @@ public interface IhistorialService {
     List<HistorialPrecioDTO> findAllPrecioByProducto ( String codbar );
 
     List<HistorialCostoDTO> findAllCostoByProducto ( String codbar );
+
+    HistorialCosto findAnterior(HistorialCosto historialExistente);
+
+    HistorialCosto findSiguiente ( HistorialCosto historialCosto );
+
+    void deleteAllByCodigo ( String codigobarras );
 }

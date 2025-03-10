@@ -1,7 +1,10 @@
 package com.libcentro.demo.utils.strategy.graph;
 
+import com.libcentro.demo.Main;
 import com.libcentro.demo.config.AppConfig;
 import com.libcentro.demo.model.Venta;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -13,11 +16,17 @@ import java.util.List;
 import java.util.Map;
 
 public class VentaGraph implements GraphStrategy<Venta> {
+
+    private final Logger logger = LoggerFactory.getLogger(VentaGraph.class);
+
     @Override
     public Image generarGrafica ( List<Venta> datos ){
+        if(datos.isEmpty ()) return null;
         try {
-            FileWriter writer = new FileWriter (AppConfig.csv_path + "venta_data.csv");
+            logger.info ("Abriendo archivo: {}",AppConfig.csv_path);
+            FileWriter writer = new FileWriter (AppConfig.csv_path + "/venta_data.csv");
             writer.write ("Fecha,Ganancia\n");
+            logger.info ("Procesando datos...");
 
             Map<String, Double> gananciasPorFecha = new HashMap<> ();
 
@@ -37,14 +46,19 @@ public class VentaGraph implements GraphStrategy<Venta> {
             }
 
             writer.close ();
+            logger.info ("Archivo creado...");
         } catch (IOException e) {
             throw new RuntimeException ("Error al escribir el archivo CSV", e);
         }
 
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder ("python", AppConfig.python_path, AppConfig.csv_path + "venta_data.csv", "venta");
+            logger.info ("Estableciendo conexion con el generador: {}, {}",AppConfig.python_interpreter,AppConfig.python_path);
 
+            ProcessBuilder processBuilder;
+            if( AppConfig.PRODUCTION) processBuilder = new ProcessBuilder (AppConfig.python_interpreter, AppConfig.python_path, AppConfig.csv_path + "venta_data.csv", "venta");
+            else processBuilder = new ProcessBuilder (AppConfig.python_interpreter, AppConfig.csv_path + "venta_data.csv", "venta");
             processBuilder.redirectErrorStream (true);
+            logger.info ("Generando imagen...");
             Process process = processBuilder.start ();
 
             StringBuilder output = new StringBuilder ();
@@ -56,12 +70,15 @@ public class VentaGraph implements GraphStrategy<Venta> {
 
             int exitCode = process.waitFor ();
             if ( exitCode != 0 ) {
+                logger.error ("Error en el script Python. Código de salida: {}\n{}", exitCode, output.toString ());
                 throw new RuntimeException ("Error en el script Python. Código de salida: " + exitCode + "\n" + output.toString ());
             }
 
-            File file = new File (AppConfig.graph_path + "grafica.png");
+            File file = new File (AppConfig.graph_path + "/grafica.png");
+            logger.info (file.getAbsolutePath ());
             Image image = ImageIO.read (file);
-
+            if(image!= null) logger.info ("Imagen generada en {}\n{}", file.getAbsolutePath (), image);
+            else logger.error("Imagen no generada");
             return image;
 
         }   catch (IOException e) {
