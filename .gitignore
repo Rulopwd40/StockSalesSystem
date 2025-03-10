@@ -1,5 +1,22 @@
 
 target/
+dist/*.exe
+**/dist/
 
 Output/*.exe
 Output/*.rar
+generar_grafica.spec
+build/generar_grafica/generar_grafica.pkg
+build/generar_grafica/Analysis-00.toc
+build/generar_grafica/base_library.zip
+build/generar_grafica/EXE-00.toc
+build/generar_grafica/localpycs/pyimod01_archive.pyc
+build/generar_grafica/localpycs/pyimod02_importers.pyc
+build/generar_grafica/localpycs/pyimod03_ctypes.pyc
+build/generar_grafica/localpycs/pyimod04_pywin32.pyc
+build/generar_grafica/localpycs/struct.pyc
+build/generar_grafica/PKG-00.toc
+build/generar_grafica/PYZ-00.pyz
+build/generar_grafica/PYZ-00.toc
+build/generar_grafica/warn-generar_grafica.txt
+build/generar_grafica/xref-generar_grafica.html

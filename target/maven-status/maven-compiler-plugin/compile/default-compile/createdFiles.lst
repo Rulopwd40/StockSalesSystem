@@ -69,6 +69,7 @@ com\libcentro\demo\utils\strategy\count\CountStrategy.class
 com\libcentro\demo\view\productos\ActualizarGeneral.class
 com\libcentro\demo\model\HistorialPrecio.class
 com\libcentro\demo\controller\BackupController.class
+com\libcentro\demo\utils\CSVValidator.class
 com\libcentro\demo\view\productos\AgregarCategoria$2.class
 com\libcentro\demo\utils\strategy\graph\GraphStrategy.class
 com\libcentro\demo\utils\command\DeleteProductCommand.class

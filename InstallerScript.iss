@@ -32,7 +32,7 @@ Name: "{app}\database_sqlite"
 Name: "{app}\python"
 
 [Files]
-Source: "D:\Coding\demo\target\demo-0.0.1-SNAPSHOT.jar"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\Coding\demo\target\demo-1.0.1.jar"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\Coding\demo\src\main\python\dist\generar_grafica.exe"; DestDir: "{app}\python"; Flags: ignoreversion
 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
