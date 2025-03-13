@@ -181,7 +181,7 @@ public class ProductoService implements IproductoService {
             productosViejos = productoRepository.findAll().stream ().filter (producto -> !producto.isEliminado ()).toList ();
         } else {
             Categoria categoria = categoriaService.getCategoria (categoriaDto.getNombre());
-            productosViejos = productoRepository.findAllByCategoria(categoria);
+            productosViejos = productoRepository.findAllByCategoriaAndEliminadoFalse (categoria);
         }
 
         IprogressService<Producto> progressService = new ProgressService<>(null, productosViejos.size());
@@ -262,7 +262,7 @@ public class ProductoService implements IproductoService {
 
     @Override
     public List<ProductoDTO> getProductosByCantidad(int cantidad) {
-        return productoRepository.findByStockLessThanEqual(cantidad).stream ().map (ProductoDTO::new).toList ();
+        return productoRepository.findByStockLessThanEqualAndEliminadoFalse (cantidad).stream ().map (ProductoDTO::new).toList ();
     }
 
     @Override

@@ -15,23 +15,24 @@ import java.util.List;
 @Repository
 public interface IproductoRepository extends JpaRepository<Producto, String> {
 
-    List<Producto> findAllByCategoria( Categoria categoria );
+    List<Producto> findAllByCategoriaAndEliminadoFalse ( Categoria categoria );
 
 
-    List<Producto> findByStockLessThanEqual(int cantidad);
+    List<Producto> findByStockLessThanEqualAndEliminadoFalse ( int cantidad);
 
     @Query("SELECT p FROM Producto p " +
             "LEFT JOIN p.categoria c " +
             "WHERE (:filter = '' OR LOWER(p.codigobarras) LIKE LOWER(:filter) " +
             "OR LOWER(p.nombre) LIKE LOWER(:filter) OR LOWER(c.nombre) LIKE LOWER(:filter)) " +
             "AND (:sin_stock = false OR p.stock = 0) " +
-            "AND (:conCategoriaNula = false OR c IS NULL) " +
+            "AND (:conCategoriaNula = false OR c IS NULL)" +
+            "AND (p.eliminado = false) " +
             "ORDER BY CAST(p.codigobarras AS BIGINTEGER) ASC")
     Page<Producto> getProductosPage(Pageable pageable, @Param("filter") String filter,
                                     @Param("sin_stock") boolean sin_stock, @Param("conCategoriaNula") boolean conCategoriaNula);
 
     @Modifying
-    @Query("UPDATE Producto p SET p.categoria = NULL WHERE p.categoria.id = :categoriaId")
+    @Query("UPDATE Producto p SET p.categoria = NULL WHERE p.categoria.id = :categoriaId AND p.eliminado = false ")
     void setCategoriaNull(@Param("categoriaId") Long categoriaId);
 
 }

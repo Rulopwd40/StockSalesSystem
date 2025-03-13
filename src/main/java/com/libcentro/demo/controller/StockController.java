@@ -57,9 +57,7 @@ public class StockController {
                     stockControl.dispose();
                 }
             });
-
             stockControl.setModal(modal);
-
             stockControl.setVisible(true);
         }else throw new RuntimeException("No hay productos con stock menor a 10");
 

@@ -199,7 +199,6 @@ public class ReportesFrame extends JFrame {
         defaultComboBoxModel1.addElement ("Ultimo semestre");
         defaultComboBoxModel1.addElement ("Ultimo año");
         defaultComboBoxModel1.addElement ("Todos los tiempos");
-        defaultComboBoxModel1.addElement ("Elegir período");
         periodoBox.setModel (defaultComboBoxModel1);
         panel8.add (periodoBox, new GridConstraints (0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel9 = new JPanel ();

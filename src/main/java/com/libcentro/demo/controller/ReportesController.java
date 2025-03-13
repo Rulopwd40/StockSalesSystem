@@ -114,7 +114,6 @@ public class ReportesController {
 
     }
 
-
     private void cerrar (){
         reportesFrame.setVisible(false);
     }

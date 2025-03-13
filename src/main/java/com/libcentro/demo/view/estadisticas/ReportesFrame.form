@@ -196,7 +196,6 @@
                                 <item value="Ultimo semestre"/>
                                 <item value="Ultimo año"/>
                                 <item value="Todos los tiempos"/>
-                                <item value="Elegir período"/>
                               </model>
                             </properties>
                           </component>
