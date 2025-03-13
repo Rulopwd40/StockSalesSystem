@@ -10,3 +10,4 @@ generar_grafica.spec
 build/generar_grafica/*
 
 
+/src/main/python/build
