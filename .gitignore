@@ -11,3 +11,6 @@ build/generar_grafica/*
 
 
 /src/main/python/build
+*.db
+/target
+/target/classes

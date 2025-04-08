@@ -315,6 +315,16 @@ public class ProductosController {
         importarCSV.getSubirButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try{
+                    //Si hay cambios, preguntará si se prefiere guardar los cambios
+                    if(cambios ()) {
+                        int option = JOptionPane.showConfirmDialog (null, "Se recomienda guardar los cambios antes de proseguir.Guardar?", "Confirmar", JOptionPane.YES_NO_CANCEL_OPTION);
+                        if ( option == JOptionPane.YES_OPTION ) {
+                            save ();
+                        }
+                        if ( option == JOptionPane.CANCEL_OPTION ) {
+                            return;
+                        }
+                    }
                     productoService.importarCSV(importarCSV.getLocationField().getText());
                 }catch (RuntimeException ex){
                     JOptionPane.showMessageDialog(null,ex.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
@@ -781,7 +791,6 @@ public class ProductosController {
         }
     }
     private void save(){
-
         try {
             boolean result = productoService.save();
             if ( result ) {
@@ -790,6 +799,9 @@ public class ProductosController {
         }catch (Exception ex){
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+    private boolean cambios(){
+        return productoService.cambios ();
     }
 
 }

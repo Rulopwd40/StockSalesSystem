@@ -1,6 +1,8 @@
 package com.libcentro.demo.repository;
 
 import com.libcentro.demo.model.HistorialPrecio;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -18,6 +20,11 @@ public interface IhistorialPrecioRepository extends JpaRepository<HistorialPreci
             "order by h.fecha DESC "
     )
     List<HistorialPrecio> findAllByProducto( String codigobarras);
+
+    @Query("SELECT h FROM HistorialPrecio h " +
+            "WHERE h.producto.codigobarras = :codigobarras " +
+            "ORDER BY h.fecha DESC")
+    Page<HistorialPrecio> findByProductoCodigobarras( @Param("codigobarras") String codigobarras, Pageable pageable);
 
     @Modifying
     @Query("DELETE FROM HistorialPrecio h WHERE h.producto.codigobarras = :codigobarras")

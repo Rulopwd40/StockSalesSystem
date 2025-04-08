@@ -10,7 +10,7 @@ import java.util.Properties;
 @Configuration
 public class AppConfig {
 
-    public static final boolean PRODUCTION = false;
+    public static final boolean PRODUCTION = true;
     public static String python_interpreter;
     public static String python_path;
     public static String csv_path;

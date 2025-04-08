@@ -5,6 +5,7 @@ import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.model.dto.HistorialCostoDTO;
 import com.libcentro.demo.model.dto.HistorialPrecioDTO;
+import com.libcentro.demo.model.dto.PageDTO;
 
 import java.util.List;
 
@@ -38,4 +39,8 @@ public interface IhistorialService {
     HistorialCosto findSiguiente ( HistorialCosto historialCosto );
 
     void deleteAllByCodigo ( String codigobarras );
+
+    PageDTO<HistorialPrecioDTO> findPagePrecioByProducto ( String codbar, int historialPrecioPage );
+
+    PageDTO<HistorialCostoDTO> findPageCostoByProducto ( String codbar, int historialCostoPage );
 }

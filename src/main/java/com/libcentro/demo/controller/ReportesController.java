@@ -35,6 +35,12 @@ public class ReportesController {
     private final HistorialService historialService;
     private IestadisticaService estadisticaService;
     private int page;
+    private int historialCostoPage = 0,historialPrecioPage = 0;
+
+    private PageDTO<HistorialCostoDTO> historialCostoDTO;
+    private PageDTO<HistorialPrecioDTO> historialPrecioDTO;
+    private String codbar;
+    DefaultTableModel costoModel,precioModel;
 
     private enum Estado{
         VENTA,
@@ -405,17 +411,17 @@ public class ReportesController {
         ventaSeleccionada.getVenta_producto ().forEach (vp -> {
             productosModel.addRow (new Object[]{vp.getProducto ().getCodigobarras (),
                     vp.getProducto ().getNombre (),
-                    vp.getPrecio_venta (),
+                    Math.round(vp.getPrecio_venta ()*100d)/100d,
                     vp.getCantidad (),
                     vp.getDescuento (),
-                    vp.getCosto_compra ()
+                    Math.round(vp.getCosto_compra ()*100d)/100d,
             });
         });
         ventaSeleccionada.getProducto_fstock ().forEach (pfs -> {
             pfsModel.addRow (new Object[]{
                     pfs.getId (),
                     pfs.getNombre (),
-                    pfs.getPrecio_venta (),
+                    Math.round(pfs.getPrecio_venta ()*100d)/100d,
                     pfs.getCantidad (),
                     pfs.getDescuento ()
             });
@@ -461,26 +467,77 @@ public class ReportesController {
                 historialFrame.setVisible(false);
             }
         });
+
+        historialFrame.getAnteriorCostosButton ().addActionListener (new ActionListener () {
+            @Override
+            public void actionPerformed ( ActionEvent e ){
+                paginaCosto(-1);
+            }
+        });
+        historialFrame.getAnteriorPrecioButton ().addActionListener (new ActionListener () {
+            @Override
+            public void actionPerformed ( ActionEvent e ){
+                paginaPrecio(-1);
+            }
+        });
+        historialFrame.getSiguientePrecioButton ().addActionListener (new ActionListener () {
+
+            @Override
+            public void actionPerformed ( ActionEvent e ){
+                paginaPrecio (+1);
+            }
+        });
+        historialFrame.getSiguienteCostoButton ().addActionListener (new ActionListener () {
+            @Override
+            public void actionPerformed ( ActionEvent e ){
+                paginaCosto(+1);
+            }
+        });
+    }
+
+    private void paginaPrecio ( int i ){
+        if(codbar != null) {
+            this.historialPrecioPage+= i;
+
+        }
+        updateTables ();
+    }
+
+    private void paginaCosto ( int i ){
+        if(codbar != null) {
+            this.historialCostoPage+= i;
+
+        }
+        updateTables ();
     }
 
     private void buscarProducto (){
-        DoubleFormat dformatter = new DoubleFormat();
-        String codbar = historialFrame.getBuscarField ().getText ();
+        this.historialCostoPage = 0;
+        this.historialPrecioPage = 0;
+        codbar = historialFrame.getBuscarField ().getText ();
         if( codbar.isEmpty () ) {
             JOptionPane.showMessageDialog (historialFrame,"Complete el campo","Error",JOptionPane.ERROR_MESSAGE);
             throw new IllegalArgumentException ( "Complete el campo" );
         }
-        List<HistorialCostoDTO> historialCostoDTOS = historialService.findAllCostoByProducto (codbar);
-        List<HistorialPrecioDTO> historialPrecioDTOS = historialService.findAllPrecioByProducto (codbar);
+
+        updateTables ();
+    }
+
+    private void updateTables(){
+        DoubleFormat dformatter = new DoubleFormat();
+        historialCostoDTO = historialService.findPageCostoByProducto (codbar,historialCostoPage);
+        historialPrecioDTO = historialService.findPagePrecioByProducto (codbar,historialPrecioPage);
 
         String[] costoNames={"Fecha", "Costo", "Cantidad","Cantidad vendida", "Estado"};
-        DefaultTableModel costoModel = new DefaultTableModel (costoNames,0);
+        costoModel = new DefaultTableModel (costoNames,0);
+        historialFrame.getCostoPageLabel ().setText ((this.historialCostoPage + 1) + " de " + (historialCostoDTO.getPages ())  );
         String[] precioNames={"Fecha","Precio"};
-        DefaultTableModel precioModel = new DefaultTableModel (precioNames,0);
+        precioModel = new DefaultTableModel (precioNames,0);
+        historialFrame.getPrecioPageLabel().setText ((this.historialPrecioPage + 1) + " de " + (historialPrecioDTO.getPages ()));
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-        historialCostoDTOS.forEach(hc -> {
+        historialCostoDTO.getObjects ().forEach(hc -> {
             costoModel.addRow(new Object[]{
                     hc.getFecha().format(formatter),
                     dformatter.format(hc.getCosto_compra()),
@@ -490,16 +547,20 @@ public class ReportesController {
             });
         });
 
-        historialPrecioDTOS.forEach(hp -> {
+        historialPrecioDTO.getObjects ().forEach(hp -> {
             precioModel.addRow(new Object[]{
                     hp.getFecha().format(formatter),
                     dformatter.format(hp.getPrecioVenta())
             });
         });
 
+        historialFrame.getSiguienteCostoButton ().setEnabled(this.historialCostoPage +1 < historialCostoDTO.getPages ());
+        historialFrame.getAnteriorCostosButton ().setEnabled(this.historialCostoPage > 0);
+
+        historialFrame.getSiguientePrecioButton ().setEnabled(this.historialPrecioPage +1 < historialPrecioDTO.getPages ());
+        historialFrame.getAnteriorPrecioButton ().setEnabled(this.historialPrecioPage > 0);
+
         historialFrame.getCostosTable ().setModel(costoModel);
         historialFrame.getPreciosTable ().setModel(precioModel);
-
     }
-
 }

@@ -4,6 +4,7 @@ import com.libcentro.demo.config.AppConfig;
 import com.libcentro.demo.services.interfaces.IbackupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.yaml.snakeyaml.internal.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,14 +55,44 @@ public class SQLiteBackupService implements IbackupService {
 
         File sourceFile = new File(databasePath);
         File backupFile = new File(backupFilePath);
-
         try {
             Files.copy(sourceFile.toPath(), backupFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             System.out.println("Backup completado: " + backupFilePath);
+            eliminarViejo();
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("Error al crear el backup.");
+        } catch (InterruptedException e){
+            throw new RuntimeException ("Error al borrar el último backup");
         }
+
+    }
+
+    private void eliminarViejo() throws InterruptedException{
+        File backupDir = new File(backupDirectory);
+
+        if (!backupDir.exists() || !backupDir.isDirectory()) return;
+        if (backupDir.list() == null || backupDir.list().length <= 10) return;
+
+        File[] backupFiles = backupDir.listFiles((dir, name) -> name.endsWith(".db"));
+
+            if (backupFiles == null || backupFiles.length == 0) {
+                return;
+            }
+
+            File oldestFile = backupFiles[0];
+
+            for (File file : backupFiles) {
+                if (file.lastModified() < oldestFile.lastModified()) {
+                    oldestFile = file;
+                }
+            }
+
+            if (oldestFile.delete()) {
+                System.out.println("Backup más viejo eliminado: " + oldestFile.getName());
+            } else {
+                throw new InterruptedException();
+            }
+
     }
 
     @Override
@@ -105,6 +136,6 @@ public class SQLiteBackupService implements IbackupService {
         long diffInMillies = Math.abs(currentDate.getTime() - lastBackupDate.getTime());
         double diffInDays = (double) diffInMillies / (1000 * 60 * 60 * 24);
 
-        return diffInDays > 2;
+        return diffInDays > 1;
     }
 }

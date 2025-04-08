@@ -15,6 +15,12 @@ public class HistorialFrame extends JFrame {
     private JButton buscarButton;
     private JTable costosTable;
     private JTable preciosTable;
+    private JButton anteriorCostosButton;
+    private JButton siguienteCostoButton;
+    private JButton anteriorPrecioButton;
+    private JButton siguientePrecioButton;
+    private JLabel costoPageLabel;
+    private JLabel precioPageLabel;
 
     public HistorialFrame (){
         this.setTitle ("Historial");
@@ -44,6 +50,30 @@ public class HistorialFrame extends JFrame {
 
     public JTable getPreciosTable (){
         return preciosTable;
+    }
+
+    public JButton getAnteriorCostosButton (){
+        return anteriorCostosButton;
+    }
+
+    public JButton getSiguienteCostoButton (){
+        return siguienteCostoButton;
+    }
+
+    public JButton getAnteriorPrecioButton (){
+        return anteriorPrecioButton;
+    }
+
+    public JButton getSiguientePrecioButton (){
+        return siguientePrecioButton;
+    }
+
+    public JLabel getCostoPageLabel (){
+        return costoPageLabel;
+    }
+
+    public JLabel getPrecioPageLabel (){
+        return precioPageLabel;
     }
 
     {
@@ -96,7 +126,7 @@ public class HistorialFrame extends JFrame {
         final Spacer spacer2 = new Spacer ();
         panel3.add (spacer2, new GridConstraints (0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final JPanel panel4 = new JPanel ();
-        panel4.setLayout (new GridLayoutManager (2, 1, new Insets (0, 0, 0, 0), -1, -1));
+        panel4.setLayout (new GridLayoutManager (3, 1, new Insets (0, 0, 0, 0), -1, -1));
         panel4.setBackground (new Color (-1));
         panel.add (panel4, new GridConstraints (2, 0, 3, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JScrollPane scrollPane1 = new JScrollPane ();
@@ -109,18 +139,54 @@ public class HistorialFrame extends JFrame {
         label1.setText ("Costos:");
         panel4.add (label1, new GridConstraints (0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel5 = new JPanel ();
-        panel5.setLayout (new GridLayoutManager (2, 1, new Insets (0, 0, 0, 0), -1, -1));
+        panel5.setLayout (new GridLayoutManager (1, 3, new Insets (0, 0, 0, 0), -1, -1));
         panel5.setBackground (new Color (-1));
-        panel.add (panel5, new GridConstraints (2, 2, 3, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel4.add (panel5, new GridConstraints (2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        anteriorCostosButton = new JButton ();
+        anteriorCostosButton.setBackground (new Color (-12406529));
+        anteriorCostosButton.setEnabled (false);
+        anteriorCostosButton.setForeground (new Color (-1));
+        anteriorCostosButton.setText ("Anterior");
+        panel5.add (anteriorCostosButton, new GridConstraints (0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        siguienteCostoButton = new JButton ();
+        siguienteCostoButton.setBackground (new Color (-12406529));
+        siguienteCostoButton.setForeground (new Color (-1));
+        siguienteCostoButton.setText ("Siguiente");
+        panel5.add (siguienteCostoButton, new GridConstraints (0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        costoPageLabel = new JLabel ();
+        costoPageLabel.setText ("0");
+        panel5.add (costoPageLabel, new GridConstraints (0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JPanel panel6 = new JPanel ();
+        panel6.setLayout (new GridLayoutManager (3, 1, new Insets (0, 0, 0, 0), -1, -1));
+        panel6.setBackground (new Color (-1));
+        panel.add (panel6, new GridConstraints (2, 2, 3, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JScrollPane scrollPane2 = new JScrollPane ();
-        panel5.add (scrollPane2, new GridConstraints (1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        panel6.add (scrollPane2, new GridConstraints (1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         preciosTable = new JTable ();
         preciosTable.setBackground (new Color (-1));
         scrollPane2.setViewportView (preciosTable);
         final JLabel label2 = new JLabel ();
         label2.setForeground (new Color (-16777216));
         label2.setText ("Precios:");
-        panel5.add (label2, new GridConstraints (0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel6.add (label2, new GridConstraints (0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JPanel panel7 = new JPanel ();
+        panel7.setLayout (new GridLayoutManager (1, 3, new Insets (0, 0, 0, 0), -1, -1));
+        panel7.setBackground (new Color (-1));
+        panel6.add (panel7, new GridConstraints (2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        anteriorPrecioButton = new JButton ();
+        anteriorPrecioButton.setBackground (new Color (-12406529));
+        anteriorPrecioButton.setEnabled (false);
+        anteriorPrecioButton.setForeground (new Color (-1));
+        anteriorPrecioButton.setText ("Anterior");
+        panel7.add (anteriorPrecioButton, new GridConstraints (0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        siguientePrecioButton = new JButton ();
+        siguientePrecioButton.setBackground (new Color (-12406529));
+        siguientePrecioButton.setForeground (new Color (-1));
+        siguientePrecioButton.setText ("Siguiente");
+        panel7.add (siguientePrecioButton, new GridConstraints (0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        precioPageLabel = new JLabel ();
+        precioPageLabel.setText ("0");
+        panel7.add (precioPageLabel, new GridConstraints (0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer3 = new Spacer ();
         panel.add (spacer3, new GridConstraints (3, 1, 2, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final JLabel label3 = new JLabel ();

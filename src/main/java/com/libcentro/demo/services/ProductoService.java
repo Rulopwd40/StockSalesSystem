@@ -1,6 +1,7 @@
 package com.libcentro.demo.services;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -10,9 +11,7 @@ import com.libcentro.demo.model.*;
 import com.libcentro.demo.model.dto.CategoriaDTO;
 import com.libcentro.demo.model.dto.PageDTO;
 import com.libcentro.demo.model.dto.ProductoDTO;
-import com.libcentro.demo.services.interfaces.IcategoriaService;
-import com.libcentro.demo.services.interfaces.IhistorialService;
-import com.libcentro.demo.services.interfaces.IprogressService;
+import com.libcentro.demo.services.interfaces.*;
 import com.libcentro.demo.utils.ProductosCSV;
 import com.libcentro.demo.utils.command.*;
 import jakarta.transaction.Transactional;
@@ -23,7 +22,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.libcentro.demo.repository.IproductoRepository;
-import com.libcentro.demo.services.interfaces.IproductoService;
+
+import javax.swing.*;
 
 
 @Service
@@ -32,6 +32,7 @@ public class ProductoService implements IproductoService {
     private final IproductoRepository productoRepository;
     private final IhistorialService historialService;
     private final IcategoriaService categoriaService;
+    private final ialertService alertService;
 
     private final ProductosCSV productosCSV = new ProductosCSV () ;
     private final CommandInvoker commandInvoker = new CommandInvoker();
@@ -39,10 +40,12 @@ public class ProductoService implements IproductoService {
     @Autowired
     public ProductoService( IproductoRepository productoRepository,
                             IhistorialService historialService,
-                            IcategoriaService categoriaService ){
+                            IcategoriaService categoriaService,
+                            ialertService alertService ){
         this.productoRepository = productoRepository;
         this.historialService = historialService;
         this.categoriaService = categoriaService;
+        this.alertService = alertService;
     }
 
     @Override
@@ -167,44 +170,55 @@ public class ProductoService implements IproductoService {
     }
 
     @Override
-    public void updateProductosBy(CategoriaDTO categoriaDto, double porcentaje) {
+    public void updateProductosBy(CategoriaDTO categoriaDto, double porcentaje){
         List<Producto> productosViejos;
 
-        if (porcentaje == 0) {
+        if ( porcentaje == 0 ) {
             throw new RuntimeException ("Porcentaje no puede ser cero.");
         }
-        if (porcentaje >= 15000){
+        if ( porcentaje >= 15000 ) {
             throw new RuntimeException ("Actualización de porcentaje excesiva, proceso abortado");
         }
 
-        if (categoriaDto == null) {
-            productosViejos = productoRepository.findAll().stream ().filter (producto -> !producto.isEliminado ()).toList ();
+        if ( categoriaDto == null ) {
+            productosViejos = productoRepository.findAll ().stream ().filter (producto -> !producto.isEliminado ()).toList ();
         } else {
-            Categoria categoria = categoriaService.getCategoria (categoriaDto.getNombre());
+            Categoria categoria = categoriaService.getCategoria (categoriaDto.getNombre ());
             productosViejos = productoRepository.findAllByCategoriaAndEliminadoFalse (categoria);
         }
 
-        IprogressService<Producto> progressService = new ProgressService<>(null, productosViejos.size());
+        List<Producto> productosNuevos = new ArrayList<> ();
+        int errCount = 0;
 
-        progressService.ejecutarProceso(productosViejos, productoViejo -> {
+        for (Producto productoViejo : productosViejos) {
             try {
-                Producto nuevoProducto = new Producto(productoViejo);
-                double nuevoPrecio = nuevoProducto.getPrecio_venta() + Math.round(nuevoProducto.getPrecio_venta() * porcentaje * 100d) / 100d;
+                Producto nuevoProducto = new Producto (productoViejo);
+                double nuevoPrecio = nuevoProducto.getPrecio_venta () + Math.round (nuevoProducto.getPrecio_venta () * porcentaje * 100d) / 100d;
 
                 // Verificar el precio antes de actualizar
-                if (nuevoPrecio >= 999999999999d) {
-                    throw new RuntimeException ("Exceso en limite de memoria en el producto: " + nuevoProducto.getCodigobarras() );
+                if ( nuevoPrecio >= 999999999999d ) {
+                    throw new RuntimeException ("Exceso en limite de memoria en el producto: " + nuevoProducto.getCodigobarras ());
                 }
 
-                nuevoProducto.setPrecio_venta(nuevoPrecio);
-
-                List<Producto> productosNuevos = Collections.singletonList(nuevoProducto);
-
-                commandInvoker.executeCommand(new UpdateProductsBy(this, productosNuevos, productosViejos, historialService));
+                nuevoProducto.setPrecio_venta (nuevoPrecio);
+                productosNuevos.add (nuevoProducto);
             } catch (RuntimeException e) {
-                throw e;  // Re-lanzar la excepción para que sea manejada en el 'done' del worker
+                errCount++;
             }
-        });
+        }
+        alertService.executeWithDialog (() -> {
+                    return commandInvoker.executeCommand (new UpdateProductsBy (this, productosNuevos, productosViejos, historialService));
+                },
+                () -> {
+                    return;
+                },
+                () ->{
+                    throw new RuntimeException ("Error al actualizar");
+                }
+                );
+
+        commandInvoker.executeCommand (new UpdateProductsBy (this, productosNuevos, productosViejos, historialService));
+        if(errCount != 0) JOptionPane.showMessageDialog (null,"Error al procesar " + errCount + " productos.","Error",JOptionPane.ERROR_MESSAGE);
     }
 
     @Override

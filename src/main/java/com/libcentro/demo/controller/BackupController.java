@@ -29,10 +29,7 @@ public class BackupController {
     public void backUpControl(){
         boolean bc= backupService.backupControl();
         if(bc){
-            int value = JOptionPane.showConfirmDialog (null, "El ultimo backup se realizó hace mas de 2 dias, crear otro?","Backup",JOptionPane.YES_NO_OPTION);
-            if (value == JOptionPane.YES_OPTION) {
                 backupService.backup();
-            }
         }
     }
 

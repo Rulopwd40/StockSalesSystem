@@ -5,10 +5,14 @@ import com.libcentro.demo.model.HistorialPrecio;
 import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.model.dto.HistorialCostoDTO;
 import com.libcentro.demo.model.dto.HistorialPrecioDTO;
+import com.libcentro.demo.model.dto.PageDTO;
 import com.libcentro.demo.repository.IhistorialCostoRepository;
 import com.libcentro.demo.repository.IhistorialPrecioRepository;
 import com.libcentro.demo.services.interfaces.IhistorialService;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -122,4 +126,27 @@ public class HistorialService implements IhistorialService {
     }
 
 
+    @Override
+    public PageDTO<HistorialPrecioDTO> findPagePrecioByProducto ( String codbar, int historialPrecioPage ){
+        Pageable pageable = PageRequest.of(historialPrecioPage, 15);
+        Page<HistorialPrecio> historialPrecio = historialPrecioRepository.findByProductoCodigobarras (codbar, pageable);
+        List<HistorialPrecioDTO> historialPrecioDTOS = historialPrecio.stream().map (HistorialPrecioDTO::new).collect(Collectors.toList());
+
+        PageDTO<HistorialPrecioDTO> pageDTO = new PageDTO<>();
+        pageDTO.setObjects (historialPrecioDTOS);
+        pageDTO.setPages (historialPrecio.getTotalPages ());
+        return pageDTO;
+    }
+
+    @Override
+    public PageDTO<HistorialCostoDTO> findPageCostoByProducto ( String codbar, int historialCostoPage ){
+        Pageable pageable = PageRequest.of(historialCostoPage, 15);
+        Page<HistorialCosto> historialCosto = historialCostoRepository.findByProductoCodigobarras (codbar, pageable);
+        List<HistorialCostoDTO> historialCostoDTOS = historialCosto.stream().map (HistorialCostoDTO::new).collect(Collectors.toList());
+
+        PageDTO<HistorialCostoDTO> pageDTO = new PageDTO<>();
+        pageDTO.setObjects (historialCostoDTOS);
+        pageDTO.setPages (historialCosto.getTotalPages ());
+        return pageDTO;
+    }
 }

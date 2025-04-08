@@ -18,10 +18,11 @@ public class CommandInvoker {
     public CommandInvoker() {
     }
 
-    public void executeCommand(Command command) {
+    public boolean executeCommand(Command command) {
         command.execute();
         commands.push(command);
         this.count++;
+        return true;
     }
 
     public void undoCommand() {
