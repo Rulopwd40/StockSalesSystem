@@ -51,4 +51,9 @@ public class SwingService implements ialertService {
         worker.execute();
         dialogoEspera.setVisible(true);
     }
+
+    @Override
+    public void alert ( String message ){
+        JOptionPane.showMessageDialog(null, message);
+    }
 }

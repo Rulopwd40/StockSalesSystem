@@ -8,4 +8,6 @@ public interface ialertService {
             Runnable onSuccess,
             Runnable onFailure
     );
+
+    void alert(String message);
 }

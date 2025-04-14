@@ -164,7 +164,9 @@ public class ImportarCSV extends JDialog {
         panel5.setLayout (new GridLayoutManager (1, 1, new Insets (0, 0, 0, 0), -1, -1));
         contentPane.add (panel5, new GridConstraints (2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         alertPane = new JTextPane ();
-        alertPane.setText ("Para una correcta asignación de valores, la forma del .CSV debe ser estrictamente:  codigo de barras | nombre  | categoria | cantidad | costo compra | precio unitario. ");
+        alertPane.setBackground (new Color (-6893350));
+        alertPane.setForeground (new Color (-16777216));
+        alertPane.setText ("Para una correcta asignación de valores, el orden de las columnas debe ser estrictamente:   \ncodigo de barras | nombre  | categoria | cantidad | costo compra | precio unitario. \n\nLos productos duplicados serán omitidos. Revise bien el archivo.");
         panel5.add (alertPane, new GridConstraints (0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension (150, 50), null, 0, false));
     }
 

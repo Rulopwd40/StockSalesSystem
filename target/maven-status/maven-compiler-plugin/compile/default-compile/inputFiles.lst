@@ -8,6 +8,7 @@ D:\Coding\demo\src\main\java\com\libcentro\demo\view\productos\StockControl.java
 D:\Coding\demo\src\main\java\com\libcentro\demo\controller\StockController.java
 D:\Coding\demo\src\main\java\com\libcentro\demo\utils\command\UpdateProductsBy.java
 D:\Coding\demo\src\main\java\com\libcentro\demo\view\menu\MenuFrame.java
+D:\Coding\demo\src\main\java\com\libcentro\demo\services\interfaces\ialertService.java
 D:\Coding\demo\src\main\java\com\libcentro\demo\utils\command\CommandInvoker.java
 D:\Coding\demo\src\main\java\com\libcentro\demo\utils\strategy\graph\ProductGraph.java
 D:\Coding\demo\src\main\java\com\libcentro\demo\exceptions\ProductExistsInDataBase.java
@@ -32,6 +33,7 @@ D:\Coding\demo\src\main\java\com\libcentro\demo\services\CategoriaService.java
 D:\Coding\demo\src\main\java\com\libcentro\demo\model\dto\HistorialPrecioDTO.java
 D:\Coding\demo\src\main\java\com\libcentro\demo\repository\IhistorialCostoRepository.java
 D:\Coding\demo\src\main\java\com\libcentro\demo\services\interfaces\IestadisticaService.java
+D:\Coding\demo\src\main\java\com\libcentro\demo\services\SwingService.java
 D:\Coding\demo\src\main\java\com\libcentro\demo\utils\limits\LimitedFloat.java
 D:\Coding\demo\src\main\java\com\libcentro\demo\model\estadisticas\Estadistica.java
 D:\Coding\demo\src\main\java\com\libcentro\demo\model\dto\HistorialCostoDTO.java
@@ -40,6 +42,7 @@ D:\Coding\demo\src\main\java\com\libcentro\demo\model\HistorialPrecio.java
 D:\Coding\demo\src\main\java\com\libcentro\demo\repository\IcategoriaRepository.java
 D:\Coding\demo\src\main\java\com\libcentro\demo\view\venta\ApfsDialog.java
 D:\Coding\demo\src\main\java\com\libcentro\demo\view\backup\BackupView.java
+D:\Coding\demo\src\main\java\com\libcentro\demo\services\TrashService.java
 D:\Coding\demo\src\main\java\com\libcentro\demo\utils\strategy\count\VentaCount.java
 D:\Coding\demo\src\main\java\com\libcentro\demo\utils\strategy\graph\GraphContext.java
 D:\Coding\demo\src\main\java\com\libcentro\demo\view\estadisticas\ReportesFrame.java
@@ -102,4 +105,5 @@ D:\Coding\demo\src\main\java\com\libcentro\demo\exceptions\EmptyFieldException.j
 D:\Coding\demo\src\main\java\com\libcentro\demo\utils\filters\DoubleFilter.java
 D:\Coding\demo\src\main\java\com\libcentro\demo\utils\command\DeleteProductCommand.java
 D:\Coding\demo\src\main\java\com\libcentro\demo\services\interfaces\IconfiguracionService.java
+D:\Coding\demo\src\main\java\com\libcentro\demo\services\interfaces\itrashService.java
 D:\Coding\demo\src\main\java\com\libcentro\demo\repository\IventaRepository.java

@@ -137,7 +137,9 @@
               </grid>
             </constraints>
             <properties>
-              <text value="Para una correcta asignación de valores, la forma del .CSV debe ser estrictamente:  codigo de barras | nombre  | categoria | cantidad | costo compra | precio unitario. "/>
+              <background color="-6893350"/>
+              <foreground color="-16777216"/>
+              <text value="Para una correcta asignación de valores, el orden de las columnas debe ser estrictamente:   &#10;codigo de barras | nombre  | categoria | cantidad | costo compra | precio unitario. &#10;&#10;Los productos duplicados serán omitidos. Revise bien el archivo."/>
             </properties>
           </component>
         </children>

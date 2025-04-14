@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Data
@@ -24,6 +25,8 @@ public class Producto {
     private double precio_venta;
     private int stock;
     private boolean eliminado;
+    @Column(nullable = true)
+    private LocalDateTime fechaEliminacion;
 
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<HistorialPrecio> historial_precios = new ArrayList<>();

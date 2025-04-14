@@ -66,6 +66,7 @@ com\libcentro\demo\controller\ProductosController$42.class
 com\libcentro\demo\view\estadisticas\HistorialFrame.class
 com\libcentro\demo\exceptions\ProductExistsInDataBase.class
 com\libcentro\demo\utils\strategy\count\CountStrategy.class
+com\libcentro\demo\services\SwingService.class
 com\libcentro\demo\view\productos\ActualizarGeneral.class
 com\libcentro\demo\model\HistorialPrecio.class
 com\libcentro\demo\controller\BackupController.class
@@ -87,6 +88,7 @@ com\libcentro\demo\controller\ProductosController$18.class
 com\libcentro\demo\controller\ReportesController$7.class
 com\libcentro\demo\controller\ProductosController$38.class
 com\libcentro\demo\view\ConfirmarDialog$1.class
+com\libcentro\demo\services\TrashService.class
 com\libcentro\demo\controller\VentaController$10.class
 com\libcentro\demo\view\productos\ActualizarUnProducto.class
 com\libcentro\demo\controller\VentaController$13.class
@@ -134,6 +136,7 @@ com\libcentro\demo\controller\ReportesController$10.class
 com\libcentro\demo\utils\limits\LimitedFloat.class
 com\libcentro\demo\utils\strategy\datefilter\DateFilterContext.class
 com\libcentro\demo\utils\format\Format.class
+com\libcentro\demo\controller\ReportesController$23.class
 com\libcentro\demo\utils\command\Command.class
 com\libcentro\demo\view\ConfirmarDialog$2.class
 com\libcentro\demo\utils\FieldAnalyzer.class
@@ -154,6 +157,7 @@ com\libcentro\demo\utils\GeneradorTicket.class
 com\libcentro\demo\controller\ProductosController$7.class
 com\libcentro\demo\controller\ProductosController$40.class
 com\libcentro\demo\controller\ProductosController$14.class
+com\libcentro\demo\services\interfaces\ialertService.class
 com\libcentro\demo\utils\strategy\count\CountContext.class
 com\libcentro\demo\view\productos\AgregarProducto$1.class
 com\libcentro\demo\view\productos\AgregarCategoria$4.class
@@ -163,6 +167,7 @@ com\libcentro\demo\controller\ProductosController$13.class
 com\libcentro\demo\controller\VentaController$4.class
 com\libcentro\demo\model\dto\CategoriaDTO.class
 com\libcentro\demo\exceptions\EmptyFieldException.class
+com\libcentro\demo\controller\ReportesController$24.class
 com\libcentro\demo\view\venta\VentaFrame.class
 com\libcentro\demo\utils\ProductosCSV$7.class
 com\libcentro\demo\services\ProgressService$1.class
@@ -176,6 +181,8 @@ com\libcentro\demo\utils\FieldAnalyzer$TipoDato.class
 com\libcentro\demo\controller\BackupController$3.class
 com\libcentro\demo\utils\strategy\datefilter\ProductoDateFilter.class
 com\libcentro\demo\utils\ProductosCSV$4.class
+com\libcentro\demo\services\SwingService$1.class
+com\libcentro\demo\services\interfaces\itrashService.class
 com\libcentro\demo\repository\IventaRepository.class
 com\libcentro\demo\utils\ProductosCSV$1.class
 com\libcentro\demo\controller\ProductosController$5.class
@@ -199,6 +206,7 @@ com\libcentro\demo\controller\ReportesController$1.class
 com\libcentro\demo\controller\VentaController$9.class
 com\libcentro\demo\view\productos\ImportarCSV.class
 com\libcentro\demo\model\HistorialCosto$Estado.class
+com\libcentro\demo\controller\ReportesController$22.class
 com\libcentro\demo\controller\ReportesController$4.class
 com\libcentro\demo\utils\format\DoubleFormat.class
 com\libcentro\demo\services\interfaces\IconfiguracionService.class
@@ -218,6 +226,7 @@ com\libcentro\demo\controller\StockController$1.class
 com\libcentro\demo\controller\ProductosController$33.class
 com\libcentro\demo\services\VentaService.class
 com\libcentro\demo\view\productos\AgregarProducto$3.class
+com\libcentro\demo\controller\ReportesController$21.class
 com\libcentro\demo\view\productos\ProductosSeleccionados.class
 com\libcentro\demo\controller\ProductosController$28.class
 com\libcentro\demo\controller\VentaController$8.class

@@ -7,8 +7,10 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public class ProductoDTO {
-    
+
+    @EqualsAndHashCode.Include
     private String codigobarras;
     private String nombre;
     private CategoriaDTO categoria;
@@ -28,6 +30,7 @@ public class ProductoDTO {
         this.stock = producto.getStock();
 
     }
+
 
 
 }

@@ -103,15 +103,18 @@ public class ProductoService implements IproductoService {
             throw new RuntimeException(e);
         }
 
+
         IprogressService<ProductoDTO> progressService = new ProgressService<>(null, productosARC.size());
 
+        if( productosARC.isEmpty ()) throw new RuntimeException ("No se encontraron productos en el archivo");
         progressService.ejecutarProceso(productosARC, productoDTO -> {
             Optional<Producto> productoOpt;
             Producto producto;
             Producto viejoProducto;
 
             try {
-                if ((productoOpt = productoRepository.findById(productoDTO.getCodigobarras())).isPresent()) {
+                productoOpt= productoRepository.findById(productoDTO.getCodigobarras());
+                if ((productoOpt.isPresent () && !productoOpt.get ().isEliminado () )) {
                     Categoria categoria= categoriaService.getCategoria (productoDTO.getCategoria().getNombre());
                     viejoProducto = new Producto(productoOpt.get());
                     producto = productoOpt.get();

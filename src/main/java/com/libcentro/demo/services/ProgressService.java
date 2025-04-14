@@ -62,7 +62,7 @@ public class ProgressService<T> implements IprogressService<T> {
                     get(); // Asegura que no hubo errores
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(null, "Error durante el procesamiento: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                    throw new RuntimeException ("Error");
+                    throw new RuntimeException ("Error: " +  e.getMessage ());
                 }
             }
         };

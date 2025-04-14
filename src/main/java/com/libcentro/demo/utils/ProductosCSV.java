@@ -7,6 +7,7 @@ import com.libcentro.demo.view.productos.TratarCategorias;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -15,6 +16,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.List;
 
 
 public class ProductosCSV {
@@ -35,35 +37,44 @@ public class ProductosCSV {
         String separador = ";";
 
         Charset charset = detectCharset(csv);
+        StringBuilder errors = new StringBuilder();
 
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(csv), charset))) {
             br.readLine();
 
             while ((linea = br.readLine()) != null) {
-                String[] datos = linea.split(separador);
-
-                CategoriaDTO categoria= categoriaService.getCategoriaDTO (datos[2]);
-                if(categoria==null) {
-                    productosATratar.putIfAbsent(datos[2],new ArrayList<ProductoDTO>());
-                }
-                ProductoDTO producto = getProductoDTO(datos, categoria);
-                if(categoria==null) {
-                    productosATratar.get(datos[2]).add(producto);
-                }else{
-                    productos.add(producto);
+                String[] datos = linea.split (separador);
+                try {
+                    validarLinea (datos);
+                    CategoriaDTO categoria;
+                    if ( !datos[2].isEmpty () ) categoria = categoriaService.getCategoriaDTO (datos[2]);
+                    else categoria = null;
+                    if ( categoria == null ) {
+                        productosATratar.putIfAbsent (datos[2], new ArrayList<ProductoDTO> ());
+                    }
+                    ProductoDTO producto = getProductoDTO (datos, categoria);
+                    if ( categoria == null ) {
+                        productosATratar.get (datos[2]).add (producto);
+                    } else {
+                        productos.add (producto);
+                    }
+                }catch (IllegalArgumentException ex) {
+                    errors.append (datos[0]).append (";").append (ex.getMessage ()).append ("\n");
                 }
             }
             if(!productosATratar.isEmpty()) {
                 tc= tratarCategorias();
+
+                table = tc.getTablaCategorias();
+                tableModel = (DefaultTableModel) tc.getTablaCategorias().getModel();
+                for(String categoria : productosATratar.keySet()) {
+                    tableModel.addRow(new Object[]{categoria});
+                }
+                tc.setVisible(true);
                 SwingUtilities.invokeLater (new Runnable () {
                     public void run() {
-                        table = tc.getTablaCategorias();
-                        tableModel = (DefaultTableModel) tc.getTablaCategorias().getModel();
-                        for(String categoria : productosATratar.keySet()) {
-                            tableModel.addRow(new Object[]{categoria});
-                        }
-                        tc.setVisible(true);
+
                     }
                 });
 
@@ -72,8 +83,133 @@ public class ProductosCSV {
             throw new RuntimeException(e);
         }
 
+        if(!errors.isEmpty ()) tablaErrores(errors);
 
+        List<String> codigos = eliminarDuplicadosPorCodigo (productos);
+
+        if(!codigos.isEmpty()) tablaDuplicados(codigos);
         return productos;
+    }
+
+    private void tablaDuplicados(List<String> codigosDuplicados) {
+        // Crear el modelo de la tabla
+        String[] columnas = {"Código de Barras"};
+        DefaultTableModel model = new DefaultTableModel(columnas, 0);
+
+        // Agregar las filas con los códigos duplicados
+        for (String codigo : codigosDuplicados) {
+            model.addRow(new Object[]{codigo});
+        }
+
+        // Crear la tabla
+        JTable tabla = new JTable(model);
+
+        // Colocar la tabla dentro de un JScrollPane (para agregar scroll si es necesario)
+        JScrollPane scrollPane = new JScrollPane(tabla);
+
+        // Crear el label con el mensaje
+        JLabel label = new JLabel("Estos productos no fueron tratados al estar duplicados", JLabel.CENTER);
+        label.setFont(new Font("Arial", Font.BOLD, 14)); // Puedes cambiar la fuente si lo deseas
+        label.setForeground(Color.RED); // Color rojo para destacar el mensaje
+
+        // Crear una ventana (JFrame)
+        JFrame frame = new JFrame("Códigos Duplicados");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setSize(500, 300);  // Tamaño de la ventana
+        frame.setLocationRelativeTo(null);  // Centrar la ventana
+
+        // Establecer un layout para organizar el label y la tabla
+        frame.setLayout(new BorderLayout());
+
+        // Agregar el label en la parte superior
+        frame.add(label, BorderLayout.NORTH);
+        // Agregar el JScrollPane con la tabla en la parte central
+        frame.add(scrollPane, BorderLayout.CENTER);
+        label.requestFocusInWindow();
+        // Hacer visible la ventana
+        frame.setVisible(true);
+
+        frame.toFront();
+        frame.requestFocus();
+    }
+
+    public List<String> eliminarDuplicadosPorCodigo(List<ProductoDTO> productos) {
+        Set<String> codigosVistos = new HashSet<>();
+        List<String> codigosDuplicados = new ArrayList<>();
+
+        Iterator<ProductoDTO> iter = productos.iterator();
+        while (iter.hasNext()) {
+            ProductoDTO producto = iter.next();
+            String codigo = producto.getCodigobarras();
+
+            if (!codigosVistos.add(codigo)) { // Si el código ya fue visto, es un duplicado
+                codigosDuplicados.add(codigo); // Agregar código duplicado
+                iter.remove(); // Eliminar el producto duplicado de la lista
+            }
+        }
+
+        return codigosDuplicados; // Retornar la lista de códigos duplicados
+    }
+
+    private void tablaErrores(StringBuilder errors) {
+        String[] lineasDeError = errors.toString().split("\n");
+
+        String[] columnas = {"#","Mensaje de error"};
+
+        Object[][] datos = new Object[lineasDeError.length][2];
+        for (int i = 0; i < lineasDeError.length; i++) {
+            String[] error = lineasDeError[i].split (";");
+            datos[i][0] = error[0];
+            datos[i][1] = error[1];
+        }
+
+        JTable tabla = new JTable(datos, columnas);
+        JScrollPane scrollPane = new JScrollPane(tabla);
+
+        JFrame frame = new JFrame("Errores de Validación");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setSize(600, 300);
+        frame.setLocationRelativeTo(null); // Centrar ventana
+        frame.add(scrollPane);
+        frame.setVisible(true);
+    }
+
+    private void validarLinea(String[] datos) {
+        if (datos.length != 6) {
+            throw new IllegalArgumentException("La línea debe tener exactamente 6 campos.");
+        }
+
+        if (!datos[0].matches("\\d{5,20}")) {
+            throw new IllegalArgumentException("Código de barras inválido. Debe contener entre 5 y 20 dígitos numéricos.");
+        }
+
+        for (int i = 0; i < datos.length; i++) {
+            if (i != 2 && (datos[i].isEmpty() || datos[i].length() >= 64)) {
+                throw new IllegalArgumentException("El campo en la posición " + i + " está vacío o supera el límite de 64 caracteres.");
+            }
+        }
+
+        try {
+            int cantidad = Integer.parseInt(datos[3]);
+            double costo = Double.parseDouble(datos[4].replace(",", "."));
+            double precio = Double.parseDouble(datos[5].replace(",", "."));
+
+            if (cantidad < 0) {
+                throw new IllegalArgumentException("La cantidad no puede ser negativa.");
+            }
+            if (costo < 0) {
+                throw new IllegalArgumentException("El costo de compra no puede ser negativo.");
+            }
+            if (precio < 0) {
+                throw new IllegalArgumentException("El precio unitario no puede ser negativo.");
+            }
+            if (precio < costo) {
+                throw new IllegalArgumentException("El precio unitario no puede ser menor al costo de compra.");
+            }
+
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Error al convertir cantidad, costo o precio: deben ser valores numéricos válidos.");
+        }
     }
 
     private TratarCategorias tratarCategorias (){

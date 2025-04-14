@@ -33,7 +33,8 @@ Name: "{app}\python"
 
 [Files]
 Source: "D:\Coding\demo\target\demo-1.0.1.jar"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\Coding\demo\src\main\python\dist\generar_grafica.exe"; DestDir: "{app}\python"; Flags: ignoreversion
+Source: "D:\Coding\demo\dist\generar_grafica.exe"; DestDir: "{app}\python"; Flags: ignoreversion
+Source: "D:\Coding\demo\centro.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
@@ -41,7 +42,7 @@ Source: "D:\Coding\demo\src\main\python\dist\generar_grafica.exe"; DestDir: "{ap
 
 [Icons]
 ; Crear un acceso directo en el escritorio
-Name: "{userdesktop}\Libreria Centro App"; Filename: "{app}\demo-0.0.1-SNAPSHOT.jar"; WorkingDir: "{app}"; IconFilename: "{app}\demo-0.0.1-SNAPSHOT.jar"; IconIndex: 0; Comment: "Acceso directo a Libreria Centro App"; Tasks: desktopicon
+Name: "{userdesktop}\Libreria Centro App"; Filename: "{app}\demo-1.0.1.jar"; WorkingDir: "{app}"; IconFilename: "{app}\centro.ico"; IconIndex: 0; Comment: "Acceso directo a Libreria Centro App"; Tasks: desktopicon
 
 [Tasks]
 ; Opción para permitir al usuario seleccionar la creación del acceso directo en el escritorio
@@ -49,4 +50,4 @@ Name: desktopicon; Description: "Crear acceso directo en el escritorio"; GroupDe
 
 [Run]
 ; Ejecutar el archivo JAR principal después de la instalación
-Filename: "javaw.exe"; Parameters: "-jar {app}\demo-0.0.1-SNAPSHOT.jar"; StatusMsg: "Iniciando {#MyAppName}..."; Flags: nowait postinstall skipifsilent
+Filename: "javaw.exe"; Parameters: "-jar {app}\demo-1.0.1.jar"; StatusMsg: "Iniciando {#MyAppName}..."; Flags: nowait postinstall skipifsilent

@@ -1,6 +1,7 @@
 package com.libcentro.demo.repository;
 
 import com.libcentro.demo.model.Categoria;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import com.libcentro.demo.model.Producto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -35,4 +37,8 @@ public interface IproductoRepository extends JpaRepository<Producto, String> {
     @Query("UPDATE Producto p SET p.categoria = NULL WHERE p.categoria.id = :categoriaId AND p.eliminado = false ")
     void setCategoriaNull(@Param("categoriaId") Long categoriaId);
 
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Producto p WHERE p.eliminado = true AND p.fechaEliminacion < :fechaLimite")
+    int eliminarProductosEliminadosHaceMasDe(@Param("fechaLimite") LocalDateTime fechaLimite);
 }
