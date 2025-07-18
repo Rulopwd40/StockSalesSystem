@@ -12,6 +12,7 @@ public class ConfiguracionView extends JFrame {
     private JButton guardarButton;
     private JTable configTable;
     private JPanel panel;
+    private JButton ticketsButton;
 
     public ConfiguracionView (){
         super ("Configuracion");
@@ -28,6 +29,10 @@ public class ConfiguracionView extends JFrame {
 
     public JButton getGuardarButton (){
         return guardarButton;
+    }
+
+    public JButton getTicketsButton (){
+        return ticketsButton;
     }
 
     public JTable getConfigTable (){
@@ -55,7 +60,7 @@ public class ConfiguracionView extends JFrame {
         final JPanel panel1 = new JPanel ();
         panel1.setLayout (new GridLayoutManager (1, 1, new Insets (0, 0, 0, 0), -1, -1));
         panel1.setBackground (new Color (-1));
-        panel.add (panel1, new GridConstraints (0, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel.add (panel1, new GridConstraints (0, 1, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JLabel label1 = new JLabel ();
         label1.setForeground (new Color (-16777216));
         label1.setText ("Configuracion");
@@ -72,8 +77,6 @@ public class ConfiguracionView extends JFrame {
         scrollPane1.setViewportView (configTable);
         final Spacer spacer1 = new Spacer ();
         panel.add (spacer1, new GridConstraints (1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        final Spacer spacer2 = new Spacer ();
-        panel.add (spacer2, new GridConstraints (1, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final JPanel panel3 = new JPanel ();
         panel3.setLayout (new GridLayoutManager (1, 3, new Insets (0, 0, 0, 0), -1, -1));
         panel3.setBackground (new Color (-1));
@@ -83,13 +86,25 @@ public class ConfiguracionView extends JFrame {
         cancelarButton.setForeground (new Color (-12406529));
         cancelarButton.setText ("Cancelar");
         panel3.add (cancelarButton, new GridConstraints (0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer3 = new Spacer ();
-        panel3.add (spacer3, new GridConstraints (0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        final Spacer spacer2 = new Spacer ();
+        panel3.add (spacer2, new GridConstraints (0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         guardarButton = new JButton ();
         guardarButton.setBackground (new Color (-12406529));
         guardarButton.setForeground (new Color (-1));
         guardarButton.setText ("Guardar");
         panel3.add (guardarButton, new GridConstraints (0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JPanel panel4 = new JPanel ();
+        panel4.setLayout (new GridLayoutManager (2, 1, new Insets (0, 0, 0, 0), -1, -1));
+        panel4.setBackground (new Color (-1));
+        panel4.setForeground (new Color (-1));
+        panel.add (panel4, new GridConstraints (1, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        ticketsButton = new JButton ();
+        ticketsButton.setBackground (new Color (-12406529));
+        ticketsButton.setForeground (new Color (-1));
+        ticketsButton.setText ("Tickets");
+        panel4.add (ticketsButton, new GridConstraints (0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer3 = new Spacer ();
+        panel4.add (spacer3, new GridConstraints (1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     }
 
     /**

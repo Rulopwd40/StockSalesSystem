@@ -11,21 +11,29 @@ import java.util.Date;
 
 public class GeneradorTicket implements Printable {
 
-    private static final int ANCHO_LINEA = 40;
-    private static final String SEPARADOR = "-".repeat(ANCHO_LINEA);
-    private static final int ANCHO_TICKET = 55;
+    private int anchoLinea;
+    private int anchoTicket;
+    private String separador;
 
-    private static final String TEXTO_TICKET = "Libreria Centro\n" +
-            "Fecha: %s\n" +
-            "Cod.: %s\n" +
+    private String textoTicket =
+            "Libreria Centro\n" +
+            "Fecha: {{fecha}}\n" +
+            "Cod.: {{idVenta}}\n" +
             "-----------------------------\n" +
-            "%s\n" +
+            "{{lineas}}\n" +
             "-----------------------------\n" +
-            "Total: %s\n";
+            "Total: {{total}}\n";
 
     String ticket;
 
     public GeneradorTicket() {
+        getData();
+    }
+
+    private void getData (){
+        int anchoLinea = 40;
+        int anchoTicket = 55;
+        String separador = "-".repeat(anchoLinea);
     }
 
     public String generarTicket(Venta venta) {
@@ -53,7 +61,7 @@ public class GeneradorTicket implements Printable {
             }
 
             // Alinear el total a la derecha
-            productos.append(String.format("%" + ANCHO_TICKET + "s\n", total));
+            productos.append(String.format("%" + anchoTicket + "s\n", total));
         }
         for (ProductoFStock productoF : venta.getProductoFStocks()) {
             String nombreF = productoF.getNombre().toUpperCase();
@@ -75,7 +83,7 @@ public class GeneradorTicket implements Printable {
             }
 
             // Alinear el total a la derecha
-            productos.append(String.format("%" + ANCHO_TICKET + "s\n", totalF));
+            productos.append(String.format("%" + anchoTicket + "s\n", totalF));
         }
 
         // Calcular el total final y formatearlo
@@ -86,10 +94,13 @@ public class GeneradorTicket implements Printable {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         String fechaFormateada = sdf.format(new Date());
 
+        ticket = textoTicket.replace ("{{fecha}}",fechaFormateada);
+        ticket = ticket.replace ("{{idVenta}}", venta.getId() == null? "NULL" : venta.getId());
+        ticket = ticket.replace ("{{productos}}", productos.toString());
+        ticket = ticket.replace ( "{{total}}", totalFormateado);
+        ticket = ticket.replace ("{{linea}}", separador);
 
-        ticket = String.format(TEXTO_TICKET, fechaFormateada, venta.getId(), productos.toString(), totalFormateado);
-
-        System.out.println(ticket);
+        //System.out.println(ticket);
         return ticket;
     }
 
@@ -168,5 +179,7 @@ public class GeneradorTicket implements Printable {
         return PAGE_EXISTS;
     }
 
-
+    public void setTextoTicket(String texto){
+        textoTicket= texto;
+    }
 }
