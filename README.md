@@ -16,13 +16,24 @@
   - Automatic product inventory update.
   - Discounts Applied to Specific or All Products.
 
-- **Reports(WIP)**:
+- **Reports**:
   - Sales, Earnings and Products stats generation.
   - Refund generation.
 
-## Technologies:
+- **Configuration**:
+   - Configure application settings, such as:
+    - Custom paths
+    - Minimum stock alert thresholds
+  - Personalize ticket layout and content.
 
-- **Backend**: Java SpringBoot to allow a Web version, Python with matplotlib for graphic generation and pandas for csv reading.
+- **Backup**:
+  - Manage application backups:
+    - Create new backups
+    - Delete existing backups
+
+## Technologies
+
+- **Backend**: Java SpringBoot to allow a future Web version, Python with matplotlib for graphic generation and pandas for csv reading.
 - **Frontend**: Java Swing for GUI.
 - **ORM**: Hibernate.
 - **DataBase**: SQLite.
