@@ -24,6 +24,11 @@
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.13.1</version>
+		</dependency>
 		<!-- SQLite JDBC (opcional si decides usar SQLite en lugar de H2) -->
 		<dependency>
 			<groupId>org.xerial</groupId>

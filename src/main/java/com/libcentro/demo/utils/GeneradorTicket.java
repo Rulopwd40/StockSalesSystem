@@ -1,8 +1,10 @@
 package com.libcentro.demo.utils;
 
+import com.libcentro.demo.config.AppConfig;
 import com.libcentro.demo.model.ProductoFStock;
 import com.libcentro.demo.model.Venta;
 import com.libcentro.demo.model.Venta_Producto;
+import com.libcentro.demo.model.json.TicketData;
 
 import java.awt.*;
 import java.awt.print.*;
@@ -11,34 +13,19 @@ import java.util.Date;
 
 public class GeneradorTicket implements Printable {
 
-    private int anchoLinea;
-    private int anchoTicket;
-    private String separador;
-
-    private String textoTicket =
-            "Libreria Centro\n" +
-            "Fecha: {{fecha}}\n" +
-            "Cod.: {{idVenta}}\n" +
-            "-----------------------------\n" +
-            "{{lineas}}\n" +
-            "-----------------------------\n" +
-            "Total: {{total}}\n";
-
+    TicketData ticketData;
     String ticket;
 
     public GeneradorTicket() {
-        getData();
     }
 
-    private void getData (){
-        int anchoLinea = 40;
-        int anchoTicket = 55;
-        String separador = "-".repeat(anchoLinea);
-    }
 
-    public String generarTicket(Venta venta) {
+
+    public String generarTicket( Venta venta, TicketData ticketData ) {
+        this.ticketData = ticketData;
+        int caracteres = (int) (ticketData.getAncho ()/ 2.4);
+        String separador = "-".repeat(caracteres);;
         StringBuilder productos = new StringBuilder();
-
 
         for (Venta_Producto ventaProducto : venta.getVenta_productos()) {
             String nombre = ventaProducto.getProducto().getNombre().toUpperCase();
@@ -61,7 +48,7 @@ public class GeneradorTicket implements Printable {
             }
 
             // Alinear el total a la derecha
-            productos.append(String.format("%" + anchoTicket + "s\n", total));
+            productos.append(String.format("%" + ticketData.getAncho () + "s\n", total));
         }
         for (ProductoFStock productoF : venta.getProductoFStocks()) {
             String nombreF = productoF.getNombre().toUpperCase();
@@ -83,7 +70,7 @@ public class GeneradorTicket implements Printable {
             }
 
             // Alinear el total a la derecha
-            productos.append(String.format("%" + anchoTicket + "s\n", totalF));
+            productos.append(String.format("%" + ticketData.getAncho () + "s\n", totalF));
         }
 
         // Calcular el total final y formatearlo
@@ -94,7 +81,7 @@ public class GeneradorTicket implements Printable {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         String fechaFormateada = sdf.format(new Date());
 
-        ticket = textoTicket.replace ("{{fecha}}",fechaFormateada);
+        ticket = ticketData.getContenido ().replace ("{{fecha}}",fechaFormateada);
         ticket = ticket.replace ("{{idVenta}}", venta.getId() == null? "NULL" : venta.getId());
         ticket = ticket.replace ("{{productos}}", productos.toString());
         ticket = ticket.replace ( "{{total}}", totalFormateado);
@@ -109,7 +96,7 @@ public class GeneradorTicket implements Printable {
         PageFormat pf = job.defaultPage();
         Paper paper = new Paper();
 
-        double width = 56 * 2.83;
+        double width = ticketData.getAncho() * 2.83;
         double height = 10000;
         paper.setSize(width, height);
 
@@ -179,7 +166,4 @@ public class GeneradorTicket implements Printable {
         return PAGE_EXISTS;
     }
 
-    public void setTextoTicket(String texto){
-        textoTicket= texto;
-    }
 }
