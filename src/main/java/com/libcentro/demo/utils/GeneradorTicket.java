@@ -1,6 +1,5 @@
 package com.libcentro.demo.utils;
 
-import com.libcentro.demo.config.AppConfig;
 import com.libcentro.demo.model.ProductoFStock;
 import com.libcentro.demo.model.Venta;
 import com.libcentro.demo.model.Venta_Producto;
@@ -48,7 +47,8 @@ public class GeneradorTicket implements Printable {
             }
 
             // Alinear el total a la derecha
-            productos.append(String.format("%" + ticketData.getAncho () + "s\n", total));
+            int anchoCaracteres = (int) (ticketData.getAncho() / 2.4);
+            productos.append(String.format("%" + anchoCaracteres + "s\n", total));
         }
         for (ProductoFStock productoF : venta.getProductoFStocks()) {
             String nombreF = productoF.getNombre().toUpperCase();
@@ -70,7 +70,9 @@ public class GeneradorTicket implements Printable {
             }
 
             // Alinear el total a la derecha
-            productos.append(String.format("%" + ticketData.getAncho () + "s\n", totalF));
+            //productos.append(String.format("%" + ticketData.getAncho () + "s\n", totalF));
+            int anchoCaracteres = (int) (ticketData.getAncho() / 2.4);
+            productos.append(String.format("%" + anchoCaracteres + "s\n", totalF));
         }
 
         // Calcular el total final y formatearlo
@@ -81,12 +83,14 @@ public class GeneradorTicket implements Printable {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         String fechaFormateada = sdf.format(new Date());
 
-        ticket = ticketData.getContenido ().replace ("{{fecha}}",fechaFormateada);
-        ticket = ticket.replace ("{{idVenta}}", venta.getId() == null? "NULL" : venta.getId());
-        ticket = ticket.replace ("{{productos}}", productos.toString());
-        ticket = ticket.replace ( "{{total}}", totalFormateado);
-        ticket = ticket.replace ("{{linea}}", separador);
+        ticket = ticketData.getContenido()
+                .replace("{{fecha}}", fechaFormateada)
+                .replace("{{idVenta}}", venta.getId() == null ? "NULL" : venta.getId())
+                .replace("{{productos}}", productos.toString())
+                .replace("{{total}}", totalFormateado)
+                .replace("{{linea}}", separador);
 
+        ticket = aplicarAlineacion(ticket, ticketData.getAncho());
         //System.out.println(ticket);
         return ticket;
     }
@@ -130,7 +134,11 @@ public class GeneradorTicket implements Printable {
         g2d.setFont(font);
 
         int y = 20;
-        int ticketWidth = 158;
+
+        // Convertir mm a puntos para el ancho de impresión
+        double anchoMm = ticketData.getAncho();
+        int ticketWidth = (int) ((anchoMm / 25.4) * 72);
+
         int rightMargin = 10;
         int textX = 10;
 
@@ -166,4 +174,40 @@ public class GeneradorTicket implements Printable {
         return PAGE_EXISTS;
     }
 
+    public String aplicarAlineacion(String contenido, double anchoMm) {
+        int ancho = mmToChars(anchoMm);
+        StringBuilder resultado = new StringBuilder();
+
+        for (String linea : contenido.split("\n")) {
+            if (linea.startsWith("{{C}}")) {
+                resultado.append(centerAligned(linea.substring(5), ancho)).append("\n");
+            } else if (linea.startsWith("{{R}}")) {
+                resultado.append(rightAligned(linea.substring(5), ancho)).append("\n");
+            } else {
+                resultado.append(linea).append("\n"); // Línea sin marcador
+            }
+        }
+
+        return resultado.toString();
+    }
+
+    public String rightAligned(String text, double anchoMm) {
+        if (text == null) text = "";
+        int chars = mmToChars(anchoMm);
+        if (text.length() > chars) {
+            text = text.substring(0, chars);
+        }
+        return String.format("%" + chars + "s", text);
+    }
+
+    public String centerAligned(String text, double anchoMm) {
+        int width = mmToChars(anchoMm);
+        int padding = (width - text.length()) / 2;
+        return " ".repeat(Math.max(0, padding)) + text;
+    }
+
+    public int mmToChars(double mm) {
+        double mmPorCaracter = 1.4; // puede variar según impresora y fuente
+        return (int) (mm / mmPorCaracter);
+    }
 }

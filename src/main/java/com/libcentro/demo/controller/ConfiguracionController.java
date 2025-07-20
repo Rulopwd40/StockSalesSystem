@@ -199,7 +199,19 @@ public class ConfiguracionController {
                 textAddComponent("linea");
             }
         });
+        ticketDialog.getCentroButton ().addActionListener (new ActionListener () {
+            @Override
+            public void actionPerformed ( ActionEvent e ){
+                textAddComponent("C");
+            }
+        });
+        ticketDialog.getFinButton ().addActionListener (new ActionListener () {
 
+            @Override
+            public void actionPerformed ( ActionEvent e ){
+                textAddComponent("R");
+            }
+        });
         ticketDialog.getGuardarButton ().addActionListener (new ActionListener () {
             @Override
             public void actionPerformed ( ActionEvent e ){
@@ -352,5 +364,6 @@ public class ConfiguracionController {
 
         return fechaActual + "-" + cuenta;
     }
+
 
 }

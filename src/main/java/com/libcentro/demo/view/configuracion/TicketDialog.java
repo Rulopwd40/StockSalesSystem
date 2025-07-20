@@ -24,6 +24,8 @@ public class TicketDialog extends JDialog {
     private JButton reestablecerButton;
     private JPanel ticketPanel;
     private JButton pruebaButton;
+    private JButton finButton;
+    private JButton centroButton;
 
     public TicketDialog (){
         setContentPane (panel);
@@ -34,6 +36,8 @@ public class TicketDialog extends JDialog {
         pack ();
         getRootPane ().setDefaultButton (buttonOK);
         previewArea.setBorder (BorderFactory.createLineBorder (Color.BLACK));
+        Font printFont = new Font ("Monospaced", Font.PLAIN, 10);
+        previewArea.setFont (printFont);
     }
 
     public JPanel getTicketPanel (){
@@ -94,6 +98,14 @@ public class TicketDialog extends JDialog {
 
     public JButton getReestablecerButton (){
         return reestablecerButton;
+    }
+
+    public JButton getFinButton (){
+        return finButton;
+    }
+
+    public JButton getCentroButton (){
+        return centroButton;
     }
 
     {
@@ -171,26 +183,30 @@ public class TicketDialog extends JDialog {
         final Spacer spacer2 = new Spacer ();
         panel5.add (spacer2, new GridConstraints (1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final JPanel panel6 = new JPanel ();
-        panel6.setLayout (new GridLayoutManager (1, 4, new Insets (0, 0, 0, 0), -1, -1));
+        panel6.setLayout (new GridLayoutManager (1, 5, new Insets (0, 0, 0, 0), -1, -1));
         panel6.setBackground (new Color (-1));
         panel.add (panel6, new GridConstraints (2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         guardarButton = new JButton ();
         guardarButton.setBackground (new Color (-12406529));
         guardarButton.setForeground (new Color (-1));
         guardarButton.setText ("Guardar Ticket");
-        panel6.add (guardarButton, new GridConstraints (0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel6.add (guardarButton, new GridConstraints (0, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer3 = new Spacer ();
-        panel6.add (spacer3, new GridConstraints (0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        panel6.add (spacer3, new GridConstraints (0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         reestablecerButton = new JButton ();
         reestablecerButton.setBackground (new Color (-1));
         reestablecerButton.setForeground (new Color (-12406529));
         reestablecerButton.setText ("Reestablecer");
-        panel6.add (reestablecerButton, new GridConstraints (0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel6.add (reestablecerButton, new GridConstraints (0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         pruebaButton = new JButton ();
         pruebaButton.setBackground (new Color (-12406529));
         pruebaButton.setForeground (new Color (-1));
         pruebaButton.setText ("Impresión de Prueba");
         panel6.add (pruebaButton, new GridConstraints (0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label3 = new JLabel ();
+        label3.setForeground (new Color (-3332066));
+        label3.setText ("Se recomienda hacer una impresión de prueba");
+        panel6.add (label3, new GridConstraints (0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer4 = new Spacer ();
         panel.add (spacer4, new GridConstraints (1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final Spacer spacer5 = new Spacer ();
@@ -200,7 +216,7 @@ public class TicketDialog extends JDialog {
         panel7.setBackground (new Color (-1));
         panel.add (panel7, new GridConstraints (0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JPanel panel8 = new JPanel ();
-        panel8.setLayout (new GridLayoutManager (3, 2, new Insets (0, 0, 0, 0), -1, -1));
+        panel8.setLayout (new GridLayoutManager (4, 2, new Insets (0, 0, 0, 0), -1, -1));
         panel8.setBackground (new Color (-1));
         panel8.setForeground (new Color (-16777216));
         panel7.add (panel8, new GridConstraints (0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -231,21 +247,36 @@ public class TicketDialog extends JDialog {
         lineaButton.setText ("Insertar Linea");
         panel8.add (lineaButton, new GridConstraints (2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel9 = new JPanel ();
-        panel9.setLayout (new GridLayoutManager (1, 1, new Insets (0, 0, 0, 0), -1, -1));
+        panel9.setLayout (new GridLayoutManager (1, 2, new Insets (0, 0, 0, 0), -1, -1));
         panel9.setBackground (new Color (-1));
-        panel7.add (panel9, new GridConstraints (0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        panel9.setBorder (BorderFactory.createTitledBorder (null, "Medidas(mm)", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        panel8.add (panel9, new GridConstraints (3, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel9.setBorder (BorderFactory.createTitledBorder (null, "Alineación", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        finButton = new JButton ();
+        finButton.setBackground (new Color (-12406529));
+        finButton.setForeground (new Color (-1));
+        finButton.setText ("Fin");
+        panel9.add (finButton, new GridConstraints (0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        centroButton = new JButton ();
+        centroButton.setBackground (new Color (-12406529));
+        centroButton.setForeground (new Color (-1));
+        centroButton.setText ("Centro");
+        panel9.add (centroButton, new GridConstraints (0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel10 = new JPanel ();
-        panel10.setLayout (new GridLayoutManager (3, 2, new Insets (0, 0, 0, 0), -1, -1));
+        panel10.setLayout (new GridLayoutManager (1, 1, new Insets (0, 0, 0, 0), -1, -1));
         panel10.setBackground (new Color (-1));
-        panel9.add (panel10, new GridConstraints (0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel7.add (panel10, new GridConstraints (0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel10.setBorder (BorderFactory.createTitledBorder (null, "Medidas(mm)", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        final JPanel panel11 = new JPanel ();
+        panel11.setLayout (new GridLayoutManager (3, 2, new Insets (0, 0, 0, 0), -1, -1));
+        panel11.setBackground (new Color (-1));
+        panel10.add (panel11, new GridConstraints (0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         anchoField = new JTextField ();
         anchoField.setBackground (new Color (-1));
-        panel10.add (anchoField, new GridConstraints (0, 0, 3, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension (150, -1), null, 0, false));
-        final JLabel label3 = new JLabel ();
-        label3.setForeground (new Color (-16777216));
-        label3.setText ("Ancho");
-        panel10.add (label3, new GridConstraints (0, 1, 3, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel11.add (anchoField, new GridConstraints (0, 0, 3, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension (150, -1), null, 0, false));
+        final JLabel label4 = new JLabel ();
+        label4.setForeground (new Color (-16777216));
+        label4.setText ("Ancho");
+        panel11.add (label4, new GridConstraints (0, 1, 3, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
