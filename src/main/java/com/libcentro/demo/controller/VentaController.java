@@ -2,10 +2,7 @@ package com.libcentro.demo.controller;
 
 import com.libcentro.demo.exceptions.EmptyFieldException;
 import com.libcentro.demo.exceptions.InsufficientStockException;
-import com.libcentro.demo.model.dto.ProductoDTO;
-import com.libcentro.demo.model.dto.ProductoFStockDTO;
-import com.libcentro.demo.model.dto.VentaDTO;
-import com.libcentro.demo.model.dto.Venta_ProductoDTO;
+import com.libcentro.demo.model.dto.*;
 import com.libcentro.demo.services.ProductoService;
 import com.libcentro.demo.services.VentaService;
 import com.libcentro.demo.services.interfaces.IproductoService;
@@ -20,6 +17,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
@@ -38,13 +37,18 @@ public class VentaController {
 
     private final StockController stockController;
 
-    VentaDTO venta;
-    VentaFrame ventaFrame;
-    ViewController viewController;
+    //Venta
+    private VentaDTO venta;
+    private VentaFrame ventaFrame;
+    private ViewController viewController;
     private JTable tableVenta;
     private DefaultTableModel ventaTableModel;
-    ApfsDialog apfsDialog;
+    private ApfsDialog apfsDialog;
 
+    //Busqueda
+    private PageDTO<ProductoDTO> pageDTO;
+    private JTable tableProducto;
+    private DefaultTableModel productoTableModel;
 
     @Autowired
     public VentaController(@Lazy ViewController viewController, VentaService ventaService, ProductoService productoService, StockController stockController) {
@@ -52,6 +56,7 @@ public class VentaController {
         this.ventaService = ventaService;
         this.productoService = productoService;
         this.stockController = stockController;
+
     }
 
     void openVentaFrame() {
@@ -60,6 +65,9 @@ public class VentaController {
             ventaFrame = new VentaFrame();
             ventaFrame.setVisible(true);
             tableVenta=ventaFrame.getTable();
+
+            tableProducto=ventaFrame.getProductoTable ();
+
             // Venta Listeners
             setVentaListeners();
 
@@ -219,7 +227,43 @@ public class VentaController {
                 vender();
             }
         });
+
+        ventaFrame.getBuscarField ().getDocument ().addDocumentListener (new DocumentListener () {
+            @Override
+            public void insertUpdate ( DocumentEvent e ){
+                buscarProducto();
+            }
+
+            @Override
+            public void removeUpdate ( DocumentEvent e ){
+                buscarProducto();
+
+            }
+
+            @Override
+            public void changedUpdate ( DocumentEvent e ){
+                buscarProducto();
+
+            }
+        });
+
+        tableProducto.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2 && tableProducto.getSelectedRow() != -1) {
+                    int filaSeleccionada = tableProducto.getSelectedRow();
+
+                    // Obtener algún valor de la fila, por ejemplo, la primera columna
+                    String cod = (String) tableProducto.getValueAt(filaSeleccionada, 0);
+
+                    // Acción que quieras realizar
+                    agregarProducto(cod);
+                }
+            }
+        });
     }
+
+
 
     private void openApfsDialog() {
         apfsDialog = new ApfsDialog();
@@ -346,6 +390,17 @@ public class VentaController {
 
         updateTableVenta();
     }
+    private void agregarProducto ( String cod ){
+        try {
+            int cantidad = Integer.parseInt (JOptionPane.showInputDialog ("Seleccione cantidad:", 1));
+            agregarProducto (cod,cantidad);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Ingrese un valor entero");
+            return;
+        } catch (RuntimeException e) {
+            JOptionPane.showMessageDialog(null, "No se puede agregar el producto: " + e.getMessage());
+        }
+    }
 
     //Eliminar
     private void eliminarProducto() {
@@ -364,6 +419,24 @@ public class VentaController {
         } else {
             JOptionPane.showMessageDialog(null, "Por favor, selecciona un producto para eliminar.");
         }
+    }
+
+    //Buscar
+    private void buscarProducto(){
+        String filter = ventaFrame.getBuscarField ().getText ();
+        if(filter.length () <3) return;
+
+        DefaultTableModel productoModel = (DefaultTableModel) ventaFrame.getProductoTable ().getModel ();
+        productoModel.setRowCount(0);
+        pageDTO = productoService.productosByPage (0,filter,false,50,false);
+        pageDTO.getObjects ().forEach (productoDTO -> {
+            productoModel.addRow (new Object[]{
+                    productoDTO.getCodigobarras (),
+                    productoDTO.getNombre (),
+                    productoDTO.getPrecio_venta (),
+                    productoDTO.getStock ()
+            });
+        });
     }
 
     private void updateTableVenta(){
