@@ -39,4 +39,12 @@ public class ProductoFStock {
         this.cantidad = productoFStockDTO.getCantidad();
         this.descuento = productoFStockDTO.getDescuento();
     }
+
+    public ProductoFStock ( double descuento, int cantidad, double precio_venta, String nombre, int id ){
+        this.descuento = descuento;
+        this.cantidad = cantidad;
+        this.precio_venta = precio_venta;
+        this.nombre = nombre;
+        this.id = id;
+    }
 }

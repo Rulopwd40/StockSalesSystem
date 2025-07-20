@@ -1,5 +1,6 @@
 package com.libcentro.demo.services;
 
+import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -9,10 +10,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.libcentro.demo.config.AppConfig;
 import com.libcentro.demo.model.Producto;
 import com.libcentro.demo.model.ProductoFStock;
 import com.libcentro.demo.model.Venta_Producto;
 import com.libcentro.demo.model.dto.*;
+import com.libcentro.demo.model.json.TicketData;
 import com.libcentro.demo.utils.GeneradorTicket;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +31,13 @@ public class VentaService implements IventaService {
 
     private final IventaRepository ventaRepository;
     private final ProductoService productoService;
+    private final JsonService<TicketData> ticketService;
 
     @Autowired
-    public VentaService( IventaRepository ventaRepository, ProductoService productoService ){
+    public VentaService( IventaRepository ventaRepository, ProductoService productoService, JsonService<TicketData> ticketService ){
         this.ventaRepository = ventaRepository;
         this.productoService = productoService;
+        this.ticketService = ticketService;
     }
 
     @Override
@@ -105,8 +110,13 @@ public class VentaService implements IventaService {
             productoService.venderProducto (productoDTO,ventaProducto.getCantidad ());
         }
 
-
-        String ticket = generadorTicket.generarTicket(venta);
+        TicketData ticketData;
+        try {
+            ticketData = ticketService.loadFromFile (AppConfig.ticket_path,TicketData.class);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException ("Error al obtener archivo de ticket");
+        }
+        String ticket = generadorTicket.generarTicket(venta,ticketData);
         generadorTicket.imprimirTicket();
     }
 

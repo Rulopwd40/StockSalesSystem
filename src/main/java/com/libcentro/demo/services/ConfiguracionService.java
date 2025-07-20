@@ -12,10 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+//Incluye configuración de aplicacion
 @Service
 public class ConfiguracionService implements IconfiguracionService {
-
-
 
     @Override
     public Map<String, String> obtenerConfiguracion() {

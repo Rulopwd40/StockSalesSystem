@@ -8,4 +8,5 @@ public interface IconfiguracionService {
     public Map<String,String> obtenerConfiguracion();
 
     public void actualizarConfiguracion(Map<String,String> configuracion);
+
 }
